@@ -1,24 +1,36 @@
-import logo from './logo.svg';
-import './App.css';
+// src/App.js
+import React from "react";
+import { Grommet, Header, Page, PageContent, PageHeader, Text } from "grommet";
+import { deepMerge } from "grommet/utils";
+import ImageUploader from "./components/ImageUploader";
+
+const theme = deepMerge({
+  global: {
+    colors: {
+      brand: "#228BE6",
+    },
+    font: {
+      family: "Roboto",
+      size: "18px",
+      height: "20px",
+    },
+  },
+});
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Grommet theme={theme} full>
+      <Page>
+        <Header background="brand" pad="small">
+          <Text size="large">FlipSnip</Text>
+        </Header>
+        <PageContent pad="large">
+          <PageHeader title="Upload Photos" />
+          {/* Include the image uploader here */}
+          <ImageUploader />
+        </PageContent>
+      </Page>
+    </Grommet>
   );
 }
 
