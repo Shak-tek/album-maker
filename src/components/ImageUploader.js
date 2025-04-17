@@ -6,122 +6,134 @@ import {
     Form,
     Grid,
     Image,
+    Spinner,
     Text,
     Button,
 } from "grommet";
 import { Add } from "grommet-icons";
 
 const MAX_IMAGES = 24;
+const CLOUDFRONT_BASE_URL =
+    process.env.REACT_APP_CLOUDFRONT_URL ||
+    "https://d3tc9brglces8j.cloudfront.net";
 
 const ImageUploader = () => {
     const [uploads, setUploads] = useState([]);
 
-    // 1. Request a presigned URL from your Lambda/API
+    // 1️⃣ Get presigned URL
     async function getPresignedUrl(file) {
-        const response = await fetch(
+        const resp = await fetch(
             "https://00z443975i.execute-api.us-east-1.amazonaws.com/prod/getPresignedUrl",
             {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    filename: file.name,
-                    filetype: file.type,
-                }),
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ filename: file.name, filetype: file.type }),
             }
         );
-        if (!response.ok) {
-            throw new Error(`Failed to get presigned URL: ${response.status}`);
-        }
-        return await response.json(); // { url, key }
+        if (!resp.ok) throw new Error(`Presign failed: ${resp.status}`);
+        return resp.json(); // { url, key }
     }
 
-    // 2. Use that presigned URL to PUT the file directly to S3
+    // 2️⃣ Upload via PUT
     async function uploadFileToS3(presignedUrl, file) {
         const res = await fetch(presignedUrl, {
             method: "PUT",
             headers: { "Content-Type": file.type },
             body: file,
         });
-        if (!res.ok) {
-            throw new Error(`Failed to upload file to S3: ${res.status}`);
-        }
+        if (!res.ok) throw new Error(`S3 PUT failed: ${res.status}`);
     }
 
-    // 3. Upload each file to S3 automatically once selected
-    const uploadToS3 = async (fileObjects) => {
-        for (const fileObj of fileObjects) {
-            // Mark the file as "uploading" immediately
-            setUploads((prev) => {
-                const updated = [...prev];
-                const index = updated.findIndex((u) => u === fileObj);
-                if (index !== -1) {
-                    updated[index].status = "uploading";
+    // 3️⃣ After PUT, start polling HEAD on the low‑res key
+    function pollForLowRes(index, lowResUrl) {
+        const handle = setInterval(async () => {
+            try {
+                const resp = await fetch(lowResUrl, { method: "HEAD" });
+                if (resp.ok) {
+                    clearInterval(handle);
+                    setUploads((prev) => {
+                        const next = [...prev];
+                        next[index] = { ...next[index], status: "ready" };
+                        return next;
+                    });
                 }
-                return updated;
+            } catch {
+                // still not ready; keep polling
+            }
+        }, 2000);
+    }
+
+    // 4️⃣ Batch‐upload then queue polling
+    const uploadBatch = async (batch) => {
+        for (const entry of batch) {
+            const { index, file } = entry;
+
+            // mark "uploading"
+            setUploads((prev) => {
+                const next = [...prev];
+                next[index] = { ...next[index], status: "uploading" };
+                return next;
             });
 
             try {
-                const { url, key } = await getPresignedUrl(fileObj.file);
-                await uploadFileToS3(url, fileObj.file);
-                console.log("Uploaded file:", fileObj.file.name, "to S3 key:", key);
+                const { url, key } = await getPresignedUrl(file);
+                await uploadFileToS3(url, file);
 
-                // Update the file object to mark it as "done"
+                // low‑res key + URL
+                const lowResKey = key.replace("original/", "low-res/");
+                const lowResUrl = `${CLOUDFRONT_BASE_URL}/${lowResKey}`;
+
+                // mark "waiting" and stash lowResUrl
                 setUploads((prev) => {
-                    const updated = [...prev];
-                    const index = updated.findIndex((u) => u === fileObj);
-                    if (index !== -1) {
-                        updated[index].status = "done";
-                    }
-                    return updated;
+                    const next = [...prev];
+                    next[index] = {
+                        ...next[index],
+                        status: "waiting",
+                        lowResUrl,
+                    };
+                    return next;
                 });
-            } catch (error) {
-                console.error("Error uploading:", fileObj.file.name, error);
-                // Mark file as error if the upload fails
+
+                // begin polling
+                pollForLowRes(index, lowResUrl);
+            } catch (e) {
+                console.error(`Upload error [${index}]`, e);
                 setUploads((prev) => {
-                    const updated = [...prev];
-                    const index = updated.findIndex((u) => u === fileObj);
-                    if (index !== -1) {
-                        updated[index].status = "error";
-                    }
-                    return updated;
+                    const next = [...prev];
+                    next[index] = { ...next[index], status: "error" };
+                    return next;
                 });
             }
         }
     };
 
-    // Called whenever user selects new files
-    const handleFileChange = (event) => {
-        if (event.target.files && event.target.files.length > 0) {
-            const fileUploads = Array.from(event.target.files).map((file) => ({
+    // When the user selects files
+    const handleFileChange = (e) => {
+        const files = Array.from(e.target.files || []);
+        if (!files.length) return;
+
+        setUploads((prev) => {
+            const start = prev.length;
+            const newEntries = files.map((file, i) => ({
                 file,
                 preview: URL.createObjectURL(file),
-                status: "pending", // initial status
+                lowResUrl: null,
+                status: "pending",   // "pending" → "uploading" → "waiting" → "ready"
+                index: start + i,
             }));
-
-            setUploads((prev) => {
-                const newUploads = [...prev, ...fileUploads];
-                // Immediately trigger upload for newly selected files
-                uploadToS3(fileUploads);
-                return newUploads;
-            });
-        }
-    };
-
-    // Example “Continue” button logic
-    const handleContinue = () => {
-        alert("Continue clicked!");
+            uploadBatch(newEntries);
+            return [...prev, ...newEntries];
+        });
     };
 
     const photosUploaded = uploads.length;
     const minimumRequired = 21;
 
-    // Build a grid with placeholders for empty slots
-    const slots = [];
-    for (let i = 0; i < MAX_IMAGES; i++) {
-        slots.push(uploads[i] || null);
-    }
+    // Build GRID slots up to MAX_IMAGES
+    const slots = Array.from(
+        { length: MAX_IMAGES },
+        (_, i) => uploads[i] || null
+    );
 
     return (
         <Box pad="medium">
@@ -133,67 +145,64 @@ const ImageUploader = () => {
                 <>
                     <Box margin={{ top: "medium" }}>
                         <Grid rows="small" columns="small" gap="small">
-                            {slots.map((slot, index) => {
+                            {slots.map((slot, i) => {
                                 if (!slot) {
-                                    // Render a placeholder cell if nothing is in this slot
                                     return (
                                         <Box
-                                            key={index}
+                                            key={i}
                                             align="center"
                                             justify="center"
                                             background="light-2"
-                                            overflow="hidden"
                                             round="xsmall"
                                             border={{ color: "light-4", size: "xsmall" }}
                                         >
-                                            <Box align="center" justify="center" fill>
-                                                <Add color="#585858" size="medium" />
-                                            </Box>
+                                            <Add color="#585858" size="medium" />
                                         </Box>
                                     );
                                 }
 
-                                const { preview, status } = slot;
-                                // Apply a grey filter if the image isn't done uploading
-                                const filterStyle =
-                                    status === "done"
-                                        ? "none"
-                                        : "grayscale(100%) opacity(0.5)";
+                                const { preview, lowResUrl, status } = slot;
+                                // grey out everything until status === "ready"
+                                const isLoading = status !== "ready";
+                                // show low-res only when ready
+                                const src = status === "ready" ? lowResUrl : preview;
+
                                 return (
                                     <Box
-                                        key={index}
-                                        align="center"
-                                        justify="center"
-                                        background="light-2"
-                                        overflow="hidden"
+                                        key={i}
                                         round="xsmall"
                                         border={{ color: "light-4", size: "xsmall" }}
+                                        overflow="hidden"
                                         style={{ position: "relative" }}
                                     >
                                         <Image
+                                            src={src}
+                                            alt={`img-${i}`}
                                             fit="cover"
-                                            src={preview}
-                                            alt={`Preview ${index}`}
                                             style={{
                                                 width: "100%",
                                                 height: "100%",
-                                                filter: filterStyle,
+                                                filter: isLoading
+                                                    ? "grayscale(100%) opacity(0.4)"
+                                                    : "none",
                                             }}
                                         />
-                                        {/* Show an overlay if not done */}
-                                        {status !== "done" && (
+                                        {isLoading && (
                                             <Box
                                                 fill
                                                 align="center"
                                                 justify="center"
                                                 background={{ color: "dark-2", opacity: "strong" }}
-                                                style={{
-                                                    position: "absolute",
-                                                    top: 0,
-                                                    left: 0,
-                                                }}
+                                                style={{ position: "absolute", top: 0, left: 0 }}
                                             >
-                                                <Text color="light-1">Uploading...</Text>
+                                                <Spinner />
+                                                <Text margin={{ top: "small" }}>
+                                                    {status === "uploading"
+                                                        ? "Uploading…"
+                                                        : status === "waiting"
+                                                            ? "Finalizing…"
+                                                            : "Queued…"}
+                                                </Text>
                                             </Box>
                                         )}
                                     </Box>
@@ -202,7 +211,6 @@ const ImageUploader = () => {
                         </Grid>
                     </Box>
 
-                    {/* Footer with photos count and Continue button */}
                     <Box
                         direction="row"
                         align="center"
@@ -216,7 +224,7 @@ const ImageUploader = () => {
                             <Text>{photosUploaded} Photos Uploaded</Text>
                             <Text>{minimumRequired} Minimum Required</Text>
                         </Box>
-                        <Button label="Continue" onClick={handleContinue} />
+                        <Button label="Continue" onClick={() => alert("Continue")} />
                     </Box>
                 </>
             )}
