@@ -1,5 +1,5 @@
 // src/components/ImageUploader.js
-import React, { useState } from "react";
+import React from "react";
 import {
     Box,
     FileInput,
@@ -18,9 +18,7 @@ const RESIZER_API_URL =
     process.env.REACT_APP_RESIZER_API_URL ||
     "https://rd654zmm4e.execute-api.us-east-1.amazonaws.com/prod/resize";
 
-const ImageUploader = () => {
-    const [uploads, setUploads] = useState([]);
-
+const ImageUploader = ({ uploads, setUploads, onContinue }) => {
     // 1️⃣ ask your Lambda for a presigned PUT URL
     async function getPresignedUrl(file) {
         const resp = await fetch(
@@ -48,7 +46,6 @@ const ImageUploader = () => {
     // 3️⃣ upload & then switch to the resize URL
     const uploadBatch = async (batch) => {
         for (const { index, file } of batch) {
-            // mark uploading
             setUploads((prev) => {
                 const next = [...prev];
                 next[index] = { ...next[index], status: "uploading" };
@@ -59,17 +56,15 @@ const ImageUploader = () => {
                 const { url, key } = await getPresignedUrl(file);
                 await uploadFileToS3(url, file);
 
-                // strip the "original/" prefix and build your resize endpoint URL
                 const keyWithoutPrefix = key.replace(/^original\//, "");
                 const encodedKey = encodeURIComponent(keyWithoutPrefix);
                 const resizeUrl = `${RESIZER_API_URL}/${encodedKey}?width=300`;
 
-                // switch to waiting + set displayUrl
                 setUploads((prev) => {
                     const next = [...prev];
                     next[index] = {
                         ...next[index],
-                        status: "waiting",     // waiting for browser to fetch the resized image
+                        status: "waiting",
                         displayUrl: resizeUrl,
                     };
                     return next;
@@ -85,7 +80,6 @@ const ImageUploader = () => {
         }
     };
 
-    // when the user picks files
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files || []);
         if (!files.length) return;
@@ -96,9 +90,10 @@ const ImageUploader = () => {
                 file,
                 preview: URL.createObjectURL(file),
                 displayUrl: null,
-                status: "pending",       // pending → uploading → waiting → loaded/error
+                status: "pending",
                 index: start + i,
             }));
+            // kick off uploads immediately
             uploadBatch(batch);
             return [...prev, ...batch];
         });
@@ -136,7 +131,6 @@ const ImageUploader = () => {
 
                                 const { preview, displayUrl, status } = slot;
                                 const isLoading = status !== "loaded";
-                                // use the dynamic‐resize URL once we have it
                                 const src = displayUrl || preview;
 
                                 return (
@@ -206,7 +200,8 @@ const ImageUploader = () => {
                             <Text>{photosUploaded} Photos Uploaded</Text>
                             <Text>{minimumRequired} Minimum Required</Text>
                         </Box>
-                        <Button label="Continue" onClick={() => alert("Continue")} />
+                        {/* use the passed-in callback instead of alert */}
+                        <Button label="Continue" onClick={onContinue} />
                     </Box>
                 </>
             )}

@@ -1,0 +1,141 @@
+body {
+    font-family: sans-serif;
+    background: #f9f9f9;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+}
+
+.row {
+    display: flex;
+    width: 100%;
+    max-width: 1020px;
+}
+
+.photo-page {
+    position: relative;
+    width: 500px;
+    height: 375px;
+    background-color: #3c8e97;
+    border: 0px solid #ccc;
+    border-radius: 0px;
+    overflow: hidden;
+    touch-action: none;
+}
+
+.photo-slot {
+    position: absolute;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.photo-slot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    user-select: none;
+    pointer-events: none;
+}
+
+/* Row 1 */
+.slot1 {
+    top: 6.7%;
+    left: 5.1%;
+    width: 43.7%;
+    height: 86.4%;
+}
+
+.slot2 {
+    top: 6.7%;
+    left: 51.1%;
+    width: 43.7%;
+    height: 41.7%;
+}
+
+.slot3 {
+    top: 51.5%;
+    left: 51.1%;
+    width: 43.7%;
+    height: 41.7%;
+}
+
+.slot4 {
+    top: 10%;
+    left: 5%;
+    width: 42%;
+    height: 80%;
+}
+
+.slot5 {
+    top: 10%;
+    left: 53%;
+    width: 42%;
+    height: 80%;
+}
+
+/* Row 2 */
+.slot6 {
+    top: 5%;
+    left: 3%;
+    width: 45%;
+    height: 45%;
+}
+
+.slot7 {
+    top: 5%;
+    left: 52%;
+    width: 45%;
+    height: 45%;
+}
+
+.slot8 {
+    top: 52%;
+    left: 3%;
+    width: 45%;
+    height: 45%;
+}
+
+.slot9 {
+    top: 52%;
+    left: 52%;
+    width: 45%;
+    height: 45%;
+}
+
+.slot10 {
+    top: 10%;
+    left: 10%;
+    width: 80%;
+    height: 80%;
+}
+
+#drag-preview {
+    position: fixed;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    pointer-events: none;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    display: none;
+    z-index: 1000;
+    transform: translate(-50%, -50%);
+}
+
+#drag-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.highlight {
+    outline: 3px dashed #ffffff;
+}
