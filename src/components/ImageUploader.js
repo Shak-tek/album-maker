@@ -13,14 +13,15 @@ import {
 import { Add } from "grommet-icons";
 
 const MAX_IMAGES = 24;
-const CLOUDFRONT_BASE_URL =
-    process.env.REACT_APP_CLOUDFRONT_URL ||
-    "https://d3tc9brglces8j.cloudfront.net";
+// your API Gateway invoke URL + /resize
+const RESIZER_API_URL =
+    process.env.REACT_APP_RESIZER_API_URL ||
+    "https://rd654zmm4e.execute-api.us-east-1.amazonaws.com/prod/resize";
 
 const ImageUploader = () => {
     const [uploads, setUploads] = useState([]);
 
-    // 1️⃣ Get presigned URL
+    // 1️⃣ ask your Lambda for a presigned PUT URL
     async function getPresignedUrl(file) {
         const resp = await fetch(
             "https://00z443975i.execute-api.us-east-1.amazonaws.com/prod/getPresignedUrl",
@@ -34,7 +35,7 @@ const ImageUploader = () => {
         return resp.json(); // { url, key }
     }
 
-    // 2️⃣ Upload via PUT
+    // 2️⃣ PUT the file into S3
     async function uploadFileToS3(presignedUrl, file) {
         const res = await fetch(presignedUrl, {
             method: "PUT",
@@ -44,31 +45,10 @@ const ImageUploader = () => {
         if (!res.ok) throw new Error(`S3 PUT failed: ${res.status}`);
     }
 
-    // 3️⃣ After PUT, start polling HEAD on the low‑res key
-    function pollForLowRes(index, lowResUrl) {
-        const handle = setInterval(async () => {
-            try {
-                const resp = await fetch(lowResUrl, { method: "HEAD" });
-                if (resp.ok) {
-                    clearInterval(handle);
-                    setUploads((prev) => {
-                        const next = [...prev];
-                        next[index] = { ...next[index], status: "ready" };
-                        return next;
-                    });
-                }
-            } catch {
-                // still not ready; keep polling
-            }
-        }, 2000);
-    }
-
-    // 4️⃣ Batch‐upload then queue polling
+    // 3️⃣ upload & then switch to the resize URL
     const uploadBatch = async (batch) => {
-        for (const entry of batch) {
-            const { index, file } = entry;
-
-            // mark "uploading"
+        for (const { index, file } of batch) {
+            // mark uploading
             setUploads((prev) => {
                 const next = [...prev];
                 next[index] = { ...next[index], status: "uploading" };
@@ -79,25 +59,23 @@ const ImageUploader = () => {
                 const { url, key } = await getPresignedUrl(file);
                 await uploadFileToS3(url, file);
 
-                // low‑res key + URL
-                const lowResKey = key.replace("original/", "low-res/");
-                const lowResUrl = `${CLOUDFRONT_BASE_URL}/${lowResKey}`;
+                // strip the "original/" prefix and build your resize endpoint URL
+                const keyWithoutPrefix = key.replace(/^original\//, "");
+                const encodedKey = encodeURIComponent(keyWithoutPrefix);
+                const resizeUrl = `${RESIZER_API_URL}/${encodedKey}?width=300`;
 
-                // mark "waiting" and stash lowResUrl
+                // switch to waiting + set displayUrl
                 setUploads((prev) => {
                     const next = [...prev];
                     next[index] = {
                         ...next[index],
-                        status: "waiting",
-                        lowResUrl,
+                        status: "waiting",     // waiting for browser to fetch the resized image
+                        displayUrl: resizeUrl,
                     };
                     return next;
                 });
-
-                // begin polling
-                pollForLowRes(index, lowResUrl);
-            } catch (e) {
-                console.error(`Upload error [${index}]`, e);
+            } catch (err) {
+                console.error(`Upload error [${index}]`, err);
                 setUploads((prev) => {
                     const next = [...prev];
                     next[index] = { ...next[index], status: "error" };
@@ -107,33 +85,28 @@ const ImageUploader = () => {
         }
     };
 
-    // When the user selects files
+    // when the user picks files
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files || []);
         if (!files.length) return;
 
         setUploads((prev) => {
             const start = prev.length;
-            const newEntries = files.map((file, i) => ({
+            const batch = files.map((file, i) => ({
                 file,
                 preview: URL.createObjectURL(file),
-                lowResUrl: null,
-                status: "pending",   // "pending" → "uploading" → "waiting" → "ready"
+                displayUrl: null,
+                status: "pending",       // pending → uploading → waiting → loaded/error
                 index: start + i,
             }));
-            uploadBatch(newEntries);
-            return [...prev, ...newEntries];
+            uploadBatch(batch);
+            return [...prev, ...batch];
         });
     };
 
     const photosUploaded = uploads.length;
     const minimumRequired = 21;
-
-    // Build GRID slots up to MAX_IMAGES
-    const slots = Array.from(
-        { length: MAX_IMAGES },
-        (_, i) => uploads[i] || null
-    );
+    const slots = Array.from({ length: MAX_IMAGES }, (_, i) => uploads[i] || null);
 
     return (
         <Box pad="medium">
@@ -161,11 +134,10 @@ const ImageUploader = () => {
                                     );
                                 }
 
-                                const { preview, lowResUrl, status } = slot;
-                                // grey out everything until status === "ready"
-                                const isLoading = status !== "ready";
-                                // show low-res only when ready
-                                const src = status === "ready" ? lowResUrl : preview;
+                                const { preview, displayUrl, status } = slot;
+                                const isLoading = status !== "loaded";
+                                // use the dynamic‐resize URL once we have it
+                                const src = displayUrl || preview;
 
                                 return (
                                     <Box
@@ -186,7 +158,17 @@ const ImageUploader = () => {
                                                     ? "grayscale(100%) opacity(0.4)"
                                                     : "none",
                                             }}
+                                            onLoad={() => {
+                                                if (status === "waiting") {
+                                                    setUploads((prev) => {
+                                                        const next = [...prev];
+                                                        next[i] = { ...next[i], status: "loaded" };
+                                                        return next;
+                                                    });
+                                                }
+                                            }}
                                         />
+
                                         {isLoading && (
                                             <Box
                                                 fill
@@ -200,7 +182,7 @@ const ImageUploader = () => {
                                                     {status === "uploading"
                                                         ? "Uploading…"
                                                         : status === "waiting"
-                                                            ? "Finalizing…"
+                                                            ? "Resizing…"
                                                             : "Queued…"}
                                                 </Text>
                                             </Box>
