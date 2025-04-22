@@ -1,6 +1,6 @@
 // src/App.js
 import React, { useState } from 'react';
-import { Grommet, Header, Page, PageContent, PageHeader, Text } from "grommet";
+import { Grommet, Header, Page, PageContent, Text } from "grommet";
 import { deepMerge } from "grommet/utils";
 import ImageUploader from "./components/ImageUploader";
 import EditorPage from './components/EditorPage';
