@@ -1,16 +1,13 @@
-body {
-    font-family: sans-serif;
-    background: #f9f9f9;
-    padding: 20px;
-    display: flex;
-    justify-content: center;
-}
+/* src/components/EditorPage.css */
 
+/* container & rows */
 .container {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    align-items: center;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    /* space between pages */
+    align-items: start;
+    /* align toolbars/photos at top of each cell */
 }
 
 .row {
@@ -19,17 +16,17 @@ body {
     max-width: 1020px;
 }
 
+/* photo pages */
 .photo-page {
     position: relative;
     width: 500px;
     height: 375px;
-    background-color: #3c8e97;
-    border: 0px solid #ccc;
-    border-radius: 0px;
     overflow: hidden;
     touch-action: none;
+    /* background-color / background-image will be set inline via React */
 }
 
+/* your slots */
 .photo-slot {
     position: absolute;
     border-radius: 4px;
@@ -45,7 +42,7 @@ body {
     pointer-events: none;
 }
 
-/* Row 1 */
+/* your exact slot positions from the snippet */
 .slot1 {
     top: 6.7%;
     left: 5.1%;
@@ -81,7 +78,6 @@ body {
     height: 80%;
 }
 
-/* Row 2 */
 .slot6 {
     top: 5%;
     left: 3%;
@@ -117,6 +113,7 @@ body {
     height: 80%;
 }
 
+/* drag preview */
 #drag-preview {
     position: fixed;
     width: 80px;
@@ -136,6 +133,29 @@ body {
     object-fit: cover;
 }
 
+/* highlight target slot */
 .highlight {
     outline: 3px dashed #ffffff;
 }
+/* wrap each page + toolbar together */
+.page-wrapper {
+  display: inline-block;
+  position: relative;
+  margin: 10px;
+  width: 100%;
+}
+
+.page-wrapper .toolbar {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: #f9f9f9;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+

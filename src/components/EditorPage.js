@@ -1,33 +1,51 @@
 // src/components/EditorPage.js
 import React, { useState, useEffect, useRef } from 'react';
+import { Box, Button } from 'grommet';
+import { Template as TemplateIcon } from 'grommet-icons';
+import TemplateModal from './TemplateModal';
+import { pageTemplates } from '../templates/pageTemplates';
 import './EditorPage.css';
 
-const TEMPLATE_SLOTS = [
-    // page 1
-    [0, 1, 2],
-    // page 2
-    [3, 4],
-    // page 3
-    [5, 6, 7, 8],
-    // page 4
-    [9],
-];
+export default function EditorPage({ images: incomingImages }) {
+    const [slots, setSlots] = useState([]);
+    const [pageSettings, setPageSettings] = useState([]);
+    const [showTemplateModal, setShowTemplateModal] = useState(false);
+    const [modalPage, setModalPage] = useState(null);
 
-export default function EditorPage({ images }) {
-    const [slots, setSlots] = useState(Array(10).fill(null));
+    // — refs for drag preview
     const previewRef = useRef();
     const previewImgRef = useRef();
     const dragging = useRef(false);
     const draggedIndex = useRef(null);
 
+    // — initialize slots & settings
     useEffect(() => {
-        const filled = images.slice(0, 10);
-        setSlots([
-            ...filled,
-            ...Array(10 - filled.length).fill(null)
-        ]);
-    }, [images]);
+        const savedSlots = JSON.parse(localStorage.getItem('editorSlots') || 'null');
+        const imgs = Array.isArray(savedSlots) && savedSlots.length
+            ? savedSlots
+            : incomingImages.slice();
 
+        const savedSettings = JSON.parse(localStorage.getItem('pageSettings') || 'null');
+        const settings = Array.isArray(savedSettings) && savedSettings.length
+            ? savedSettings
+            : imgs.map(() => ({
+                templateId: 2,  // default to your “4‑up” template
+            }));
+
+        setSlots(imgs);
+        setPageSettings(settings);
+    }, [incomingImages]);
+
+    // — persist when slots or settings change
+    useEffect(() => {
+        localStorage.setItem('editorSlots', JSON.stringify(slots));
+    }, [slots]);
+
+    useEffect(() => {
+        localStorage.setItem('pageSettings', JSON.stringify(pageSettings));
+    }, [pageSettings]);
+
+    // — drag utilities
     const getTouchCoords = e => {
         if (e.touches?.length) {
             return { x: e.touches[0].clientX, y: e.touches[0].clientY };
@@ -37,12 +55,12 @@ export default function EditorPage({ images }) {
 
     const startDrag = (idx, e) => {
         e.stopPropagation();
+        if (!slots[idx]) return;
         dragging.current = true;
         draggedIndex.current = idx;
         previewImgRef.current.src = slots[idx];
         previewRef.current.style.display = 'block';
         movePreview(e);
-
         document.addEventListener('mousemove', movePreview);
         document.addEventListener('mouseup', handleDrop);
         document.addEventListener('touchmove', movePreview, { passive: false });
@@ -54,10 +72,7 @@ export default function EditorPage({ images }) {
         const { x, y } = getTouchCoords(e);
         previewRef.current.style.left = `${x}px`;
         previewRef.current.style.top = `${y}px`;
-
-        document.querySelectorAll('.photo-slot.highlight')
-            .forEach(el => el.classList.remove('highlight'));
-
+        document.querySelectorAll('.photo-slot.highlight').forEach(el => el.classList.remove('highlight'));
         const over = document.elementFromPoint(x, y)?.closest('.photo-slot');
         if (over) over.classList.add('highlight');
         if (e.cancelable) e.preventDefault();
@@ -68,12 +83,12 @@ export default function EditorPage({ images }) {
         const { x, y } = getTouchCoords(e);
         const over = document.elementFromPoint(x, y)?.closest('.photo-slot');
         if (over && over.dataset.index != null) {
-            const target = parseInt(over.dataset.index, 10);
-            const from = draggedIndex.current;
-            if (from !== target) {
-                setSlots(s => {
-                    const next = [...s];
-                    [next[from], next[target]] = [next[target], next[from]];
+            const tgt = Number(over.dataset.index);
+            const src = draggedIndex.current;
+            if (src !== tgt) {
+                setSlots(arr => {
+                    const next = [...arr];
+                    [next[src], next[tgt]] = [next[tgt], next[src]];
                     return next;
                 });
             }
@@ -83,31 +98,50 @@ export default function EditorPage({ images }) {
 
     const endDrag = () => {
         dragging.current = false;
-        draggedIndex.current = null;
         previewRef.current.style.display = 'none';
-        document.querySelectorAll('.photo-slot.highlight')
-            .forEach(el => el.classList.remove('highlight'));
-
+        document.querySelectorAll('.photo-slot.highlight').forEach(el => el.classList.remove('highlight'));
         document.removeEventListener('mousemove', movePreview);
         document.removeEventListener('mouseup', handleDrop);
         document.removeEventListener('touchmove', movePreview);
         document.removeEventListener('touchend', handleDrop);
     };
 
-    // group pages into rows of 2
-    const pageRows = [];
-    for (let i = 0; i < TEMPLATE_SLOTS.length; i += 2) {
-        pageRows.push(TEMPLATE_SLOTS.slice(i, i + 2));
-    }
+    // — template modal handlers
+    const openTemplateModal = pageIdx => {
+        if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+        setModalPage(pageIdx);
+        setShowTemplateModal(true);
+    };
+    const pickTemplate = (pageIdx, tmplId) => {
+        setPageSettings(ps => ps.map((s, i) =>
+            i === pageIdx ? { ...s, templateId: tmplId } : s
+        ));
+        setShowTemplateModal(false);
+    };
 
     return (
         <>
             <div className="container">
-                {pageRows.map((pages, rowIdx) => (
-                    <div className="row" key={rowIdx}>
-                        {pages.map((slotIndices, pi) => (
-                            <div className="photo-page" key={rowIdx * 2 + pi}>
-                                {slotIndices.map(idx => (
+                {pageSettings.map((setting, pageIdx) => {
+                    // look up the chosen template
+                    const tmpl = pageTemplates.find(t => t.id === setting.templateId);
+                    // **always** use tmpl.slots here:
+                    const indices = tmpl.slots;
+
+                    return (
+                        <div key={pageIdx} className="page-wrapper">
+                            {/* per‑page toolbar */}
+                            <Box className="toolbar" direction="row" gap="small" align="center">
+                                <Button
+                                    icon={<TemplateIcon />}
+                                    tip="Change layout"
+                                    onClick={() => openTemplateModal(pageIdx)}
+                                />
+                            </Box>
+
+                            {/* photo canvas */}
+                            <div className="photo-page">
+                                {indices.map(idx => (
                                     <div
                                         key={idx}
                                         className={`photo-slot slot${idx + 1}`}
@@ -119,14 +153,24 @@ export default function EditorPage({ images }) {
                                     </div>
                                 ))}
                             </div>
-                        ))}
-                    </div>
-                ))}
+                        </div>
+                    );
+                })}
             </div>
 
+            {/* drag preview */}
             <div id="drag-preview" ref={previewRef}>
                 <img ref={previewImgRef} alt="" />
             </div>
+
+            {/* template picker */}
+            {showTemplateModal && (
+                <TemplateModal
+                    templates={pageTemplates}
+                    onSelect={id => pickTemplate(modalPage, id)}
+                    onClose={() => setShowTemplateModal(false)}
+                />
+            )}
         </>
     );
 }

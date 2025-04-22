@@ -3,23 +3,18 @@ import React from "react";
 import {
     Box,
     FileInput,
-    Form,
     Grid,
     Image,
     Spinner,
     Text,
     Button,
 } from "grommet";
-import { Add } from "grommet-icons";
 
-const MAX_IMAGES = 24;
-// your API Gateway invoke URL + /resize
 const RESIZER_API_URL =
     process.env.REACT_APP_RESIZER_API_URL ||
     "https://rd654zmm4e.execute-api.us-east-1.amazonaws.com/prod/resize";
 
 const ImageUploader = ({ uploads, setUploads, onContinue }) => {
-    // 1️⃣ ask your Lambda for a presigned PUT URL
     async function getPresignedUrl(file) {
         const resp = await fetch(
             "https://00z443975i.execute-api.us-east-1.amazonaws.com/prod/getPresignedUrl",
@@ -30,12 +25,11 @@ const ImageUploader = ({ uploads, setUploads, onContinue }) => {
             }
         );
         if (!resp.ok) throw new Error(`Presign failed: ${resp.status}`);
-        return resp.json(); // { url, key }
+        return resp.json();
     }
 
-    // 2️⃣ PUT the file into S3
-    async function uploadFileToS3(presignedUrl, file) {
-        const res = await fetch(presignedUrl, {
+    async function uploadFileToS3(url, file) {
+        const res = await fetch(url, {
             method: "PUT",
             headers: { "Content-Type": file.type },
             body: file,
@@ -43,7 +37,6 @@ const ImageUploader = ({ uploads, setUploads, onContinue }) => {
         if (!res.ok) throw new Error(`S3 PUT failed: ${res.status}`);
     }
 
-    // 3️⃣ upload & then switch to the resize URL
     const uploadBatch = async (batch) => {
         for (const { index, file } of batch) {
             setUploads((prev) => {
@@ -83,109 +76,87 @@ const ImageUploader = ({ uploads, setUploads, onContinue }) => {
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files || []);
         if (!files.length) return;
-
         setUploads((prev) => {
             const start = prev.length;
             const batch = files.map((file, i) => ({
+                index: start + i,
                 file,
                 preview: URL.createObjectURL(file),
                 displayUrl: null,
                 status: "pending",
-                index: start + i,
             }));
-            // kick off uploads immediately
             uploadBatch(batch);
             return [...prev, ...batch];
         });
     };
 
-    const photosUploaded = uploads.length;
-    const minimumRequired = 21;
-    const slots = Array.from({ length: MAX_IMAGES }, (_, i) => uploads[i] || null);
-
     return (
         <Box pad="medium">
-            <Form>
-                <FileInput name="file" multiple onChange={handleFileChange} />
-            </Form>
+            {/* only show the file picker if there are no uploads yet */}
+            {uploads.length === 0 && (
+                <Box margin={{ bottom: "medium" }}>
+                    <FileInput name="file" multiple onChange={handleFileChange} />
+                </Box>
+            )}
 
             {uploads.length > 0 && (
                 <>
-                    <Box margin={{ top: "medium" }}>
-                        <Grid rows="small" columns="small" gap="small">
-                            {slots.map((slot, i) => {
-                                if (!slot) {
-                                    return (
+                    <Grid rows="small" columns="small" gap="small">
+                        {uploads.map(({ preview, displayUrl, status }, i) => {
+                            const isLoading = status !== "loaded";
+                            const src = displayUrl || preview;
+                            return (
+                                <Box
+                                    key={i}
+                                    round="xsmall"
+                                    border={{ color: "light-4", size: "xsmall" }}
+                                    overflow="hidden"
+                                    style={{ position: "relative" }}
+                                >
+                                    <Image
+                                        src={src}
+                                        alt={`img-${i}`}
+                                        fit="cover"
+                                        style={{
+                                            width: "100%",
+                                            height: "100%",
+                                            filter: isLoading
+                                                ? "grayscale(100%) opacity(0.4)"
+                                                : undefined,
+                                        }}
+                                        onLoad={() => {
+                                            if (status === "waiting") {
+                                                setUploads((prev) => {
+                                                    const next = [...prev];
+                                                    next[i] = { ...next[i], status: "loaded" };
+                                                    return next;
+                                                });
+                                            }
+                                        }}
+                                    />
+
+                                    {isLoading && (
                                         <Box
-                                            key={i}
+                                            fill
                                             align="center"
                                             justify="center"
-                                            background="light-2"
-                                            round="xsmall"
-                                            border={{ color: "light-4", size: "xsmall" }}
+                                            background={{ color: "dark-2", opacity: "strong" }}
+                                            style={{ position: "absolute", top: 0, left: 0 }}
                                         >
-                                            <Add color="#585858" size="medium" />
+                                            <Spinner />
+                                            <Text margin={{ top: "small" }}>
+                                                {status === "uploading"
+                                                    ? "Uploading…"
+                                                    : status === "waiting"
+                                                        ? "Resizing…"
+                                                        : "Queued…"}
+                                            </Text>
                                         </Box>
-                                    );
-                                }
-
-                                const { preview, displayUrl, status } = slot;
-                                const isLoading = status !== "loaded";
-                                const src = displayUrl || preview;
-
-                                return (
-                                    <Box
-                                        key={i}
-                                        round="xsmall"
-                                        border={{ color: "light-4", size: "xsmall" }}
-                                        overflow="hidden"
-                                        style={{ position: "relative" }}
-                                    >
-                                        <Image
-                                            src={src}
-                                            alt={`img-${i}`}
-                                            fit="cover"
-                                            style={{
-                                                width: "100%",
-                                                height: "100%",
-                                                filter: isLoading
-                                                    ? "grayscale(100%) opacity(0.4)"
-                                                    : "none",
-                                            }}
-                                            onLoad={() => {
-                                                if (status === "waiting") {
-                                                    setUploads((prev) => {
-                                                        const next = [...prev];
-                                                        next[i] = { ...next[i], status: "loaded" };
-                                                        return next;
-                                                    });
-                                                }
-                                            }}
-                                        />
-
-                                        {isLoading && (
-                                            <Box
-                                                fill
-                                                align="center"
-                                                justify="center"
-                                                background={{ color: "dark-2", opacity: "strong" }}
-                                                style={{ position: "absolute", top: 0, left: 0 }}
-                                            >
-                                                <Spinner />
-                                                <Text margin={{ top: "small" }}>
-                                                    {status === "uploading"
-                                                        ? "Uploading…"
-                                                        : status === "waiting"
-                                                            ? "Resizing…"
-                                                            : "Queued…"}
-                                                </Text>
-                                            </Box>
-                                        )}
-                                    </Box>
-                                );
-                            })}
-                        </Grid>
-                    </Box>
+                                    )}
+                                </Box>
+                            );
+                        })}
+                    </Grid>
 
                     <Box
                         direction="row"
@@ -196,12 +167,8 @@ const ImageUploader = ({ uploads, setUploads, onContinue }) => {
                         background="light-1"
                         round="xsmall"
                     >
-                        <Box direction="row" gap="medium">
-                            <Text>{photosUploaded} Photos Uploaded</Text>
-                            <Text>{minimumRequired} Minimum Required</Text>
-                        </Box>
-                        {/* use the passed-in callback instead of alert */}
-                        <Button label="Continue" onClick={onContinue} />
+                        <Text>{uploads.length} Photos Uploaded</Text>
+                        <Button label="Continue" onClick={onContinue} primary />
                     </Box>
                 </>
             )}
