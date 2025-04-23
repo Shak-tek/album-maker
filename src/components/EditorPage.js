@@ -68,7 +68,7 @@ export default function EditorPage({ images: incomingImages }) {
                 }
             }
         });
-    }, [slots]);
+    }, [slots, pageSettings]);
 
     // persist
     useEffect(() => {
