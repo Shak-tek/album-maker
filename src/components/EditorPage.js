@@ -1,8 +1,9 @@
-// src/components/EditorPage.js
 import React, { useState, useEffect, useRef } from 'react';
 import { Box, Button } from 'grommet';
-import { Template as TemplateIcon } from 'grommet-icons';
+import { Template as TemplateIcon, Brush } from 'grommet-icons';
 import TemplateModal from './TemplateModal';
+import ThemeModal from './ThemeModal';
+import ColorThief from 'color-thief-browser';
 import { pageTemplates } from '../templates/pageTemplates';
 import './EditorPage.css';
 
@@ -11,14 +12,15 @@ export default function EditorPage({ images: incomingImages }) {
     const [pageSettings, setPageSettings] = useState([]);
     const [showTemplateModal, setShowTemplateModal] = useState(false);
     const [modalPage, setModalPage] = useState(null);
+    const [showThemeModal, setShowThemeModal] = useState(false);
+    const [modalThemePage, setModalThemePage] = useState(null);
 
-    // — refs for drag preview
     const previewRef = useRef();
     const previewImgRef = useRef();
     const dragging = useRef(false);
     const draggedIndex = useRef(null);
 
-    // — initialize slots & settings
+    // initialize slots & settings
     useEffect(() => {
         const savedSlots = JSON.parse(localStorage.getItem('editorSlots') || 'null');
         const imgs = Array.isArray(savedSlots) && savedSlots.length
@@ -26,16 +28,12 @@ export default function EditorPage({ images: incomingImages }) {
             : incomingImages.slice();
 
         const savedSettings = JSON.parse(localStorage.getItem('pageSettings') || 'null');
-        // build a default settings array:
-        const defaultSettings = imgs.map((_, i) => {
-            // force the “one-up” template on pages 0 and 1:
-            if (i === 0 || i === 1) {
-                return { templateId: 3 };
-            }
-            // otherwise pick any template at random:
-            const rnd = Math.floor(Math.random() * pageTemplates.length);
-            return { templateId: pageTemplates[rnd].id };
-        });
+        const defaultSettings = imgs.map((_, i) => ({
+            templateId: i < 2
+                ? 1
+                : pageTemplates[Math.floor(Math.random() * pageTemplates.length)].id,
+            theme: { mode: 'dynamic', color: null }
+        }));
         const settings = Array.isArray(savedSettings) && savedSettings.length
             ? savedSettings
             : defaultSettings;
@@ -44,11 +42,38 @@ export default function EditorPage({ images: incomingImages }) {
         setPageSettings(settings);
     }, [incomingImages]);
 
-    // — persist when slots or settings change
+    // auto-detect dominant color for “dynamic” themes
+    useEffect(() => {
+        pageSettings.forEach(async (ps, pageIdx) => {
+            if (ps.theme.mode === 'dynamic') {
+                const tmpl = pageTemplates.find(t => t.id === ps.templateId);
+                const imgIdx = tmpl.slots[0];
+                const url = slots[imgIdx];
+                if (!url) return;
+                const img = new Image();
+                img.crossOrigin = 'Anonymous';
+                img.src = url;
+                await img.decode();
+                const [r, g, b] = new ColorThief().getColor(img);
+                const rgb = `rgb(${r}, ${g}, ${b})`;
+                if (ps.theme.color !== rgb) {
+                    setPageSettings(psArr => {
+                        const copy = [...psArr];
+                        copy[pageIdx] = {
+                            ...copy[pageIdx],
+                            theme: { mode: 'dynamic', color: rgb }
+                        };
+                        return copy;
+                    });
+                }
+            }
+        });
+    }, [slots]);
+
+    // persist
     useEffect(() => {
         localStorage.setItem('editorSlots', JSON.stringify(slots));
     }, [slots]);
-
     useEffect(() => {
         localStorage.setItem('pageSettings', JSON.stringify(pageSettings));
     }, [pageSettings]);
@@ -114,7 +139,7 @@ export default function EditorPage({ images: incomingImages }) {
         document.removeEventListener('touchend', handleDrop);
     };
 
-    // — template modal handlers
+    // template handlers
     const openTemplateModal = pageIdx => {
         if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
         setModalPage(pageIdx);
@@ -127,29 +152,48 @@ export default function EditorPage({ images: incomingImages }) {
         setShowTemplateModal(false);
     };
 
+    // theme handlers
+    const openThemeModal = pageIdx => {
+        setModalThemePage(pageIdx);
+        setShowThemeModal(true);
+    };
+    const pickTheme = (pageIdx, { mode, color }) => {
+        setPageSettings(ps => ps.map((s, i) =>
+            i === pageIdx
+                ? { ...s, theme: { mode, color: mode === 'dynamic' ? null : color } }
+                : s
+        ));
+        setShowThemeModal(false);
+    };
+
     return (
         <>
             <div className="container">
                 {pageSettings.map((setting, pageIdx) => {
-                    // look up the chosen template
                     const tmpl = pageTemplates.find(t => t.id === setting.templateId);
-                    // **always** use tmpl.slots here:
-                    const indices = tmpl.slots;
+                    const bg = setting.theme.color || 'transparent';
 
                     return (
-                        <div key={pageIdx} className="page-wrapper">
-                            {/* per‑page toolbar */}
+                        <div
+                            key={pageIdx}
+                            className="page-wrapper"
+                            style={{ backgroundColor: bg }}
+                        >
                             <Box className="toolbar" direction="row" gap="small" align="center">
                                 <Button
                                     icon={<TemplateIcon />}
                                     tip="Change layout"
                                     onClick={() => openTemplateModal(pageIdx)}
                                 />
+                                <Button
+                                    icon={<Brush />}
+                                    tip="Change theme"
+                                    onClick={() => openThemeModal(pageIdx)}
+                                />
                             </Box>
 
-                            {/* photo canvas */}
                             <div className="photo-page">
-                                {indices.map(idx => (
+                                {tmpl.slots.map(idx => (
                                     <div
                                         key={idx}
                                         className={`photo-slot slot${idx + 1}`}
@@ -166,17 +210,22 @@ export default function EditorPage({ images: incomingImages }) {
                 })}
             </div>
 
-            {/* drag preview */}
             <div id="drag-preview" ref={previewRef}>
                 <img ref={previewImgRef} alt="" />
             </div>
 
-            {/* template picker */}
             {showTemplateModal && (
                 <TemplateModal
                     templates={pageTemplates}
                     onSelect={id => pickTemplate(modalPage, id)}
                     onClose={() => setShowTemplateModal(false)}
+                />
+            )}
+            {showThemeModal && (
+                <ThemeModal
+                    pageIdx={modalThemePage}
+                    onSelect={pickTheme}
+                    onClose={() => setShowThemeModal(false)}
                 />
             )}
         </>
