@@ -26,11 +26,19 @@ export default function EditorPage({ images: incomingImages }) {
             : incomingImages.slice();
 
         const savedSettings = JSON.parse(localStorage.getItem('pageSettings') || 'null');
+        // build a default settings array:
+        const defaultSettings = imgs.map((_, i) => {
+            // force the “one-up” template on pages 0 and 1:
+            if (i === 0 || i === 1) {
+                return { templateId: 3 };
+            }
+            // otherwise pick any template at random:
+            const rnd = Math.floor(Math.random() * pageTemplates.length);
+            return { templateId: pageTemplates[rnd].id };
+        });
         const settings = Array.isArray(savedSettings) && savedSettings.length
             ? savedSettings
-            : imgs.map(() => ({
-                templateId: 2,  // default to your “4‑up” template
-            }));
+            : defaultSettings;
 
         setSlots(imgs);
         setPageSettings(settings);
