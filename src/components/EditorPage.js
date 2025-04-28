@@ -1,126 +1,120 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Box, Button } from 'grommet';
-import { Template as TemplateIcon, Brush } from 'grommet-icons';
-import TemplateModal from './TemplateModal';
-import ThemeModal from './ThemeModal';
-import ColorThief from 'color-thief-browser';
-import { pageTemplates } from '../templates/pageTemplates';
-import './EditorPage.css';
+import React, { useState, useEffect, useRef } from "react";
+import { Box, Button } from "grommet";
+import { Template as TemplateIcon, Brush } from "grommet-icons";
+import TemplateModal from "./TemplateModal";
+import ThemeModal from "./ThemeModal";
+import ColorThief from "color-thief-browser";
+import { pageTemplates } from "../templates/pageTemplates";
+import "./EditorPage.css";
 
-export default function EditorPage({ images: incomingImages }) {
-    const [slots, setSlots] = useState([]);
+export default function EditorPage({ images }) {
+    const [slots, setSlots] = useState([]); // array of URL strings
     const [pageSettings, setPageSettings] = useState([]);
     const [showTemplateModal, setShowTemplateModal] = useState(false);
-    const [modalPage, setModalPage] = useState(null);
+    const [templateModalPage, setTemplateModalPage] = useState(null);
     const [showThemeModal, setShowThemeModal] = useState(false);
-    const [modalThemePage, setModalThemePage] = useState(null);
+    const [themeModalPage, setThemeModalPage] = useState(null);
 
     const previewRef = useRef();
     const previewImgRef = useRef();
-    const dragging = useRef(false);
-    const draggedIndex = useRef(null);
+    const dragActiveRef = useRef(false);
+    const dragSrcRef = useRef(null);
 
-    // initialize slots & settings
+    // 1) initialize slots & settings
     useEffect(() => {
-        const savedSlots = JSON.parse(localStorage.getItem('editorSlots') || 'null');
-        const imgs = Array.isArray(savedSlots) && savedSlots.length
-            ? savedSlots
-            : incomingImages.slice();
+        const saved = JSON.parse(localStorage.getItem("editorSlots") || "null");
+        const initialSlots = Array.isArray(saved) && saved.length ? saved : images.slice();
 
-        const savedSettings = JSON.parse(localStorage.getItem('pageSettings') || 'null');
-        const defaultSettings = imgs.map((_, i) => ({
-            templateId: i < 2
-                ? 1
-                : pageTemplates[Math.floor(Math.random() * pageTemplates.length)].id,
-            theme: { mode: 'dynamic', color: null }
+        const savedSettings = JSON.parse(localStorage.getItem("pageSettings") || "null");
+        const defaultSettings = initialSlots.map((_, i) => ({
+            templateId:
+                i < 2
+                    ? 1
+                    : pageTemplates[Math.floor(Math.random() * pageTemplates.length)].id,
+            theme: { mode: "dynamic", color: null },
         }));
-        const settings = Array.isArray(savedSettings) && savedSettings.length
-            ? savedSettings
-            : defaultSettings;
+        setSlots(initialSlots);
+        setPageSettings(Array.isArray(savedSettings) && savedSettings.length ? savedSettings : defaultSettings);
+    }, [images]);
 
-        setSlots(imgs);
-        setPageSettings(settings);
-    }, [incomingImages]);
-
-    // auto-detect dominant color for “dynamic” themes
+    // 2) dynamic color detection
     useEffect(() => {
-        pageSettings.forEach(async (ps, pageIdx) => {
-            if (ps.theme.mode === 'dynamic') {
-                const tmpl = pageTemplates.find(t => t.id === ps.templateId);
-                const imgIdx = tmpl.slots[0];
-                const url = slots[imgIdx];
-                if (!url) return;
-                const img = new Image();
-                img.crossOrigin = 'Anonymous';
-                img.src = url;
+        pageSettings.forEach(async (ps, pi) => {
+            if (ps.theme.mode !== "dynamic") return;
+            const tmpl = pageTemplates.find((t) => t.id === ps.templateId);
+            const idx = tmpl.slots[0];
+            const url = slots[idx];
+            if (!url || url.startsWith("blob:")) return;
+
+            const img = new Image();
+            img.crossOrigin = "Anonymous";
+            img.src = url;
+            try {
                 await img.decode();
-                const [r, g, b] = new ColorThief().getColor(img);
-                const rgb = `rgb(${r}, ${g}, ${b})`;
-                if (ps.theme.color !== rgb) {
-                    setPageSettings(psArr => {
-                        const copy = [...psArr];
-                        copy[pageIdx] = {
-                            ...copy[pageIdx],
-                            theme: { mode: 'dynamic', color: rgb }
-                        };
-                        return copy;
-                    });
-                }
+            } catch {
+                return;
+            }
+            const [r, g, b] = new ColorThief().getColor(img);
+            const rgb = `rgb(${r}, ${g}, ${b})`;
+            if (rgb !== ps.theme.color) {
+                setPageSettings((prev) => {
+                    const next = [...prev];
+                    next[pi] = { ...next[pi], theme: { mode: "dynamic", color: rgb } };
+                    return next;
+                });
             }
         });
     }, [slots, pageSettings]);
 
-    // persist
+    // 3) persist
     useEffect(() => {
-        localStorage.setItem('editorSlots', JSON.stringify(slots));
+        localStorage.setItem("editorSlots", JSON.stringify(slots));
     }, [slots]);
     useEffect(() => {
-        localStorage.setItem('pageSettings', JSON.stringify(pageSettings));
+        localStorage.setItem("pageSettings", JSON.stringify(pageSettings));
     }, [pageSettings]);
 
-    // — drag utilities
-    const getTouchCoords = e => {
-        if (e.touches?.length) {
-            return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-        }
-        return { x: e.clientX, y: e.clientY };
-    };
+    // drag utils
+    const getTouchCoords = (e) =>
+        e.touches?.length
+            ? { x: e.touches[0].clientX, y: e.touches[0].clientY }
+            : { x: e.clientX, y: e.clientY };
 
-    const startDrag = (idx, e) => {
+    const startDrag = (i, e) => {
         e.stopPropagation();
-        if (!slots[idx]) return;
-        dragging.current = true;
-        draggedIndex.current = idx;
-        previewImgRef.current.src = slots[idx];
-        previewRef.current.style.display = 'block';
+        if (!slots[i]) return;
+        dragActiveRef.current = true;
+        dragSrcRef.current = i;
+        previewImgRef.current.src = slots[i];
+        previewRef.current.style.display = "block";
         movePreview(e);
-        document.addEventListener('mousemove', movePreview);
-        document.addEventListener('mouseup', handleDrop);
-        document.addEventListener('touchmove', movePreview, { passive: false });
-        document.addEventListener('touchend', handleDrop);
+        document.addEventListener("mousemove", movePreview);
+        document.addEventListener("mouseup", handleDrop);
+        document.addEventListener("touchmove", movePreview, { passive: false });
+        document.addEventListener("touchend", handleDrop);
     };
 
-    const movePreview = e => {
-        if (!dragging.current) return;
+    const movePreview = (e) => {
+        if (!dragActiveRef.current) return;
         const { x, y } = getTouchCoords(e);
         previewRef.current.style.left = `${x}px`;
         previewRef.current.style.top = `${y}px`;
-        document.querySelectorAll('.photo-slot.highlight').forEach(el => el.classList.remove('highlight'));
-        const over = document.elementFromPoint(x, y)?.closest('.photo-slot');
-        if (over) over.classList.add('highlight');
+        document.querySelectorAll(".photo-slot.highlight").forEach((el) => el.classList.remove("highlight"));
+        const over = document.elementFromPoint(x, y)?.closest(".photo-slot");
+        if (over) over.classList.add("highlight");
         if (e.cancelable) e.preventDefault();
     };
 
-    const handleDrop = e => {
-        if (!dragging.current) return;
+    const handleDrop = (e) => {
+        if (!dragActiveRef.current) return;
         const { x, y } = getTouchCoords(e);
-        const over = document.elementFromPoint(x, y)?.closest('.photo-slot');
-        if (over && over.dataset.index != null) {
+        const over = document.elementFromPoint(x, y)?.closest(".photo-slot");
+        if (over?.dataset.index != null) {
             const tgt = Number(over.dataset.index);
-            const src = draggedIndex.current;
+            const src = dragSrcRef.current;
             if (src !== tgt) {
-                setSlots(arr => {
-                    const next = [...arr];
+                setSlots((prev) => {
+                    const next = [...prev];
                     [next[src], next[tgt]] = [next[tgt], next[src]];
                     return next;
                 });
@@ -130,78 +124,57 @@ export default function EditorPage({ images: incomingImages }) {
     };
 
     const endDrag = () => {
-        dragging.current = false;
-        previewRef.current.style.display = 'none';
-        document.querySelectorAll('.photo-slot.highlight').forEach(el => el.classList.remove('highlight'));
-        document.removeEventListener('mousemove', movePreview);
-        document.removeEventListener('mouseup', handleDrop);
-        document.removeEventListener('touchmove', movePreview);
-        document.removeEventListener('touchend', handleDrop);
+        dragActiveRef.current = false;
+        previewRef.current.style.display = "none";
+        document.querySelectorAll(".photo-slot.highlight").forEach((el) => el.classList.remove("highlight"));
+        document.removeEventListener("mousemove", movePreview);
+        document.removeEventListener("mouseup", handleDrop);
+        document.removeEventListener("touchmove", movePreview);
+        document.removeEventListener("touchend", handleDrop);
     };
 
-    // template handlers
-    const openTemplateModal = pageIdx => {
-        if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
-        setModalPage(pageIdx);
+    // template/theme handlers
+    const openTemplateModal = (pi) => {
+        setTemplateModalPage(pi);
         setShowTemplateModal(true);
     };
-    const pickTemplate = (pageIdx, tmplId) => {
-        setPageSettings(ps => ps.map((s, i) =>
-            i === pageIdx ? { ...s, templateId: tmplId } : s
-        ));
+    const pickTemplate = (pi, tid) => {
+        setPageSettings((prev) => prev.map((s, i) => (i === pi ? { ...s, templateId: tid } : s)));
         setShowTemplateModal(false);
     };
 
-    // theme handlers
-    const openThemeModal = pageIdx => {
-        setModalThemePage(pageIdx);
+    const openThemeModal = (pi) => {
+        setThemeModalPage(pi);
         setShowThemeModal(true);
     };
-    const pickTheme = (pageIdx, { mode, color }) => {
-        setPageSettings(ps => ps.map((s, i) =>
-            i === pageIdx
-                ? { ...s, theme: { mode, color: mode === 'dynamic' ? null : color } }
-                : s
-        ));
+    const pickTheme = (pi, { mode, color }) => {
+        setPageSettings((prev) =>
+            prev.map((s, i) => (i === pi ? { ...s, theme: { mode, color: mode === "dynamic" ? null : color } } : s))
+        );
         setShowThemeModal(false);
     };
 
     return (
         <>
             <div className="container">
-                {pageSettings.map((setting, pageIdx) => {
-                    const tmpl = pageTemplates.find(t => t.id === setting.templateId);
-                    const bg = setting.theme.color || 'transparent';
-
+                {pageSettings.map((ps, pi) => {
+                    const tmpl = pageTemplates.find((t) => t.id === ps.templateId);
                     return (
-                        <div
-                            key={pageIdx}
-                            className="page-wrapper"
-                            style={{ backgroundColor: bg }}
-                        >
+                        <div key={pi} className="page-wrapper" style={{ backgroundColor: ps.theme.color || "transparent" }}>
                             <Box className="toolbar" direction="row" gap="small" align="center">
-                                <Button
-                                    icon={<TemplateIcon />}
-                                    tip="Change layout"
-                                    onClick={() => openTemplateModal(pageIdx)}
-                                />
-                                <Button
-                                    icon={<Brush />}
-                                    tip="Change theme"
-                                    onClick={() => openThemeModal(pageIdx)}
-                                />
+                                <Button icon={<TemplateIcon />} tip="Layout" onClick={() => openTemplateModal(pi)} />
+                                <Button icon={<Brush />} tip="Theme" onClick={() => openThemeModal(pi)} />
                             </Box>
-
                             <div className="photo-page">
-                                {tmpl.slots.map(idx => (
+                                {tmpl.slots.map((idx) => (
                                     <div
                                         key={idx}
                                         className={`photo-slot slot${idx + 1}`}
                                         data-index={idx}
-                                        onMouseDown={e => startDrag(idx, e)}
-                                        onTouchStart={e => startDrag(idx, e)}
+                                        onMouseDown={(e) => startDrag(idx, e)}
+                                        onTouchStart={(e) => startDrag(idx, e)}
                                     >
-                                        {slots[idx] && <img src={slots[idx]} alt="" />}
+                                        {slots[idx] && <img src={slots[idx]} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />}
                                     </div>
                                 ))}
                             </div>
@@ -209,24 +182,14 @@ export default function EditorPage({ images: incomingImages }) {
                     );
                 })}
             </div>
-
             <div id="drag-preview" ref={previewRef}>
                 <img ref={previewImgRef} alt="" />
             </div>
-
             {showTemplateModal && (
-                <TemplateModal
-                    templates={pageTemplates}
-                    onSelect={id => pickTemplate(modalPage, id)}
-                    onClose={() => setShowTemplateModal(false)}
-                />
+                <TemplateModal templates={pageTemplates} onSelect={(id) => pickTemplate(templateModalPage, id)} onClose={() => setShowTemplateModal(false)} />
             )}
             {showThemeModal && (
-                <ThemeModal
-                    pageIdx={modalThemePage}
-                    onSelect={pickTheme}
-                    onClose={() => setShowThemeModal(false)}
-                />
+                <ThemeModal pageIdx={themeModalPage} onSelect={pickTheme} onClose={() => setShowThemeModal(false)} />
             )}
         </>
     );

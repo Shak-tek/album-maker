@@ -1,4 +1,3 @@
-// src/components/ImageUploader.js
 import React, { useEffect } from "react";
 import {
     Box,
@@ -15,7 +14,7 @@ const RESIZER_API_URL =
     process.env.REACT_APP_RESIZER_API_URL ||
     "https://rd654zmm4e.execute-api.us-east-1.amazonaws.com/prod/resize";
 
-// create thumbnail via canvas
+// 1) Make a thumbnail in-browser
 const generateThumbnail = (file, maxSize = 200) =>
     new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -51,7 +50,7 @@ const generateThumbnail = (file, maxSize = 200) =>
         reader.onerror = reject;
     });
 
-// presign call with optional retries
+// 2) Get a presigned PUT URL from your backend
 async function getPresignedUrl(file, retries = 3, backoff = 500) {
     try {
         const resp = await fetch(
@@ -73,7 +72,7 @@ async function getPresignedUrl(file, retries = 3, backoff = 500) {
     }
 }
 
-// XHR PUT to S3 so we can track onprogress
+// 3) Upload with XHR so you can track progress
 const uploadFileToS3 = (url, file, onProgress) =>
     new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
@@ -92,15 +91,15 @@ const uploadFileToS3 = (url, file, onProgress) =>
         xhr.send(file);
     });
 
-const ImageUploader = ({ uploads, setUploads, onContinue }) => {
-    // Load from sessionStorage on mount
+export default function ImageUploader({ uploads, setUploads, onContinue }) {
+    // Rehydrate from sessionStorage
     useEffect(() => {
         const saved = sessionStorage.getItem("uploads");
         if (saved) {
             try {
-                const parsed = JSON.parse(saved);
+                const arr = JSON.parse(saved);
                 setUploads(
-                    parsed.map(({ key, displayUrl }) => ({
+                    arr.map(({ key, displayUrl }) => ({
                         file: null,
                         preview: displayUrl,
                         displayUrl,
@@ -113,10 +112,9 @@ const ImageUploader = ({ uploads, setUploads, onContinue }) => {
                 console.warn("Could not parse saved uploads:", e);
             }
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [setUploads]);
 
-    // Persist key + displayUrl whenever uploads change
+    // Persist key & displayUrl
     useEffect(() => {
         const toSave = uploads
             .filter((u) => u.key && u.displayUrl)
@@ -124,10 +122,10 @@ const ImageUploader = ({ uploads, setUploads, onContinue }) => {
         sessionStorage.setItem("uploads", JSON.stringify(toSave));
     }, [uploads]);
 
-    // Upload logic, now accepts url & key directly
-    const processAndUpload = async (file, idx, url, key) => {
+    // Core upload pipeline: thumbnail → mark uploading → PUT → compute resize URL → store
+    const processAndUpload = async (file, idx, presignUrl, key) => {
         try {
-            // a) generate & show thumbnail
+            // a) Make & show thumbnail
             const { url: thumbUrl } = await generateThumbnail(file);
             setUploads((prev) => {
                 const next = [...prev];
@@ -135,15 +133,15 @@ const ImageUploader = ({ uploads, setUploads, onContinue }) => {
                 return next;
             });
 
-            // b) mark as uploading
+            // b) Mark as uploading
             setUploads((prev) => {
                 const next = [...prev];
                 next[idx] = { ...next[idx], status: "uploading" };
                 return next;
             });
 
-            // c) upload
-            await uploadFileToS3(url, file, (pct) => {
+            // c) Upload to S3
+            await uploadFileToS3(presignUrl, file, (pct) => {
                 setUploads((prev) => {
                     const next = [...prev];
                     next[idx] = { ...next[idx], progress: pct };
@@ -151,13 +149,13 @@ const ImageUploader = ({ uploads, setUploads, onContinue }) => {
                 });
             });
 
-            // d) build resized display URL
+            // d) Build your resize URL
             const keyWithoutPrefix = key.replace(/^original\//, "");
             const resizeUrl = `${RESIZER_API_URL}/${encodeURIComponent(
                 keyWithoutPrefix
             )}?width=300`;
 
-            // e) store displayUrl + key
+            // e) Save it
             setUploads((prev) => {
                 const next = [...prev];
                 next[idx] = {
@@ -179,15 +177,15 @@ const ImageUploader = ({ uploads, setUploads, onContinue }) => {
         }
     };
 
-    // Handle file selection: presign once, then upload
+    // Kick off presign & upload when user selects files
     const handleFileChange = async (e) => {
         const files = Array.from(e.target.files || []);
         if (!files.length) return;
 
-        // 1) Pre-sign all files
+        // 1) Get presigned URLs
         const presigns = await Promise.all(files.map((f) => getPresignedUrl(f)));
 
-        // 2) Build entries
+        // 2) Initialize entries
         const newEntries = files.map((file, i) => ({
             file,
             key: presigns[i].key,
@@ -197,17 +195,22 @@ const ImageUploader = ({ uploads, setUploads, onContinue }) => {
             progress: 0,
         }));
 
-        // 3) Append and start uploads
+        // 3) Append & start each upload
         setUploads((prev) => {
             const startIdx = prev.length;
             newEntries.forEach((entry, i) =>
-                processAndUpload(entry.file, startIdx + i, presigns[i].url, presigns[i].key)
+                processAndUpload(
+                    entry.file,
+                    startIdx + i,
+                    presigns[i].url,
+                    presigns[i].key
+                )
             );
             return [...prev, ...newEntries];
         });
     };
 
-    // Footer state
+    // Footer progress indicators
     const total = uploads.length;
     const completed = uploads.filter((u) => u.progress === 100).length;
     const allDone = completed === total;
@@ -228,9 +231,7 @@ const ImageUploader = ({ uploads, setUploads, onContinue }) => {
                 <>
                     <Grid rows="small" columns="small" gap="small">
                         {uploads.map(({ preview, displayUrl, status, progress }, i) => {
-                            // always show thumbnail (preview) until displayUrl takes over
                             const src = displayUrl || preview;
-
                             return (
                                 <Box
                                     key={i}
@@ -243,11 +244,7 @@ const ImageUploader = ({ uploads, setUploads, onContinue }) => {
                                         src={src}
                                         alt={`img-${i}`}
                                         fit="cover"
-                                        style={{
-                                            width: "100%",
-                                            height: "100%",
-                                            // no filter any more
-                                        }}
+                                        style={{ width: "100%", height: "100%" }}
                                         onLoad={() => {
                                             if (status === "waiting") {
                                                 setUploads((prev) => {
@@ -268,9 +265,7 @@ const ImageUploader = ({ uploads, setUploads, onContinue }) => {
                                             style={{ position: "absolute", top: 0, left: 0 }}
                                         >
                                             <Spinner />
-                                            <Text margin={{ top: "small" }}>
-                                                {`${progress || 0}%`}
-                                            </Text>
+                                            <Text margin={{ top: "small" }}>{`${progress || 0}%`}</Text>
                                         </Box>
                                     )}
                                 </Box>
@@ -296,12 +291,7 @@ const ImageUploader = ({ uploads, setUploads, onContinue }) => {
                                 thickness="small"
                             />
                         </Box>
-                        <Button
-                            label="Continue"
-                            onClick={onContinue}
-                            primary
-                            disabled={!allDone}
-                        />
+                        <Button label="Continue" onClick={onContinue} primary disabled={!allDone} />
                     </Box>
                     <Text>
                         {completed} / {total} Photos Uploaded
@@ -310,6 +300,4 @@ const ImageUploader = ({ uploads, setUploads, onContinue }) => {
             )}
         </Box>
     );
-};
-
-export default ImageUploader;
+}
