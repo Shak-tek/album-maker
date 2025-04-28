@@ -1,5 +1,5 @@
 // src/components/ImageUploader.js
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
     Box,
     FileInput,
@@ -93,9 +93,40 @@ const uploadFileToS3 = (url, file, onProgress) =>
     });
 
 const ImageUploader = ({ uploads, setUploads, onContinue }) => {
+    // 1️⃣ Load any previously saved uploads from sessionStorage
+    useEffect(() => {
+        const saved = sessionStorage.getItem("uploads");
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                setUploads(
+                    parsed.map(({ key, displayUrl }) => ({
+                        file: null,
+                        preview: displayUrl,    // show the resized URL as the thumbnail
+                        displayUrl,
+                        key,
+                        status: "loaded",
+                        progress: 100,
+                    }))
+                );
+            } catch (e) {
+                console.warn("Could not parse saved uploads:", e);
+            }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // 2️⃣ Persist every time uploads change (only key + displayUrl)
+    useEffect(() => {
+        const toSave = uploads
+            .filter((u) => u.key && u.displayUrl)
+            .map(({ key, displayUrl }) => ({ key, displayUrl }));
+        sessionStorage.setItem("uploads", JSON.stringify(toSave));
+    }, [uploads]);
+
     const processAndUpload = async (file, idx) => {
         try {
-            // 1) thumbnail
+            // a) generate & show thumbnail
             const { url: thumbUrl } = await generateThumbnail(file);
             setUploads((prev) => {
                 const next = [...prev];
@@ -103,14 +134,14 @@ const ImageUploader = ({ uploads, setUploads, onContinue }) => {
                 return next;
             });
 
-            // 2) mark uploading
+            // b) mark uploading
             setUploads((prev) => {
                 const next = [...prev];
                 next[idx] = { ...next[idx], status: "uploading" };
                 return next;
             });
 
-            // 3) get URL + upload with progress callback
+            // c) presign + upload
             const { url, key } = await getPresignedUrl(file);
             await uploadFileToS3(url, file, (pct) => {
                 setUploads((prev) => {
@@ -120,18 +151,20 @@ const ImageUploader = ({ uploads, setUploads, onContinue }) => {
                 });
             });
 
-            // 4) compute resize URL
+            // d) build resized display URL
             const keyWithoutPrefix = key.replace(/^original\//, "");
             const resizeUrl = `${RESIZER_API_URL}/${encodeURIComponent(
                 keyWithoutPrefix
             )}?width=300`;
 
+            // e) store both displayUrl + key in state (and thus session)
             setUploads((prev) => {
                 const next = [...prev];
                 next[idx] = {
                     ...next[idx],
                     status: "waiting",
                     displayUrl: resizeUrl,
+                    key,
                     progress: 100,
                 };
                 return next;
@@ -156,15 +189,14 @@ const ImageUploader = ({ uploads, setUploads, onContinue }) => {
                 file,
                 preview: null,
                 displayUrl: null,
+                key: null,
                 status: "pending",
                 progress: 0,
             }));
-
-            // start them all in parallel
+            // kick off uploads in parallel
             newEntries.forEach((entry, i) =>
                 processAndUpload(entry.file, startIdx + i)
             );
-
             return [...prev, ...newEntries];
         });
     };
@@ -193,7 +225,7 @@ const ImageUploader = ({ uploads, setUploads, onContinue }) => {
                     <Grid rows="small" columns="small" gap="small">
                         {uploads.map(({ preview, displayUrl, status }, i) => {
                             const isLoading = status !== "loaded" && status !== "error";
-                            const src = displayUrl || preview;
+                            const src = displayUrl || preview
                             return (
                                 <Box
                                     key={i}
@@ -223,7 +255,6 @@ const ImageUploader = ({ uploads, setUploads, onContinue }) => {
                                             }
                                         }}
                                     />
-
                                     {isLoading && (
                                         <Box
                                             fill
@@ -258,18 +289,14 @@ const ImageUploader = ({ uploads, setUploads, onContinue }) => {
                         round="xsmall"
                         gap="medium"
                     >
-                        {/* make this Box fill the space so the Meter can stretch */}
                         <Box gap="small" flex>
-                            {/* force the Meter to be 100% of its parent’s width */}
                             <Meter
                                 values={[{ value: avgProgress, label: "Upload %" }]}
                                 max={100}
                                 width="100%"
                                 thickness="small"
                             />
-
                         </Box>
-
                         <Button
                             label="Continue"
                             onClick={onContinue}
