@@ -1,5 +1,5 @@
 // src/components/ImageUploader.js
-import React, {useEffect } from "react";
+import React, { useEffect } from "react";
 import {
     Box,
     FileInput,
@@ -93,7 +93,7 @@ const uploadFileToS3 = (url, file, onProgress) =>
     });
 
 const ImageUploader = ({ uploads, setUploads, onContinue }) => {
-    // 1️⃣ Load any previously saved uploads from sessionStorage
+    // Load from sessionStorage on mount
     useEffect(() => {
         const saved = sessionStorage.getItem("uploads");
         if (saved) {
@@ -102,7 +102,7 @@ const ImageUploader = ({ uploads, setUploads, onContinue }) => {
                 setUploads(
                     parsed.map(({ key, displayUrl }) => ({
                         file: null,
-                        preview: displayUrl,    // show the resized URL as the thumbnail
+                        preview: displayUrl,
                         displayUrl,
                         key,
                         status: "loaded",
@@ -116,7 +116,7 @@ const ImageUploader = ({ uploads, setUploads, onContinue }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // 2️⃣ Persist every time uploads change (only key + displayUrl)
+    // Persist key + displayUrl whenever uploads change
     useEffect(() => {
         const toSave = uploads
             .filter((u) => u.key && u.displayUrl)
@@ -124,7 +124,8 @@ const ImageUploader = ({ uploads, setUploads, onContinue }) => {
         sessionStorage.setItem("uploads", JSON.stringify(toSave));
     }, [uploads]);
 
-    const processAndUpload = async (file, idx) => {
+    // Upload logic, now accepts url & key directly
+    const processAndUpload = async (file, idx, url, key) => {
         try {
             // a) generate & show thumbnail
             const { url: thumbUrl } = await generateThumbnail(file);
@@ -134,15 +135,14 @@ const ImageUploader = ({ uploads, setUploads, onContinue }) => {
                 return next;
             });
 
-            // b) mark uploading
+            // b) mark as uploading
             setUploads((prev) => {
                 const next = [...prev];
                 next[idx] = { ...next[idx], status: "uploading" };
                 return next;
             });
 
-            // c) presign + upload
-            const { url, key } = await getPresignedUrl(file);
+            // c) upload
             await uploadFileToS3(url, file, (pct) => {
                 setUploads((prev) => {
                     const next = [...prev];
@@ -157,7 +157,7 @@ const ImageUploader = ({ uploads, setUploads, onContinue }) => {
                 keyWithoutPrefix
             )}?width=300`;
 
-            // e) store both displayUrl + key in state (and thus session)
+            // e) store displayUrl + key
             setUploads((prev) => {
                 const next = [...prev];
                 next[idx] = {
@@ -179,38 +179,42 @@ const ImageUploader = ({ uploads, setUploads, onContinue }) => {
         }
     };
 
-    const handleFileChange = (e) => {
+    // Handle file selection: presign once, then upload
+    const handleFileChange = async (e) => {
         const files = Array.from(e.target.files || []);
         if (!files.length) return;
 
+        // 1) Pre-sign all files
+        const presigns = await Promise.all(files.map((f) => getPresignedUrl(f)));
+
+        // 2) Build entries
+        const newEntries = files.map((file, i) => ({
+            file,
+            key: presigns[i].key,
+            preview: null,
+            displayUrl: null,
+            status: "pending",
+            progress: 0,
+        }));
+
+        // 3) Append and start uploads
         setUploads((prev) => {
             const startIdx = prev.length;
-            const newEntries = files.map((file) => ({
-                file,
-                preview: null,
-                displayUrl: null,
-                key: null,
-                status: "pending",
-                progress: 0,
-            }));
-            // kick off uploads in parallel
             newEntries.forEach((entry, i) =>
-                processAndUpload(entry.file, startIdx + i)
+                processAndUpload(entry.file, startIdx + i, presigns[i].url, presigns[i].key)
             );
             return [...prev, ...newEntries];
         });
     };
 
-    // footer state
+    // Footer state
     const total = uploads.length;
     const completed = uploads.filter((u) => u.progress === 100).length;
     const allDone = completed === total;
     const avgProgress =
         total === 0
             ? 0
-            : Math.round(
-                uploads.reduce((sum, u) => sum + (u.progress || 0), 0) / total
-            );
+            : Math.round(uploads.reduce((sum, u) => sum + (u.progress || 0), 0) / total);
 
     return (
         <Box pad="medium">
@@ -223,9 +227,10 @@ const ImageUploader = ({ uploads, setUploads, onContinue }) => {
             {uploads.length > 0 && (
                 <>
                     <Grid rows="small" columns="small" gap="small">
-                        {uploads.map(({ preview, displayUrl, status }, i) => {
-                            const isLoading = status !== "loaded" && status !== "error";
-                            const src = displayUrl || preview
+                        {uploads.map(({ preview, displayUrl, status, progress }, i) => {
+                            // always show thumbnail (preview) until displayUrl takes over
+                            const src = displayUrl || preview;
+
                             return (
                                 <Box
                                     key={i}
@@ -241,9 +246,7 @@ const ImageUploader = ({ uploads, setUploads, onContinue }) => {
                                         style={{
                                             width: "100%",
                                             height: "100%",
-                                            filter: isLoading
-                                                ? "grayscale(100%) opacity(0.4)"
-                                                : undefined,
+                                            // no filter any more
                                         }}
                                         onLoad={() => {
                                             if (status === "waiting") {
@@ -255,7 +258,8 @@ const ImageUploader = ({ uploads, setUploads, onContinue }) => {
                                             }
                                         }}
                                     />
-                                    {isLoading && (
+
+                                    {status === "uploading" && (
                                         <Box
                                             fill
                                             align="center"
@@ -265,11 +269,7 @@ const ImageUploader = ({ uploads, setUploads, onContinue }) => {
                                         >
                                             <Spinner />
                                             <Text margin={{ top: "small" }}>
-                                                {status === "uploading"
-                                                    ? `${uploads[i].progress || 0}%`
-                                                    : status === "waiting"
-                                                        ? "Resizing…"
-                                                        : "Pending…"}
+                                                {`${progress || 0}%`}
                                             </Text>
                                         </Box>
                                     )}
@@ -278,7 +278,6 @@ const ImageUploader = ({ uploads, setUploads, onContinue }) => {
                         })}
                     </Grid>
 
-                    {/* footer with aggregated progress bar */}
                     <Box
                         direction="row"
                         align="center"
