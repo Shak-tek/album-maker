@@ -20,6 +20,7 @@ export default function ImageUploader({ onContinue }) {
     const [uploads, setUploads] = useState([]);
     const fileInputRef = useRef();
 
+    // Update one upload entry
     const updateUpload = (idx, fields) =>
         setUploads((all) => {
             const next = [...all];
@@ -27,7 +28,7 @@ export default function ImageUploader({ onContinue }) {
             return next;
         });
 
-    // Configure AWS
+    // AWS config
     useEffect(() => {
         AWS.config.update({
             region: REGION,
@@ -37,32 +38,43 @@ export default function ImageUploader({ onContinue }) {
         });
     }, []);
 
-    // Upload a single file once we have creds
-    const doUpload = (idx, file) => {
-        AWS.config.credentials.get((credErr) => {
-            if (credErr) {
-                console.error("Cognito identity load failed", credErr);
-                updateUpload(idx, { status: "error" });
-                return;
-            }
+    const s3 = new AWS.S3({ apiVersion: "2006-03-01" });
 
-            const s3 = new AWS.S3({ apiVersion: "2006-03-01" });
-            const key = `${Date.now()}_${file.name}`;
+    // Handle file selection (append new)
+    const handleFileChange = (e) => {
+        const files = Array.from(e.target.files || []).slice(0, MAX_IMAGES - uploads.length);
+        const newEntries = files.map((file) => ({
+            file,
+            preview: URL.createObjectURL(file),
+            status: "pending",
+            progress: 0,
+            uploadUrl: null,
+        }));
+        setUploads((prev) => [...prev, ...newEntries]);
+        // reset input so same file can be re-selected later
+        e.target.value = "";
+    };
 
-            updateUpload(idx, { status: "uploading" });
-
+    // Kick off all pending uploads
+    const handleUploadAll = () => {
+        uploads.forEach((u, idx) => {
+            if (u.status !== "pending") return;
+            const key = `${Date.now()}_${u.file.name}`;
             const params = {
                 Bucket: BUCKET,
                 Key: key,
-                Body: file,
-                ContentType: file.type,
+                Body: u.file,
+                ContentType: u.file.type,
             };
 
+            updateUpload(idx, { status: "uploading" });
             const managed = s3.upload(params);
+
             managed.on("httpUploadProgress", (evt) => {
                 const pct = Math.round((evt.loaded / evt.total) * 100);
                 updateUpload(idx, { progress: pct });
             });
+
             managed.send((err, data) => {
                 if (err) {
                     console.error("Upload error:", err);
@@ -78,39 +90,12 @@ export default function ImageUploader({ onContinue }) {
         });
     };
 
-    // Handle file selection & start each upload immediately
-    const handleFileChange = (e) => {
-        const files = Array.from(e.target.files || []).slice(
-            0,
-            MAX_IMAGES - uploads.length
-        );
-        const newEntries = files.map((file) => ({
-            file,
-            preview: URL.createObjectURL(file),
-            status: "pending",
-            progress: 0,
-            uploadUrl: null,
-        }));
-
-        setUploads((prev) => {
-            const startIdx = prev.length;
-            const next = [...prev, ...newEntries];
-            newEntries.forEach((entry, i) =>
-                doUpload(startIdx + i, entry.file)
-            );
-            return next;
-        });
-
-        e.target.value = ""; // allow re-selecting same files
-    };
-
     const photosUploaded = uploads.filter((u) => u.status === "uploaded").length;
-    const allDone =
-        uploads.length > 0 && uploads.every((u) => u.status === "uploaded");
+    const allDone = uploads.length > 0 && uploads.every((u) => u.status === "uploaded");
 
     return (
         <Box pad="medium">
-            {/* hidden file input */}
+            {/* hidden native file input */}
             <input
                 type="file"
                 multiple
@@ -120,8 +105,16 @@ export default function ImageUploader({ onContinue }) {
                 onChange={handleFileChange}
             />
 
-            {/* initial “Add photos” prompt */}
-            {uploads.length === 0 && (
+            <Button
+                label="Upload All"
+                onClick={handleUploadAll}
+                primary
+                margin={{ bottom: "small" }}
+                disabled={!uploads.some((u) => u.status === "pending")}
+            />
+
+            {uploads.length > 0 || (
+                // if no uploads yet, show an initial Add button
                 <Box
                     align="center"
                     justify="center"
@@ -135,83 +128,65 @@ export default function ImageUploader({ onContinue }) {
                 </Box>
             )}
 
-            {/* dynamic grid */}
+            {/* Dynamic grid: one per upload + one Add cell */}
             {uploads.length > 0 && (
                 <>
                     <Box margin={{ top: "medium" }}>
-                        <Grid
-                            rows="small"
-                            columns={["small", "small", "small", "small"]}
-                            gap="small"
-                        >
-                            {uploads.map((slot, idx) => {
-                                const src = slot.uploadUrl || slot.preview;
-                                return (
-                                    <Box
-                                        key={idx}
-                                        round="xsmall"
-                                        border={{ color: "light-4", size: "xsmall" }}
-                                        overflow="hidden"
-                                        position="relative"
-                                        background="light-2"
-                                    >
-                                        {src && (
-                                            <GrommetImage
-                                                fit="cover"
-                                                src={src}
-                                                alt={`Image ${idx}`}
-                                                style={{ width: "100%", height: "100%" }}
-                                            />
-                                        )}
+                        <Grid rows="small" columns={["small", "small", "small", "small"]} gap="small">
+                            {uploads.map((slot, idx) => (
+                                <Box
+                                    key={idx}
+                                    round="xsmall"
+                                    border={{ color: "light-4", size: "xsmall" }}
+                                    overflow="hidden"
+                                    style={{ position: "relative" }}
+                                    background="light-2"
+                                >
+                                    <GrommetImage
+                                        fit="cover"
+                                        src={slot.uploadUrl || slot.preview}
+                                        alt={`Image ${idx}`}
+                                        style={{ width: "100%", height: "100%" }}
+                                    />
 
-                                        {slot.status === "uploading" && (
-                                            <>
-                                                <Box
-                                                    fill
-                                                    align="center"
-                                                    justify="center"
-                                                    background={{ color: "black", opacity: "strong" }}
-                                                    position="absolute"
-                                                    top="0"
-                                                    left="0"
-                                                >
-                                                    <Spinner />
-                                                    <Text margin={{ top: "small" }}>
-                                                        {`${slot.progress}%`}
-                                                    </Text>
-                                                </Box>
-                                                <Box
-                                                    pad={{ horizontal: "xsmall", bottom: "xsmall" }}
-                                                    position="absolute"
-                                                    bottom="0"
-                                                    left="0"
-                                                    width="100%"
-                                                >
-                                                    <Meter
-                                                        values={[{ value: slot.progress }]}
-                                                        max={100}
-                                                        thickness="small"
-                                                    />
-                                                </Box>
-                                            </>
-                                        )}
-
-                                        {slot.status === "error" && (
-                                            <Text
-                                                color="status-critical"
-                                                margin="small"
-                                                position="absolute"
-                                                top="4px"
-                                                right="4px"
+                                    {slot.status === "uploading" && (
+                                        <>
+                                            <Box
+                                                fill
+                                                align="center"
+                                                justify="center"
+                                                background={{ color: "black", opacity: "strong" }}
+                                                style={{ position: "absolute", top: 0 }}
                                             >
-                                                ❌
-                                            </Text>
-                                        )}
-                                    </Box>
-                                );
-                            })}
+                                                <Spinner />
+                                                <Text margin={{ top: "small" }}>{`${slot.progress}%`}</Text>
+                                            </Box>
+                                            <Box
+                                                pad={{ horizontal: "xsmall", bottom: "xsmall" }}
+                                                style={{
+                                                    position: "absolute",
+                                                    bottom: 0,
+                                                    width: "100%",
+                                                }}
+                                            >
+                                                <Meter values={[{ value: slot.progress }]} max={100} thickness="small" />
+                                            </Box>
+                                        </>
+                                    )}
 
-                            {/* “add more” cell */}
+                                    {slot.status === "error" && (
+                                        <Text
+                                            color="status-critical"
+                                            margin="small"
+                                            style={{ position: "absolute", top: 4, right: 4 }}
+                                        >
+                                            ❌
+                                        </Text>
+                                    )}
+                                </Box>
+                            ))}
+
+                            {/* placeholder “add more” */}
                             {uploads.length < MAX_IMAGES && (
                                 <Box
                                     key="add"
@@ -239,12 +214,7 @@ export default function ImageUploader({ onContinue }) {
                         round="xsmall"
                     >
                         <Text>{photosUploaded} Photos Uploaded</Text>
-                        <Button
-                            label="Continue"
-                            onClick={onContinue}
-                            primary
-                            disabled={!allDone}
-                        />
+                        <Button label="Continue" onClick={onContinue} primary disabled={!allDone} />
                     </Box>
                 </>
             )}
