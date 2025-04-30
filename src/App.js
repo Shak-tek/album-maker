@@ -11,6 +11,11 @@ const theme = deepMerge({
   },
 });
 
+// Replace with your resize API endpoint
+const RESIZER_API_URL =
+  process.env.REACT_APP_RESIZER_API_URL ||
+  "https://rd654zmm4e.execute-api.us-east-1.amazonaws.com/prod/resize";
+
 export default function App() {
   const [uploads, setUploads] = useState([]);
   const [view, setView] = useState("upload");
@@ -19,16 +24,7 @@ export default function App() {
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("uploads") || "null");
     if (Array.isArray(saved) && saved.length) {
-      setUploads(
-        saved.map(({ preview, displayUrl, key }) => ({
-          file: null,
-          preview,
-          displayUrl,
-          key,
-          status: "loaded",
-          progress: 100,
-        }))
-      );
+      setUploads(saved);
       setView("editor");
     }
   }, []);
@@ -36,11 +32,7 @@ export default function App() {
   // Persist uploads to localStorage
   useEffect(() => {
     if (uploads.length) {
-      const toSave = uploads.map(({ preview, displayUrl, key }) => ({
-        preview,
-        displayUrl,
-        key,
-      }));
+      const toSave = uploads.map(({ preview, key }) => ({ preview, key }));
       localStorage.setItem("uploads", JSON.stringify(toSave));
     } else {
       localStorage.removeItem("uploads");
@@ -57,9 +49,8 @@ export default function App() {
           {view === "upload" ? (
             <ImageUploader
               onContinue={finishedUploads => {
-                const toSave = finishedUploads.map(({ preview, uploadUrl, key }) => ({
+                const toSave = finishedUploads.map(({ preview, key }) => ({
                   preview,
-                  displayUrl: uploadUrl,
                   key,
                 }));
                 setUploads(toSave);
@@ -67,7 +58,12 @@ export default function App() {
               }}
             />
           ) : (
-            <EditorPage images={uploads.map(u => u.displayUrl || u.preview)} />
+            <EditorPage
+              images={uploads.map(
+                u =>
+                  `${RESIZER_API_URL}/${encodeURIComponent(u.key)}?width=300`
+              )}
+            />
           )}
         </PageContent>
       </Page>
