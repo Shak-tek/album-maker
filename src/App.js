@@ -15,7 +15,7 @@ export default function App() {
   const [uploads, setUploads] = useState([]);
   const [view, setView] = useState("upload");
 
-  // rehydrate on mount
+  // On mount, rehydrate saved uploads
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("uploads") || "null");
     if (Array.isArray(saved) && saved.length) {
@@ -33,10 +33,14 @@ export default function App() {
     }
   }, []);
 
-  // persist whenever uploads change
+  // Persist uploads to localStorage
   useEffect(() => {
     if (uploads.length) {
-      const toSave = uploads.map(({ preview, displayUrl, key }) => ({ preview, displayUrl, key }));
+      const toSave = uploads.map(({ preview, displayUrl, key }) => ({
+        preview,
+        displayUrl,
+        key,
+      }));
       localStorage.setItem("uploads", JSON.stringify(toSave));
     } else {
       localStorage.removeItem("uploads");
@@ -51,9 +55,19 @@ export default function App() {
         </Header>
         <PageContent pad="large">
           {view === "upload" ? (
-            <ImageUploader uploads={uploads} setUploads={setUploads} onContinue={() => setView("editor")} />
+            <ImageUploader
+              onContinue={finishedUploads => {
+                const toSave = finishedUploads.map(({ preview, uploadUrl, key }) => ({
+                  preview,
+                  displayUrl: uploadUrl,
+                  key,
+                }));
+                setUploads(toSave);
+                setView("editor");
+              }}
+            />
           ) : (
-            <EditorPage images={uploads.map((u) => u.displayUrl || u.preview)} />
+            <EditorPage images={uploads.map(u => u.displayUrl || u.preview)} />
           )}
         </PageContent>
       </Page>
