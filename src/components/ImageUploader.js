@@ -11,7 +11,7 @@ const BUCKET = "albumgrom";
 const MAX_IMAGES = 24;
 const MIN_IMAGES = 20;     // ← minimum required photos
 
-export default function ImageUploader({ onContinue }) {
+export default function ImageUploader({ sessionId, onContinue }) {
     const [uploads, setUploads] = useState([]);
     const [step, setStep] = useState(1);
     const [s3Client, setS3Client] = useState(null);
@@ -64,7 +64,7 @@ export default function ImageUploader({ onContinue }) {
         if (step !== 2 || !s3Client) return;
         uploads.forEach((u, idx) => {
             if (u.status !== "pending") return;
-            const key = `${Date.now()}_${u.file.name}`;
+            const key = `${sessionId}/${Date.now()}_${u.file.name}`;
             updateUpload(idx, { status: "uploading", key });
             const managed = s3Client.upload({
                 Bucket: BUCKET,
@@ -77,15 +77,17 @@ export default function ImageUploader({ onContinue }) {
             });
             managed.send((err, data) => {
                 if (err) updateUpload(idx, { status: "error" });
-                else
+                else {
                     updateUpload(idx, {
                         status: "uploaded",
                         uploadUrl: data.Location,
                         progress: 100,
+                        key,          // remember full S3 key
                     });
+                }
             });
         });
-    }, [step, uploads, s3Client]);
+    }, [step, uploads, s3Client, sessionId]);
 
     // counts & ready‐flags
     const photosUploaded = uploads.filter(u => u.status === "uploaded").length;
