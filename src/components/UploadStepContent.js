@@ -3,28 +3,31 @@ import React from 'react';
 import { Box, Button } from 'grommet';
 
 export default function UploadStepContent({ fileInputRef }) {
+    const openPicker = () => {
+        if (fileInputRef.current) fileInputRef.current.click();
+    };
+
     return (
         <Box pad="medium" gap="medium">
-
             <Box
                 border={{ color: 'neutral-3', size: 'small' }}
                 pad="large"
                 round="small"
                 align="center"
                 justify="center"
-                onClick={() => fileInputRef.current.click()}
+                onClick={openPicker}
                 style={{ cursor: 'pointer' }}
                 data-cy="uploadDropzone"
             >
-                {/* we no longer render an <input> here */}
+                {/* No onClick here—clicks bubble up to the Box above */}
                 <Button
                     label="Select Photos"
                     primary
-                    onClick={() => fileInputRef.current.click()}
-                    data-cy="uploadButton"
+                    // Prevent the button from stopping propagation,
+                    // so it uses the Box's onClick
+                    plain={false}
                 />
             </Box>
         </Box>
     );
 }
-
