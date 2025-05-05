@@ -1,6 +1,6 @@
 // src/components/ImageUploader.js
 import React, { useEffect, useState, useRef } from "react";
-import { Box } from "grommet";
+import { Box, Heading, Text } from "grommet";
 import AWS from "aws-sdk";
 import UploadStepContent from "./UploadStepContent";
 import GridStep from "./GridStep";
@@ -105,6 +105,14 @@ export default function ImageUploader({ onContinue }) {
     return (
         <div className="StyledGrommet-sc-19lkkz7-0 daORNg">
             <div className="StyledBox-sc-13pk1d4-0 ejlvja sc-8340680b-0 jylZUp">
+                 <Box gap="small">
+                                <Heading level={2} size="xlarge" margin="none">
+                                    Upload Photos
+                                </Heading>
+                                <Text size="small" color="dark-5">
+                                    Select the photos you would like to print to make your Photo Book.
+                                </Text>
+                            </Box>
                 <Box pad="medium">
                     <Box data-cy="uploadDropzone">
                         <Box
