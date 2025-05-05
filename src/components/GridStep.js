@@ -12,6 +12,7 @@ import {
 export default function GridStep({
     uploads,
     photosUploaded,
+    minImages,
     allDone,
     onBack,
     onContinue,
@@ -84,6 +85,16 @@ export default function GridStep({
                     </Box>
                 )}
             </Grid>
+            {/* ← Warning message if under the minimum */}
+            {photosUploaded < minImages && (
+                <Text
+                    color="status-warning"
+                    size="small"
+                    margin={{ top: "small", bottom: "small", horizontal: "small" }}
+                >
+                    Please upload at least {minImages} photos to continue.
+                </Text>
+            )}
 
             <Box
                 direction="row"

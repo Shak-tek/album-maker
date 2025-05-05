@@ -9,6 +9,7 @@ const REGION = "us-east-1";
 const IDENTITY_POOL_ID = "us-east-1:77fcf55d-2bdf-4f46-b979-ee71beb59193";
 const BUCKET = "albumgrom";
 const MAX_IMAGES = 24;
+const MIN_IMAGES = 20;     // ← minimum required photos
 
 export default function ImageUploader({ onContinue }) {
     const [uploads, setUploads] = useState([]);
@@ -16,22 +17,18 @@ export default function ImageUploader({ onContinue }) {
     const [s3Client, setS3Client] = useState(null);
     const fileInputRef = useRef();
 
-    // Initialize Cognito + S3 client
+    // Cognito + S3 init
     useEffect(() => {
         const creds = new AWS.CognitoIdentityCredentials({
             IdentityPoolId: IDENTITY_POOL_ID,
         });
         AWS.config.update({ region: REGION, credentials: creds });
         creds.get(err => {
-            if (err) {
-                console.error("Cognito credentials error", err);
-            } else {
-                setS3Client(new AWS.S3({ apiVersion: "2006-03-01" }));
-            }
+            if (!err) setS3Client(new AWS.S3({ apiVersion: "2006-03-01" }));
+            else console.error("Cognito error", err);
         });
     }, []);
 
-    // Helper to update a single upload entry
     const updateUpload = (idx, fields) =>
         setUploads(all => {
             const next = [...all];
@@ -39,7 +36,7 @@ export default function ImageUploader({ onContinue }) {
             return next;
         });
 
-    // When files are selected in UploadStepContent
+    // file picker → add entries
     const handleFileChange = e => {
         const files = Array.from(e.target.files || []).slice(
             0,
@@ -62,57 +59,53 @@ export default function ImageUploader({ onContinue }) {
         setStep(2);
     };
 
-    // Kick off S3 uploads for any pending items
+    // perform S3 uploads
     useEffect(() => {
         if (step !== 2 || !s3Client) return;
-
         uploads.forEach((u, idx) => {
             if (u.status !== "pending") return;
-
             const key = `${Date.now()}_${u.file.name}`;
             updateUpload(idx, { status: "uploading", key });
-
             const managed = s3Client.upload({
                 Bucket: BUCKET,
                 Key: key,
                 Body: u.file,
                 ContentType: u.file.type,
             });
-
             managed.on("httpUploadProgress", evt => {
-                const pct = Math.round((evt.loaded / evt.total) * 100);
-                updateUpload(idx, { progress: pct });
+                updateUpload(idx, { progress: Math.round((evt.loaded / evt.total) * 100) });
             });
-
             managed.send((err, data) => {
-                if (err) {
-                    updateUpload(idx, { status: "error" });
-                } else {
+                if (err) updateUpload(idx, { status: "error" });
+                else
                     updateUpload(idx, {
                         status: "uploaded",
                         uploadUrl: data.Location,
                         progress: 100,
                     });
-                }
             });
         });
     }, [step, uploads, s3Client]);
 
+    // counts & ready‐flags
     const photosUploaded = uploads.filter(u => u.status === "uploaded").length;
-    const allDone =
+    const allUploaded =
         uploads.length > 0 && uploads.every(u => u.status === "uploaded");
+    const readyToContinue = allUploaded && photosUploaded >= MIN_IMAGES;
 
     return (
         <div className="StyledGrommet-sc-19lkkz7-0 daORNg">
             <div className="StyledBox-sc-13pk1d4-0 ejlvja sc-8340680b-0 jylZUp">
-                 <Box gap="small">
-                                <Heading level={2} size="xlarge" margin="none">
-                                    Upload Photos
-                                </Heading>
-                                <Text size="small" color="dark-5">
-                                    Select the photos you would like to print to make your Photo Book.
-                                </Text>
-                            </Box>
+                {/* page header */}
+                <Box gap="small" pad={{ horizontal: "medium", top: "medium" }}>
+                    <Heading level={2} size="xlarge" margin="none">
+                        Upload Photos
+                    </Heading>
+                    <Text size="small" color="dark-5">
+                        Select the photos you would like to print to make your Photo Book.
+                    </Text>
+                </Box>
+
                 <Box pad="medium">
                     <Box data-cy="uploadDropzone">
                         <Box
@@ -122,14 +115,19 @@ export default function ImageUploader({ onContinue }) {
                             ]}
                         >
                             {step === 1 ? (
-                                <UploadStepContent fileInputRef={fileInputRef} />
+                                <UploadStepContent
+                                    fileInputRef={fileInputRef}
+                                />
                             ) : (
                                 <GridStep
                                     uploads={uploads}
                                     photosUploaded={photosUploaded}
-                                    allDone={allDone}
+                                    minImages={MIN_IMAGES}
+                                    allDone={readyToContinue}      // ← only true when ≥20 uploaded
                                     onBack={() => setStep(1)}
-                                    onContinue={() => onContinue(uploads)}
+                                    onContinue={() => {
+                                        if (readyToContinue) onContinue(uploads);
+                                    }}
                                     fileInputRef={fileInputRef}
                                 />
                             )}
@@ -138,7 +136,7 @@ export default function ImageUploader({ onContinue }) {
                 </Box>
             </div>
 
-            {/* ← This hidden input is always rendered, so fileInputRef.current is never null */}
+            {/* single hidden input always mounted */}
             <input
                 type="file"
                 multiple
