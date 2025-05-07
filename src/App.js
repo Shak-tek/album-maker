@@ -78,7 +78,7 @@ export default function App() {
     // map each key into your resizer URL
     const urls = Contents.map((o) => {
       const key = o.Key; // e.g. "1612345678901/myImage.jpg"
-      return `${RESIZER_API_URL}/${encodeURIComponent(key)}?width=1000`;
+      return `${RESIZER_API_URL}/${encodeURI(key)}?width=1000`;
     });
 
     setLoadedImages(urls);
@@ -134,9 +134,9 @@ export default function App() {
             <ImageUploader
               sessionId={sessionId}
               onContinue={(finishedUploads) => {
-                const keys = finishedUploads.map((u) => u.key);
+                const keys = finishedUploads.map((u) => u.key); 
                 const urls = keys.map((k) =>
-                  `${RESIZER_API_URL}/${encodeURIComponent(k)}?width=300`
+                  `${RESIZER_API_URL}/${encodeURI(k)}?width=1000`
                 );
                 setLoadedImages(urls);
                 setView("editor");

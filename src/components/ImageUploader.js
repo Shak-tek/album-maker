@@ -89,7 +89,7 @@ export default function ImageUploader({ sessionId, onContinue }) {
                     updateUpload(idx, { status: "error" });
                 } else {
                     // build your thumbnail URL via the resize API
-                    const resized = `${RESIZER_API_URL}/${encodeURIComponent(
+                    const resized = `${RESIZER_API_URL}/${encodeURI(
                         key
                     )}?width=300`;
 
