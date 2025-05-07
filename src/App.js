@@ -74,9 +74,13 @@ export default function App() {
     const { Contents } = await s3
       .listObjectsV2({ Prefix: `${sessionId}/` })
       .promise();
-    const urls = Contents.map((o) =>
-      s3.getSignedUrl("getObject", { Key: o.Key, Expires: 3600 })
-    );
+
+    // map each key into your resizer URL
+    const urls = Contents.map((o) => {
+      const key = o.Key; // e.g. "1612345678901/myImage.jpg"
+      return `${RESIZER_API_URL}/${encodeURIComponent(key)}?width=1000`;
+    });
+
     setLoadedImages(urls);
     setView("editor");
     setShowPrompt(false);
@@ -102,7 +106,7 @@ export default function App() {
       setView("upload");
       setShowPrompt(false);
     }
-  }, []);  // no missing deps now!
+  }, []);
 
   return (
     <Grommet theme={theme} full>

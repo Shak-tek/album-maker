@@ -10,6 +10,9 @@ const IDENTITY_POOL_ID = "us-east-1:77fcf55d-2bdf-4f46-b979-ee71beb59193";
 const BUCKET = "albumgrom";
 const MAX_IMAGES = 100;
 const MIN_IMAGES = 20;     // ← minimum required photos
+const RESIZER_API_URL =
+    process.env.REACT_APP_RESIZER_API_URL ||
+    "https://rd654zmm4e.execute-api.us-east-1.amazonaws.com/prod/resize";
 
 export default function ImageUploader({ sessionId, onContinue }) {
     const [uploads, setUploads] = useState([]);
@@ -36,7 +39,7 @@ export default function ImageUploader({ sessionId, onContinue }) {
             return next;
         });
 
-    // file picker → add entries
+    // file picker → add entries (temporary preview until upload finishes)
     const handleFileChange = e => {
         const files = Array.from(e.target.files || []).slice(
             0,
@@ -59,30 +62,42 @@ export default function ImageUploader({ sessionId, onContinue }) {
         setStep(2);
     };
 
-    // perform S3 uploads
+    // perform S3 uploads and overwrite preview with your resizer URL on success
     useEffect(() => {
         if (step !== 2 || !s3Client) return;
         uploads.forEach((u, idx) => {
             if (u.status !== "pending") return;
+
             const key = `${sessionId}/${Date.now()}_${u.file.name}`;
             updateUpload(idx, { status: "uploading", key });
+
             const managed = s3Client.upload({
                 Bucket: BUCKET,
                 Key: key,
                 Body: u.file,
                 ContentType: u.file.type,
             });
+
             managed.on("httpUploadProgress", evt => {
-                updateUpload(idx, { progress: Math.round((evt.loaded / evt.total) * 100) });
+                updateUpload(idx, {
+                    progress: Math.round((evt.loaded / evt.total) * 100),
+                });
             });
+
             managed.send((err, data) => {
-                if (err) updateUpload(idx, { status: "error" });
-                else {
+                if (err) {
+                    updateUpload(idx, { status: "error" });
+                } else {
+                    // build your thumbnail URL via the resize API
+                    const resized = `${RESIZER_API_URL}/${encodeURIComponent(
+                        key
+                    )}?width=300`;
+
                     updateUpload(idx, {
                         status: "uploaded",
                         uploadUrl: data.Location,
+                        preview: resized,
                         progress: 100,
-                        key,          // remember full S3 key
                     });
                 }
             });
@@ -117,15 +132,13 @@ export default function ImageUploader({ sessionId, onContinue }) {
                             ]}
                         >
                             {step === 1 ? (
-                                <UploadStepContent
-                                    fileInputRef={fileInputRef}
-                                />
+                                <UploadStepContent fileInputRef={fileInputRef} />
                             ) : (
                                 <GridStep
                                     uploads={uploads}
                                     photosUploaded={photosUploaded}
                                     minImages={MIN_IMAGES}
-                                    allDone={readyToContinue}      // ← only true when ≥20 uploaded
+                                    allDone={readyToContinue}
                                     onBack={() => setStep(1)}
                                     onContinue={() => {
                                         if (readyToContinue) onContinue(uploads);
