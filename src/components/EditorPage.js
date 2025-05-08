@@ -1,10 +1,11 @@
+// src/components/EditorPage.js
 import "./EditorPage.css";
 import React, { useState, useEffect, useRef } from "react";
 import { Box, Button } from "grommet";
 import { Template as TemplateIcon, Brush } from "grommet-icons";
 import TemplateModal from "./TemplateModal";
 import ThemeModal from "./ThemeModal";
-import ColorThief from "color-thief-browser";
+// import ColorThief from "color-thief-browser";
 import { pageTemplates } from "../templates/pageTemplates";
 
 export default function EditorPage({ images }) {
@@ -14,135 +15,142 @@ export default function EditorPage({ images }) {
     const [showThemeModal, setShowThemeModal] = useState(false);
     const [themeModalPage, setThemeModalPage] = useState(null);
 
-    // refs for drag‐and‐drop
-    const previewRef = useRef();
-    const previewImgRef = useRef();
+    const previewRef = useRef(null);
+    const previewImgRef = useRef(null);
     const dragActiveRef = useRef(false);
     const dragSrcRef = useRef({ page: null, slot: null });
 
-    // 1) initialize per‐page assignments (never reuse an image)
+    // 1×1 transparent placeholder
+    const TRANSPARENT_PIXEL =
+        "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+
+    // 1) initialize per-page assignments
     useEffect(() => {
         const remaining = images.slice();
         const initial = remaining.map((_, i) => ({
             templateId:
                 i < 2
                     ? 1
-                    : pageTemplates[
-                        Math.floor(Math.random() * pageTemplates.length)
-                    ].id,
+                    : pageTemplates[Math.floor(Math.random() * pageTemplates.length)].id,
             theme: { mode: "dynamic", color: null },
         }));
 
         const withAssignments = initial.map(ps => {
             const tmpl = pageTemplates.find(t => t.id === ps.templateId);
-            const count = tmpl.slots.length;
-            const assigned = remaining.splice(0, count);
+            const assigned = remaining.splice(0, tmpl.slots.length);
             return { ...ps, assignedImages: assigned };
         });
 
         setPageSettings(withAssignments);
     }, [images]);
 
-    // 2) dynamic color
-    useEffect(() => {
-        pageSettings.forEach(async (ps, pi) => {
-            if (ps.theme.mode !== "dynamic") return;
-            const url = ps.assignedImages[0];
-            if (!url || url.startsWith("blob:")) return;
-
-            const img = new Image();
-            img.crossOrigin = "Anonymous";
-            img.src = url;
-            try {
-                await img.decode();
-            } catch {
-                return;
-            }
-
-            const [r, g, b] = new ColorThief().getColor(img);
-            const rgb = `rgb(${r}, ${g}, ${b})`;
-            if (rgb !== ps.theme.color) {
-                setPageSettings(prev => {
-                    const next = [...prev];
-                    next[pi] = { ...next[pi], theme: { mode: "dynamic", color: rgb } };
-                    return next;
-                });
-            }
-        });
-    }, [pageSettings]);
-
-    // 3) persist
+    // 2) persist settings
     useEffect(() => {
         localStorage.setItem("pageSettings", JSON.stringify(pageSettings));
     }, [pageSettings]);
 
-    // helper to get mouse/touch coords
+    // 3) lazy-load + dynamic color on actual load
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries, obs) => {
+                entries.forEach(entry => {
+                    if (!entry.isIntersecting) return;
+                    const img = entry.target;
+                    img.src = img.dataset.src;        // swap in real URL
+
+                    // img.onload = () => {
+                    //     // extract color only once it's in view
+                    //     const slotEl = img.closest(".photo-slot");
+                    //     if (!slotEl) return;
+                    //     const pageIdx = Number(slotEl.dataset.pageIndex);
+                    //     const setting = pageSettings[pageIdx];
+                    //     if (setting?.theme.mode === "dynamic") {
+                    //         try {
+                    //             const [r, g, b] = new ColorThief().getColor(img);
+                    //             const rgb = `rgb(${r}, ${g}, ${b})`;
+                    //             setPageSettings(ps => {
+                    //                 const next = [...ps];
+                    //                 next[pageIdx] = {
+                    //                     ...next[pageIdx],
+                    //                     theme: { mode: "dynamic", color: rgb },
+                    //                 };
+                    //                 return next;
+                    //             });
+                    //         } catch {
+                    //             // ignore any ColorThief failures
+                    //         }
+                    //     }
+                    // };
+
+                    obs.unobserve(img);
+                });
+            },
+            { rootMargin: "100px", threshold: 0.1 }
+        );
+
+        document.querySelectorAll("img[data-src]").forEach(img => {
+            img.src = TRANSPARENT_PIXEL;
+            observer.observe(img);
+        });
+
+        return () => observer.disconnect();
+    }, [pageSettings]);
+
+    // helper for drag coords
     const getTouchCoords = e =>
         e.touches?.length
             ? { x: e.touches[0].clientX, y: e.touches[0].clientY }
             : { x: e.clientX, y: e.clientY };
 
-    // start dragging a specific page/slot
+    // start dragging
     const startDrag = (pageIdx, slotIdx, e) => {
         e.stopPropagation();
         const url = pageSettings[pageIdx].assignedImages[slotIdx];
         if (!url) return;
-
         dragActiveRef.current = true;
         dragSrcRef.current = { page: pageIdx, slot: slotIdx };
         previewImgRef.current.src = url;
         previewRef.current.style.display = "block";
         movePreview(e);
-
         document.addEventListener("mousemove", movePreview);
         document.addEventListener("mouseup", handleDrop);
         document.addEventListener("touchmove", movePreview, { passive: false });
         document.addEventListener("touchend", handleDrop);
     };
 
-    // move the preview image
+    // move drag preview
     const movePreview = e => {
         if (!dragActiveRef.current) return;
         const { x, y } = getTouchCoords(e);
         previewRef.current.style.left = `${x}px`;
         previewRef.current.style.top = `${y}px`;
-
         document
             .querySelectorAll(".photo-slot.highlight")
             .forEach(el => el.classList.remove("highlight"));
-        const over = document
-            .elementFromPoint(x, y)
-            ?.closest(".photo-slot");
+        const over = document.elementFromPoint(x, y)?.closest(".photo-slot");
         if (over) over.classList.add("highlight");
-
         if (e.cancelable) e.preventDefault();
     };
 
-    // on mouseup/touchend: swap src↔tgt
+    // drop & swap
     const handleDrop = e => {
         if (!dragActiveRef.current) return;
         const { x, y } = getTouchCoords(e);
-        const over = document
-            .elementFromPoint(x, y)
-            ?.closest(".photo-slot");
-
+        const over = document.elementFromPoint(x, y)?.closest(".photo-slot");
         if (over) {
             const tgtPage = Number(over.dataset.pageIndex);
             const tgtSlot = Number(over.dataset.slotIndex);
             const { page: srcPage, slot: srcSlot } = dragSrcRef.current;
-
             if (
                 srcPage !== null &&
                 (srcPage !== tgtPage || srcSlot !== tgtSlot)
             ) {
                 setPageSettings(prev => {
-                    // deep‐clone assignedImages arrays
                     const next = prev.map(ps => ({
                         ...ps,
                         assignedImages: [...ps.assignedImages],
                     }));
-                    const tmp =
-                        next[srcPage].assignedImages[srcSlot];
+                    const tmp = next[srcPage].assignedImages[srcSlot];
                     next[srcPage].assignedImages[srcSlot] =
                         next[tgtPage].assignedImages[tgtSlot];
                     next[tgtPage].assignedImages[tgtSlot] = tmp;
@@ -153,7 +161,7 @@ export default function EditorPage({ images }) {
         endDrag();
     };
 
-    // clean up
+    // end drag cleanup
     const endDrag = () => {
         dragActiveRef.current = false;
         previewRef.current.style.display = "none";
@@ -166,7 +174,7 @@ export default function EditorPage({ images }) {
         document.removeEventListener("touchend", handleDrop);
     };
 
-    // template/theme modals
+    // template modal
     const openTemplateModal = pi => {
         setTemplateModalPage(pi);
         setShowTemplateModal(true);
@@ -179,6 +187,8 @@ export default function EditorPage({ images }) {
         });
         setShowTemplateModal(false);
     };
+
+    // theme modal
     const openThemeModal = pi => {
         setThemeModalPage(pi);
         setShowThemeModal(true);
@@ -198,14 +208,15 @@ export default function EditorPage({ images }) {
         <>
             <div className="container">
                 {pageSettings.map((ps, pi) => {
+                    // skip any page with zero assignedImages
+                    if (!ps.assignedImages?.length) return null;
+
                     const tmpl = pageTemplates.find(t => t.id === ps.templateId);
                     return (
                         <div
                             key={pi}
                             className="page-wrapper"
-                            style={{
-                                backgroundColor: ps.theme.color || "transparent",
-                            }}
+                            style={{ backgroundColor: ps.theme.color || "transparent" }}
                         >
                             <Box
                                 className="toolbar"
@@ -235,17 +246,16 @@ export default function EditorPage({ images }) {
                                         onMouseDown={e => startDrag(pi, slotIdx, e)}
                                         onTouchStart={e => startDrag(pi, slotIdx, e)}
                                     >
-                                        {ps.assignedImages[slotIdx] && (
-                                            <img
-                                                src={ps.assignedImages[slotIdx]}
-                                                alt=""
-                                                style={{
-                                                    width: "100%",
-                                                    height: "100%",
-                                                    objectFit: "cover",
-                                                }}
-                                            />
-                                        )}
+                                        <img
+                                            src={TRANSPARENT_PIXEL}
+                                            data-src={ps.assignedImages[slotIdx]}
+                                            alt=""
+                                            style={{
+                                                width: "100%",
+                                                height: "100%",
+                                                objectFit: "cover",
+                                            }}
+                                        />
                                     </div>
                                 ))}
                             </div>
@@ -268,7 +278,7 @@ export default function EditorPage({ images }) {
             {showThemeModal && (
                 <ThemeModal
                     pageIdx={themeModalPage}
-                    onSelect={pickTheme}
+                    onSelect={opts => pickTheme(themeModalPage, opts)}
                     onClose={() => setShowThemeModal(false)}
                 />
             )}
