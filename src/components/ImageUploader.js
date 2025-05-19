@@ -14,6 +14,10 @@ const RESIZER_API_URL =
     process.env.REACT_APP_RESIZER_API_URL ||
     "https://rd654zmm4e.execute-api.us-east-1.amazonaws.com/prod/resize";
 
+// helper to build a resize URL with cache-busting
+const getResizedUrl = (key, width = 300) =>
+    `${RESIZER_API_URL}/${encodeURIComponent(key)}?width=${width}&cacheBust=${Date.now()}`;
+
 export default function ImageUploader({ sessionId, onContinue }) {
     const [uploads, setUploads] = useState([]);
     const [step, setStep] = useState(1);
@@ -65,6 +69,7 @@ export default function ImageUploader({ sessionId, onContinue }) {
     // perform S3 uploads and overwrite preview with your resizer URL on success
     useEffect(() => {
         if (step !== 2 || !s3Client) return;
+
         uploads.forEach((u, idx) => {
             if (u.status !== "pending") return;
 
@@ -88,10 +93,8 @@ export default function ImageUploader({ sessionId, onContinue }) {
                 if (err) {
                     updateUpload(idx, { status: "error" });
                 } else {
-                    // build your thumbnail URL via the resize API
-                    const resized = `${RESIZER_API_URL}/${encodeURI(
-                        key
-                    )}?width=300`;
+                    // build your thumbnail URL via the resize API with cache-busting
+                    const resized = getResizedUrl(key, 300);
 
                     updateUpload(idx, {
                         status: "uploaded",
@@ -104,7 +107,7 @@ export default function ImageUploader({ sessionId, onContinue }) {
         });
     }, [step, uploads, s3Client, sessionId]);
 
-    // counts & ready‐flags
+    // counts & ready-flags
     const photosUploaded = uploads.filter(u => u.status === "uploaded").length;
     const allUploaded =
         uploads.length > 0 && uploads.every(u => u.status === "uploaded");
@@ -144,6 +147,13 @@ export default function ImageUploader({ sessionId, onContinue }) {
                                         if (readyToContinue) onContinue(uploads);
                                     }}
                                     fileInputRef={fileInputRef}
+                                    // retry a failed thumbnail by regenerating the preview URL
+                                    onImageError={idx => {
+                                        const u = uploads[idx];
+                                        updateUpload(idx, {
+                                            preview: getResizedUrl(u.key, 300),
+                                        });
+                                    }}
                                 />
                             )}
                         </Box>

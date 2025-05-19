@@ -159,3 +159,16 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
+/* page wrapper when skeleton loading */
+.skeleton-page-wrapper {
+    background: #f7f7f7;
+    margin-bottom: 1rem;
+    border-radius: 4px;
+}
+
+/* individual slot placeholders */
+.skeleton-photo-slot {
+    background: #e0e0e0;
+    flex: 1;
+    border-radius: 4px;
+    height: 150px; }
