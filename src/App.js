@@ -11,6 +11,7 @@ import {
   Box,
 } from "grommet";
 import { deepMerge } from "grommet/utils";
+import { ImageKitProvider } from "@imagekit/react";
 import ImageUploader from "./components/ImageUploader";
 import EditorPage from "./components/EditorPage";
 
@@ -35,6 +36,8 @@ const s3 = new AWS.S3({
   apiVersion: "2006-03-01",
   params: { Bucket: BUCKET },
 });
+
+const IK_URL_ENDPOINT = process.env.REACT_APP_IMAGEKIT_URL_ENDPOINT || "";
 
 // your resize API
 const RESIZER_API_URL =
@@ -109,6 +112,7 @@ export default function App() {
   }, []);
 
   return (
+    <ImageKitProvider urlEndpoint={IK_URL_ENDPOINT}>
     <Grommet theme={theme} full>
       <Page>
         <Header background="brand" pad="small">
@@ -148,5 +152,6 @@ export default function App() {
         </PageContent>
       </Page>
     </Grommet>
+    </ImageKitProvider>
   );
 }

@@ -79,6 +79,7 @@ npm run server
 ```
 
 This server exposes `/imagekit/auth` which the React app uses to obtain upload signatures.
+The frontend uses the `@imagekit/react` package to handle image uploads.
 
 3. In another terminal, start the React app:
 

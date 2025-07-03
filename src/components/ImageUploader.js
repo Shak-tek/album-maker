@@ -1,7 +1,7 @@
 // src/components/ImageUploader.js
 import React, { useEffect, useState, useRef } from "react";
 import { Box, Heading, Text } from "grommet";
-import ImageKit from "imagekit-javascript";
+import { upload } from "@imagekit/react";
 import UploadStepContent from "./UploadStepContent";
 import GridStep from "./GridStep";
 
@@ -23,14 +23,6 @@ export default function ImageUploader({ sessionId, onContinue }) {
     const [step, setStep] = useState(1);
     const fileInputRef = useRef();
 
-    // ImageKit instance
-    const imagekit = useRef(
-        new ImageKit({
-            publicKey: IK_PUBLIC_KEY,
-            urlEndpoint: IK_URL_ENDPOINT,
-            authenticationEndpoint: IK_AUTH_ENDPOINT,
-        })
-    ).current;
 
     const updateUpload = (idx, fields) =>
         setUploads(all => {
@@ -82,30 +74,34 @@ export default function ImageUploader({ sessionId, onContinue }) {
                 }
             };
 
-            imagekit.upload(
-                {
-                    file: u.file,
-                    fileName,
-                    folder: sessionId,
-                    xhr,
-                },
-                (err, result) => {
-                    if (err) {
-                        updateUpload(idx, { status: "error" });
-                    } else {
-                        const resized = getResizedUrl(result.filePath, 300);
+            // obtain authentication parameters then upload
+            fetch(IK_AUTH_ENDPOINT)
+                .then(res => res.json())
+                .then(({ signature, expire, token }) =>
+                    upload({
+                        file: u.file,
+                        fileName,
+                        publicKey: IK_PUBLIC_KEY,
+                        signature,
+                        expire,
+                        token,
+                        folder: sessionId,
+                        xhr,
+                    })
+                )
+                .then(result => {
+                    const resized = getResizedUrl(result.filePath, 300);
 
-                        updateUpload(idx, {
-                            status: "uploaded",
-                            uploadUrl: result.url,
-                            preview: resized,
-                            progress: 100,
-                        });
-                    }
-                }
-            );
+                    updateUpload(idx, {
+                        status: "uploaded",
+                        uploadUrl: result.url,
+                        preview: resized,
+                        progress: 100,
+                    });
+                })
+                .catch(() => updateUpload(idx, { status: "error" }));
         });
-    }, [step, uploads, sessionId, imagekit]);
+    }, [step, uploads, sessionId]);
 
     // counts & ready-flags
     const photosUploaded = uploads.filter(u => u.status === "uploaded").length;
