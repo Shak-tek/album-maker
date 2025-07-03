@@ -68,3 +68,20 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+## ImageKit Setup
+
+1. Copy `.env.example` to `.env` and fill in your ImageKit keys.
+2. Start the authentication server:
+
+```bash
+npm run server
+```
+
+This server exposes `/imagekit/auth` which the React app uses to obtain upload signatures.
+
+3. In another terminal, start the React app:
+
+```bash
+npm start
+```
