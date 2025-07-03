@@ -15,7 +15,6 @@
     "grommet": "^2.46.1",
     "grommet-icons": "^4.12.4",
     "imagekit": "^6.0.0",
-    "imagekit-javascript": "^4.0.1",
     "imagekitio-react": "^4.3.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
