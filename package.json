@@ -10,8 +10,13 @@
     "aws-sdk": "^2.1692.0",
     "axios": "^1.8.4",
     "color-thief-browser": "^2.0.2",
+    "dotenv": "^17.0.1",
+    "express": "^5.1.0",
     "grommet": "^2.46.1",
     "grommet-icons": "^4.12.4",
+    "imagekit": "^6.0.0",
+    "imagekit-javascript": "^4.0.1",
+    "imagekitio-react": "^4.3.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-scripts": "5.0.1",
@@ -22,7 +27,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "server": "node server.js"
   },
   "eslintConfig": {
     "extends": [
