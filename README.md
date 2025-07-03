@@ -72,7 +72,7 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/t
 ## ImageKit Setup
 
 1. Copy `.env.example` to `.env` and fill in your ImageKit keys.
-2. Start the authentication server:
+2. Start the authentication server (install dependencies with `npm install` if needed):
 
 ```bash
 npm run server
@@ -80,6 +80,10 @@ npm run server
 
 This server exposes `/imagekit/auth` which the React app uses to obtain upload signatures.
 The frontend uses the `@imagekit/react` package to handle image uploads.
+
+The server uses [`cors`](https://www.npmjs.com/package/cors) and allows requests
+from the origin specified in the `CORS_ORIGIN` environment variable
+(default `http://localhost:3000`).
 
 3. In another terminal, start the React app:
 
