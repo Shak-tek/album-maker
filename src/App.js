@@ -39,10 +39,9 @@ const s3 = new AWS.S3({
 
 const IK_URL_ENDPOINT = process.env.REACT_APP_IMAGEKIT_URL_ENDPOINT || "";
 
-// your resize API
-const RESIZER_API_URL =
-  process.env.REACT_APP_RESIZER_API_URL ||
-  "https://rd654zmm4e.execute-api.us-east-1.amazonaws.com/prod/resize";
+// helper to build an ImageKit transformation URL
+const getResizedUrl = (key, width = 1000) =>
+  `${IK_URL_ENDPOINT}/${encodeURI(key)}?tr=w-${width}`;
 
 export default function App() {
   const [sessionId, setSessionId] = useState(null);
@@ -78,10 +77,10 @@ export default function App() {
       .listObjectsV2({ Prefix: `${sessionId}/` })
       .promise();
 
-    // map each key into your resizer URL
+    // map each key into the ImageKit URL
     const urls = Contents.map((o) => {
       const key = o.Key; // e.g. "1612345678901/myImage.jpg"
-      return `${RESIZER_API_URL}/${encodeURI(key)}?width=1000`;
+      return getResizedUrl(key, 1000);
     });
 
     setLoadedImages(urls);
@@ -138,10 +137,8 @@ export default function App() {
             <ImageUploader
               sessionId={sessionId}
               onContinue={(finishedUploads) => {
-                const keys = finishedUploads.map((u) => u.key); 
-                const urls = keys.map((k) =>
-                  `${RESIZER_API_URL}/${encodeURI(k)}?width=1000`
-                );
+                const keys = finishedUploads.map((u) => u.key);
+                const urls = keys.map((k) => getResizedUrl(k, 1000));
                 setLoadedImages(urls);
                 setView("editor");
               }}

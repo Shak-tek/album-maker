@@ -10,13 +10,10 @@ const IK_URL_ENDPOINT = process.env.REACT_APP_IMAGEKIT_URL_ENDPOINT || "";
 const IK_AUTH_ENDPOINT = process.env.REACT_APP_IMAGEKIT_AUTH_ENDPOINT || "";
 const MAX_IMAGES = 100;
 const MIN_IMAGES = 20;     // ← minimum required photos
-const RESIZER_API_URL =
-    process.env.REACT_APP_RESIZER_API_URL ||
-    "https://rd654zmm4e.execute-api.us-east-1.amazonaws.com/prod/resize";
 
-// helper to build a resize URL with cache-busting
+// helper to build a resize URL via ImageKit with cache-busting
 const getResizedUrl = (key, width = 300) =>
-    `${RESIZER_API_URL}/${encodeURIComponent(key)}?width=${width}&cacheBust=${Date.now()}`;
+    `${IK_URL_ENDPOINT}/${encodeURI(key)}?tr=w-${width}&v=${Date.now()}`;
 
 export default function ImageUploader({ sessionId, onContinue }) {
     const [uploads, setUploads] = useState([]);
