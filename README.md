@@ -90,3 +90,18 @@ from the origin specified in the `CORS_ORIGIN` environment variable
 ```bash
 npm start
 ```
+
+### Using S3 for storage
+
+The upload code already sends files to ImageKit. To keep the original
+files in your own S3 bucket while still using ImageKit for processing,
+link that bucket as an **external storage** in the ImageKit dashboard:
+
+1. Go to **Media Library → External storage** and choose **Add external
+   storage**.
+2. Select **AWS S3** and provide your bucket details and credentials.
+3. Set this S3 source as the default upload destination (or prefix your
+   `folder` path with the external source name).
+
+Once configured, uploads made by the app will be stored in S3, and the
+returned ImageKit URLs can be used for image transformations.
