@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@imagekit/react": "^5.0.1",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
@@ -16,8 +15,6 @@
     "express": "^5.1.0",
     "grommet": "^2.46.1",
     "grommet-icons": "^4.12.4",
-    "imagekit": "^6.0.0",
-    "imagekitio-react": "^4.3.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-scripts": "5.0.1",

@@ -1,15 +1,18 @@
 // src/components/ImageUploader.js
 import React, { useEffect, useState, useRef } from "react";
 import { Box, Heading, Text } from "grommet";
-import { upload } from "@imagekit/react";
+import AWS from "aws-sdk";
 import UploadStepContent from "./UploadStepContent";
 import GridStep from "./GridStep";
 
-const IK_PUBLIC_KEY = process.env.REACT_APP_IMAGEKIT_PUBLIC_KEY || "";
-const IK_URL_ENDPOINT = process.env.REACT_APP_IMAGEKIT_URL_ENDPOINT || "";
-const IK_AUTH_ENDPOINT = process.env.REACT_APP_IMAGEKIT_AUTH_ENDPOINT || "";
+const REGION = "us-east-1";
+const IDENTITY_POOL_ID = "us-east-1:77fcf55d-2bdf-4f46-b979-ee71beb59193";
+const BUCKET = "albumgrom";
 const MAX_IMAGES = 100;
 const MIN_IMAGES = 20;     // ← minimum required photos
+
+// base ImageKit URL used for thumbnails
+const IK_URL_ENDPOINT = process.env.REACT_APP_IMAGEKIT_URL_ENDPOINT || "";
 
 // helper to build a resize URL via ImageKit with cache-busting
 const getResizedUrl = (key, width = 300) =>
@@ -18,7 +21,20 @@ const getResizedUrl = (key, width = 300) =>
 export default function ImageUploader({ sessionId, onContinue }) {
     const [uploads, setUploads] = useState([]);
     const [step, setStep] = useState(1);
+    const [s3Client, setS3Client] = useState(null);
     const fileInputRef = useRef();
+
+    // Cognito + S3 init
+    useEffect(() => {
+        const creds = new AWS.CognitoIdentityCredentials({
+            IdentityPoolId: IDENTITY_POOL_ID,
+        });
+        AWS.config.update({ region: REGION, credentials: creds });
+        creds.get(err => {
+            if (!err) setS3Client(new AWS.S3({ apiVersion: "2006-03-01" }));
+            else console.error("Cognito error", err);
+        });
+    }, []);
 
 
     const updateUpload = (idx, fields) =>
@@ -51,54 +67,45 @@ export default function ImageUploader({ sessionId, onContinue }) {
         setStep(2);
     };
 
-    // perform uploads via ImageKit and overwrite preview with your resizer URL on success
+    // perform S3 uploads and overwrite preview with the ImageKit URL on success
     useEffect(() => {
-        if (step !== 2) return;
+        if (step !== 2 || !s3Client) return;
 
         uploads.forEach((u, idx) => {
             if (u.status !== "pending") return;
 
-            const fileName = `${Date.now()}_${u.file.name}`;
-            const key = `${sessionId}/${fileName}`;
+            const key = `${sessionId}/${Date.now()}_${u.file.name}`;
             updateUpload(idx, { status: "uploading", key });
 
-            const xhr = new XMLHttpRequest();
-            xhr.upload.onprogress = evt => {
-                if (evt.lengthComputable) {
-                    updateUpload(idx, {
-                        progress: Math.round((evt.loaded / evt.total) * 100),
-                    });
-                }
-            };
+            const managed = s3Client.upload({
+                Bucket: BUCKET,
+                Key: key,
+                Body: u.file,
+                ContentType: u.file.type,
+            });
 
-            // obtain authentication parameters then upload
-            fetch(IK_AUTH_ENDPOINT)
-                .then(res => res.json())
-                .then(({ signature, expire, token }) =>
-                    upload({
-                        file: u.file,
-                        fileName,
-                        publicKey: IK_PUBLIC_KEY,
-                        signature,
-                        expire,
-                        token,
-                        folder: sessionId,
-                        xhr,
-                    })
-                )
-                .then(result => {
-                    const resized = getResizedUrl(result.filePath, 300);
+            managed.on("httpUploadProgress", evt => {
+                updateUpload(idx, {
+                    progress: Math.round((evt.loaded / evt.total) * 100),
+                });
+            });
+
+            managed.send((err, data) => {
+                if (err) {
+                    updateUpload(idx, { status: "error" });
+                } else {
+                    const resized = getResizedUrl(key, 300);
 
                     updateUpload(idx, {
                         status: "uploaded",
-                        uploadUrl: result.url,
+                        uploadUrl: data.Location,
                         preview: resized,
                         progress: 100,
                     });
-                })
-                .catch(() => updateUpload(idx, { status: "error" }));
+                }
+            });
         });
-    }, [step, uploads, sessionId]);
+    }, [step, uploads, s3Client, sessionId]);
 
     // counts & ready-flags
     const photosUploaded = uploads.filter(u => u.status === "uploaded").length;
