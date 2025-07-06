@@ -69,39 +69,11 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
 
-## ImageKit Setup
 
-1. Copy `.env.example` to `.env` and fill in your ImageKit keys.
-2. Start the authentication server (install dependencies with `npm install` if needed):
+## S3 Setup
 
-```bash
-npm run server
-```
-
-This server exposes `/imagekit/auth` which the React app uses to obtain upload signatures.
-The frontend uses the `@imagekit/react` package to handle image uploads.
-
-The server uses [`cors`](https://www.npmjs.com/package/cors) and allows requests
-from the origin specified in the `CORS_ORIGIN` environment variable
-(default `http://localhost:3000`).
-
-3. In another terminal, start the React app:
+Uploads are sent directly to Amazon S3 using the AWS SDK in the browser. Configure the bucket name and identity pool in `ImageUploader.js`. Images are displayed via ImageKit for resizing, so set `REACT_APP_IMAGEKIT_URL_ENDPOINT` in `.env` after linking your S3 bucket as an external source in the ImageKit dashboard.
 
 ```bash
 npm start
 ```
-
-### Using S3 for storage
-
-The upload code already sends files to ImageKit. To keep the original
-files in your own S3 bucket while still using ImageKit for processing,
-link that bucket as an **external storage** in the ImageKit dashboard:
-
-1. Go to **Media Library → External storage** and choose **Add external
-   storage**.
-2. Select **AWS S3** and provide your bucket details and credentials.
-3. Set this S3 source as the default upload destination (or prefix your
-   `folder` path with the external source name).
-
-Once configured, uploads made by the app will be stored in S3, and the
-returned ImageKit URLs can be used for image transformations.
