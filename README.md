@@ -77,3 +77,22 @@ Uploads are sent directly to Amazon S3 using the AWS SDK in the browser. Configu
 ```bash
 npm start
 ```
+
+## Deploying to Netlify
+
+This project includes a Netlify Function that provides ImageKit authentication
+parameters. Deploying the repository to Netlify will automatically build the
+React app and make the function available.
+
+1. Push the repository to your Git provider and create a new site on Netlify.
+2. In the Netlify dashboard add the following environment variables:
+   - `IMAGEKIT_PUBLIC_KEY`
+   - `IMAGEKIT_PRIVATE_KEY`
+   - `IMAGEKIT_URL_ENDPOINT`
+   - `CORS_ORIGIN` (optional, defaults to `*`)
+3. Netlify runs `npm run build` and publishes the `build` directory. The
+   authentication endpoint will be available at
+   `/.netlify/functions/imagekit-auth`.
+
+When developing locally you can use `netlify dev` to run both the React app and
+the function.
