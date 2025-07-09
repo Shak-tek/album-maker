@@ -4,8 +4,13 @@ import { themeGroups } from '../templates/predefinedThemes';
 
 export default function ThemeModal({ onSelect, onClose, pageIdx }) {
     return (
-        <Layer onEsc={onClose} onClickOutside={onClose}>
-            <Box pad="small" gap="medium" width="medium">
+        <Layer
+            position="center"
+            responsive={false}
+            onEsc={onClose}
+            onClickOutside={onClose}
+        >
+            <Box pad="small" gap="medium" width="medium" style={{ maxWidth: '90vw' }}>
                 {themeGroups.map(group => (
                     <Box key={group.name}>
                         <Text weight="bold">{group.name}</Text>

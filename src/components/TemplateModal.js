@@ -5,8 +5,13 @@ import { pageTemplates } from '../templates/pageTemplates';
 
 export default function TemplateModal({ onSelect, onClose }) {
     return (
-        <Layer onEsc={onClose} onClickOutside={onClose}>
-            <Box pad="medium" width="medium" gap="small">
+        <Layer
+            position="center"
+            responsive={false}
+            onEsc={onClose}
+            onClickOutside={onClose}
+        >
+            <Box pad="medium" width="medium" gap="small" style={{ maxWidth: '90vw' }}>
                 <Box direction="row" justify="between" align="center">
                     <Text weight="bold">Templates</Text>
                     <Button label="×" onClick={onClose} />
