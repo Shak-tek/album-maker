@@ -119,10 +119,12 @@ export default function App() {
         <PageContent pad="large">
           {showPrompt && (
             <Layer
+              position="center"
+              responsive={false}
               onEsc={() => setShowPrompt(false)}
               onClickOutside={() => setShowPrompt(false)}
             >
-              <Box pad="medium" gap="small">
+              <Box pad="medium" gap="small" style={{ maxWidth: '90vw' }}>
                 <Text>Continue your previous session?</Text>
                 <Box direction="row" gap="small">
                   <Button label="Continue" primary onClick={continueSession} />
