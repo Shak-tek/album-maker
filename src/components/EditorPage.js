@@ -9,6 +9,32 @@ import ThemeModal from "./ThemeModal";
 import SettingsBar from "./SettingsBar";
 import { pageTemplates } from "../templates/pageTemplates";
 
+const slotPositions = [
+    { top: '6.7%', left: '5.1%', width: '43.7%', height: '86.4%' },
+    { top: '6.7%', left: '51.1%', width: '43.7%', height: '41.7%' },
+    { top: '51.5%', left: '51.1%', width: '43.7%', height: '41.7%' },
+    { top: '10%', left: '5%', width: '42%', height: '80%' },
+    { top: '10%', left: '53%', width: '42%', height: '80%' },
+    { top: '5%', left: '3%', width: '45%', height: '45%' },
+    { top: '5%', left: '52%', width: '45%', height: '45%' },
+    { top: '52%', left: '3%', width: '45%', height: '45%' },
+    { top: '52%', left: '52%', width: '45%', height: '45%' },
+    { top: '10%', left: '10%', width: '80%', height: '80%' },
+];
+
+const slotPositionsNoBg = [
+    { top: '0%', left: '0%', width: '50%', height: '100%' },
+    { top: '0%', left: '50%', width: '50%', height: '50%' },
+    { top: '50%', left: '50%', width: '50%', height: '50%' },
+    { top: '0%', left: '0%', width: '50%', height: '100%' },
+    { top: '0%', left: '50%', width: '50%', height: '100%' },
+    { top: '0%', left: '0%', width: '50%', height: '50%' },
+    { top: '0%', left: '50%', width: '50%', height: '50%' },
+    { top: '50%', left: '0%', width: '50%', height: '50%' },
+    { top: '50%', left: '50%', width: '50%', height: '50%' },
+    { top: '0%', left: '0%', width: '100%', height: '100%' },
+];
+
 export default function EditorPage({ images, onAddImages }) {
     const [pageSettings, setPageSettings] = useState([]);
     const [showTemplateModal, setShowTemplateModal] = useState(false);
@@ -17,6 +43,7 @@ export default function EditorPage({ images, onAddImages }) {
     const [themeModalPage, setThemeModalPage] = useState(null);
     const [borderColor, setBorderColor] = useState('#000000');
     const [borderEnabled, setBorderEnabled] = useState(true);
+    const [backgroundEnabled, setBackgroundEnabled] = useState(true);
 
     // track when all assigned images have been fully preloaded
     const [imagesWarm, setImagesWarm] = useState(false);
@@ -326,8 +353,9 @@ export default function EditorPage({ images, onAddImages }) {
                                 key={pi}
                                 className="page-wrapper"
                                 style={{
-                                    backgroundColor:
-                                        ps.theme.color || "transparent",
+                                    backgroundColor: backgroundEnabled
+                                        ? ps.theme.color || 'transparent'
+                                        : 'transparent',
                                 }}
                             >
                                 <Box
@@ -349,19 +377,24 @@ export default function EditorPage({ images, onAddImages }) {
                                 </Box>
 
                                 <div className="photo-page">
-                                    {tmpl.slots.map((slotPos, slotIdx) => (
-                                        <div
-                                            key={slotPos}
-                                            className={`photo-slot slot${
-                                                slotPos + 1
-                                            }`}
-                                            data-page-index={pi}
-                                            data-slot-index={slotIdx}
-                                            style={{
-                                                border: borderEnabled
-                                                    ? `4px solid ${borderColor}`
-                                                    : 'none'
-                                            }}
+                                    {tmpl.slots.map((slotPos, slotIdx) => {
+                                        const pos = backgroundEnabled
+                                            ? slotPositions[slotPos]
+                                            : slotPositionsNoBg[slotPos];
+                                        return (
+                                            <div
+                                                key={slotPos}
+                                                className={`photo-slot slot${
+                                                    slotPos + 1
+                                                }`}
+                                                data-page-index={pi}
+                                                data-slot-index={slotIdx}
+                                                style={{
+                                                    ...pos,
+                                                    border: borderEnabled
+                                                        ? `4px solid ${borderColor}`
+                                                        : 'none',
+                                                }}
                                             onMouseDown={e =>
                                                 startDrag(pi, slotIdx, e)
                                             }
@@ -375,17 +408,18 @@ export default function EditorPage({ images, onAddImages }) {
                                             }}
                                             onTouchEnd={cancelTouchDrag}
                                         >
-                                            <img
-                                                src={ps.assignedImages[slotIdx]}
-                                                alt=""
-                                                style={{
-                                                    width: "100%",
-                                                    height: "100%",
-                                                    objectFit: "cover",
-                                                }}
-                                            />
-                                        </div>
-                                    ))}
+                                                <img
+                                                    src={ps.assignedImages[slotIdx]}
+                                                    alt=""
+                                                    style={{
+                                                        width: '100%',
+                                                        height: '100%',
+                                                        objectFit: 'cover',
+                                                    }}
+                                                />
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         );
@@ -420,6 +454,8 @@ export default function EditorPage({ images, onAddImages }) {
                 setBorderColor={setBorderColor}
                 borderEnabled={borderEnabled}
                 setBorderEnabled={setBorderEnabled}
+                backgroundEnabled={backgroundEnabled}
+                setBackgroundEnabled={setBackgroundEnabled}
                 onAddImages={onAddImages}
             />
         </>
