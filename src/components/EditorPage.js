@@ -112,10 +112,21 @@ export default function EditorPage({ images }) {
     }, [pageSettings]);
 
     // DRAG & DROP UTILS
-    const getTouchCoords = e =>
-        e.touches?.length
-            ? { x: e.touches[0].clientX, y: e.touches[0].clientY }
-            : { x: e.clientX, y: e.clientY };
+    const getTouchCoords = e => {
+        if (e.touches?.length) {
+            return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        }
+        if (e.changedTouches?.length) {
+            return {
+                x: e.changedTouches[0].clientX,
+                y: e.changedTouches[0].clientY,
+            };
+        }
+        if (typeof e.clientX === "number" && typeof e.clientY === "number") {
+            return { x: e.clientX, y: e.clientY };
+        }
+        return lastTouchRef.current;
+    };
 
     const longPressDuration = 300; // ms
     const lastTouchRef = useRef({ x: 0, y: 0 });
@@ -157,6 +168,8 @@ export default function EditorPage({ images }) {
         dragActiveRef.current = true;
         dragSrcRef.current = { page: pageIdx, slot: slotIdx };
         previewImgRef.current.src = url;
+        const { x, y } = getTouchCoords(e);
+        lastTouchRef.current = { x, y };
         previewRef.current.style.display = "block";
         movePreview(e);
         document.addEventListener("mousemove", movePreview);
@@ -170,6 +183,7 @@ export default function EditorPage({ images }) {
     const movePreview = e => {
         if (!dragActiveRef.current) return;
         const { x, y } = getTouchCoords(e);
+        lastTouchRef.current = { x, y };
         previewRef.current.style.left = `${x}px`;
         previewRef.current.style.top = `${y}px`;
         document
@@ -185,6 +199,7 @@ export default function EditorPage({ images }) {
     const handleDrop = e => {
         if (!dragActiveRef.current) return;
         const { x, y } = getTouchCoords(e);
+        lastTouchRef.current = { x, y };
         const over = document
             .elementFromPoint(x, y)
             ?.closest(".photo-slot");
