@@ -242,7 +242,11 @@ export default function EditorPage({ images }) {
     };
 
     // TEMPLATE & THEME MODALS
-    const openTemplateModal = pi => {
+    const openTemplateModal = (pi) => {
+        // blur the active element to avoid accessibility warnings when the Layer opens
+        if (document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur();
+        }
         setTemplateModalPage(pi);
         setShowTemplateModal(true);
     };
@@ -255,7 +259,11 @@ export default function EditorPage({ images }) {
         setShowTemplateModal(false);
     };
 
-    const openThemeModal = pi => {
+    const openThemeModal = (pi) => {
+        // blur active element so the button losing focus prevents aria-hidden warning
+        if (document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur();
+        }
         setThemeModalPage(pi);
         setShowThemeModal(true);
     };
