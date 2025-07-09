@@ -181,5 +181,23 @@
 .skeleton-photo-slot {
     background: #e0e0e0;
     flex: 1;
+    border-radius: 4px;    height: 150px; }
+/* floating settings bar */
+.settings-bar {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    z-index: 1000;
     border-radius: 4px;
-    height: 150px; }
+}
+
+@media (max-width: 600px) {
+    .settings-bar {
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 0;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+}
