@@ -145,7 +145,12 @@ export default function App() {
               }}
             />
           ) : (
-            <EditorPage images={loadedImages} />
+            <EditorPage
+              images={loadedImages}
+              onAddImages={(urls) =>
+                setLoadedImages((prev) => [...prev, ...urls])
+              }
+            />
           )}
         </PageContent>
       </Page>

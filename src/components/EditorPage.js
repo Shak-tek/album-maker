@@ -6,14 +6,17 @@ import { Box, Button } from "grommet";
 import { Template as TemplateIcon, Brush } from "grommet-icons";
 import TemplateModal from "./TemplateModal";
 import ThemeModal from "./ThemeModal";
+import SettingsBar from "./SettingsBar";
 import { pageTemplates } from "../templates/pageTemplates";
 
-export default function EditorPage({ images }) {
+export default function EditorPage({ images, onAddImages }) {
     const [pageSettings, setPageSettings] = useState([]);
     const [showTemplateModal, setShowTemplateModal] = useState(false);
     const [templateModalPage, setTemplateModalPage] = useState(null);
     const [showThemeModal, setShowThemeModal] = useState(false);
     const [themeModalPage, setThemeModalPage] = useState(null);
+    const [borderColor, setBorderColor] = useState('#000000');
+    const [borderEnabled, setBorderEnabled] = useState(true);
 
     // track when all assigned images have been fully preloaded
     const [imagesWarm, setImagesWarm] = useState(false);
@@ -355,9 +358,9 @@ export default function EditorPage({ images }) {
                                             data-page-index={pi}
                                             data-slot-index={slotIdx}
                                             style={{
-                                                borderColor:
-                                                    ps.theme.color ||
-                                                    "transparent",
+                                                border: borderEnabled
+                                                    ? `4px solid ${borderColor}`
+                                                    : 'none'
                                             }}
                                             onMouseDown={e =>
                                                 startDrag(pi, slotIdx, e)
@@ -411,6 +414,14 @@ export default function EditorPage({ images }) {
                     onClose={() => setShowThemeModal(false)}
                 />
             )}
+
+            <SettingsBar
+                borderColor={borderColor}
+                setBorderColor={setBorderColor}
+                borderEnabled={borderEnabled}
+                setBorderEnabled={setBorderEnabled}
+                onAddImages={onAddImages}
+            />
         </>
     );
 }
