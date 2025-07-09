@@ -1,6 +1,7 @@
 // src/components/EditorPage.js
 import "./EditorPage.css";
 import React, { useState, useEffect, useRef } from "react";
+import ColorThief from "color-thief-browser";
 import { Box, Button } from "grommet";
 import { Template as TemplateIcon, Brush } from "grommet-icons";
 import TemplateModal from "./TemplateModal";
@@ -22,6 +23,7 @@ export default function EditorPage({ images }) {
     const previewImgRef = useRef(null);
     const dragActiveRef = useRef(false);
     const dragSrcRef = useRef({ page: null, slot: null });
+    const touchTimerRef = useRef(null);
 
     // transparent placeholder for lazy images
   
@@ -57,6 +59,36 @@ export default function EditorPage({ images }) {
         );
     }, [pageSettings]);
 
+    // compute dynamic theme colors using ColorThief
+    useEffect(() => {
+        if (!imagesWarm) return;
+        const thief = new ColorThief();
+        pageSettings.forEach((ps, idx) => {
+            if (
+                ps.theme.mode === "dynamic" &&
+                ps.assignedImages[0] &&
+                !ps.theme.color
+            ) {
+                const img = new Image();
+                img.crossOrigin = "Anonymous";
+                img.src = ps.assignedImages[0];
+                img.onload = () => {
+                    const [r, g, b] = thief.getColor(img);
+                    const rgb = `rgb(${r}, ${g}, ${b})`;
+                    setPageSettings(prev => {
+                        if (prev[idx].theme.color === rgb) return prev;
+                        const next = [...prev];
+                        next[idx] = {
+                            ...next[idx],
+                            theme: { mode: "dynamic", color: rgb },
+                        };
+                        return next;
+                    });
+                };
+            }
+        });
+    }, [imagesWarm, pageSettings]);
+
     // 3) preload all assignedImages; when every one fires onload/onerror → mark warm
     useEffect(() => {
         if (!pageSettings.length) return;
@@ -84,6 +116,38 @@ export default function EditorPage({ images }) {
         e.touches?.length
             ? { x: e.touches[0].clientX, y: e.touches[0].clientY }
             : { x: e.clientX, y: e.clientY };
+
+    const longPressDuration = 300; // ms
+    const lastTouchRef = useRef({ x: 0, y: 0 });
+
+    const scheduleTouchDrag = (pi, si, e) => {
+        cancelTouchDrag();
+        const touch = e.touches?.[0];
+        if (touch) {
+            lastTouchRef.current = { x: touch.clientX, y: touch.clientY };
+        }
+        touchTimerRef.current = setTimeout(() => {
+            const fakeEvent = {
+                clientX: lastTouchRef.current.x,
+                clientY: lastTouchRef.current.y,
+                touches: [{
+                    clientX: lastTouchRef.current.x,
+                    clientY: lastTouchRef.current.y,
+                }],
+                stopPropagation: () => {},
+                cancelable: true,
+                preventDefault: () => {},
+            };
+            startDrag(pi, si, fakeEvent);
+        }, longPressDuration);
+    };
+
+    const cancelTouchDrag = () => {
+        if (touchTimerRef.current) {
+            clearTimeout(touchTimerRef.current);
+            touchTimerRef.current = null;
+        }
+    };
 
     const startDrag = (pageIdx, slotIdx, e) => {
         e.stopPropagation();
@@ -262,16 +326,28 @@ export default function EditorPage({ images }) {
                                     {tmpl.slots.map((slotPos, slotIdx) => (
                                         <div
                                             key={slotPos}
-                                            className={`photo-slot slot${slotPos +
-                                                1}`}
+                                            className={`photo-slot slot${
+                                                slotPos + 1
+                                            }`}
                                             data-page-index={pi}
                                             data-slot-index={slotIdx}
+                                            style={{
+                                                borderColor:
+                                                    ps.theme.color ||
+                                                    "transparent",
+                                            }}
                                             onMouseDown={e =>
                                                 startDrag(pi, slotIdx, e)
                                             }
                                             onTouchStart={e =>
-                                                startDrag(pi, slotIdx, e)
+                                                scheduleTouchDrag(pi, slotIdx, e)
                                             }
+                                            onTouchMove={e => {
+                                                if (!dragActiveRef.current) {
+                                                    cancelTouchDrag();
+                                                }
+                                            }}
+                                            onTouchEnd={cancelTouchDrag}
                                         >
                                             <img
                                                 src={ps.assignedImages[slotIdx]}
