@@ -2,7 +2,15 @@ import React, { useRef } from 'react';
 import { Box, Button } from 'grommet';
 import { Add } from 'grommet-icons';
 
-export default function SettingsBar({ borderColor, setBorderColor, borderEnabled, setBorderEnabled, onAddImages }) {
+export default function SettingsBar({
+  borderColor,
+  setBorderColor,
+  borderEnabled,
+  setBorderEnabled,
+  backgroundEnabled,
+  setBackgroundEnabled,
+  onAddImages,
+}) {
   const fileRef = useRef();
 
   const handleFiles = (e) => {
@@ -34,6 +42,7 @@ export default function SettingsBar({ borderColor, setBorderColor, borderEnabled
           style={{ width: 32, height: 32, padding: 0, border: 'none', background: 'none' }}
         />
         <Button label={borderEnabled ? 'Hide Borders' : 'Show Borders'} onClick={() => setBorderEnabled(!borderEnabled)} />
+        <Button label={backgroundEnabled ? 'Remove Background' : 'Show Background'} onClick={() => setBackgroundEnabled(!backgroundEnabled)} />
       </Box>
     </Box>
   );
