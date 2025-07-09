@@ -407,9 +407,7 @@ export default function EditorPage({ images }) {
             {showThemeModal && (
                 <ThemeModal
                     pageIdx={themeModalPage}
-                    onSelect={opts =>
-                        pickTheme(themeModalPage, opts)
-                    }
+                    onSelect={pickTheme}
                     onClose={() => setShowThemeModal(false)}
                 />
             )}
