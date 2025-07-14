@@ -12,6 +12,7 @@ import {
 } from "grommet";
 import { deepMerge } from "grommet/utils";
 import ImageUploader from "./components/ImageUploader";
+import TitlePage from "./components/TitlePage";
 import EditorPage from "./components/EditorPage";
 import DownloadPage from "./components/DownloadPage";
 
@@ -50,6 +51,8 @@ export default function App() {
   const [loadedImages, setLoadedImages] = useState([]);
   const [albumSettings, setAlbumSettings] = useState(null);
   const [showPrompt, setShowPrompt] = useState(false);
+  const [title, setTitle] = useState("");
+  const [subtitle, setSubtitle] = useState("");
 
   // create-new-session fn (used by the "New Session" button)
   const createNewSession = async () => {
@@ -70,6 +73,8 @@ export default function App() {
     setSessionId(sid);
     setLoadedImages([]);
     setAlbumSettings(null);
+    setTitle("");
+    setSubtitle("");
     setView("upload");
     setShowPrompt(false);
   };
@@ -88,6 +93,8 @@ export default function App() {
 
     setLoadedImages(urls);
     setAlbumSettings(null);
+    setTitle("");
+    setSubtitle("");
     setView("editor");
     setShowPrompt(false);
   };
@@ -145,6 +152,14 @@ export default function App() {
                 const keys = finishedUploads.map((u) => u.key);
                 const urls = keys.map((k) => getResizedUrl(k, 1000));
                 setLoadedImages(urls);
+                setView("title");
+              }}
+            />
+          ) : view === "title" ? (
+            <TitlePage
+              onContinue={({ title: t, subtitle: s }) => {
+                setTitle(t);
+                setSubtitle(s);
                 setView("editor");
               }}
             />
@@ -162,6 +177,8 @@ export default function App() {
           ) : (
             <DownloadPage
               albumSettings={albumSettings}
+              title={title}
+              subtitle={subtitle}
               onBack={() => setView("editor")}
             />
           )}
