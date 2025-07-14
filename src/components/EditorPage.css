@@ -33,6 +33,11 @@
     /* allow vertical scrolling while still enabling touch drag */
     touch-action: pan-y;
     /* background-color / background-image will be set inline via React */
+    transition: transform 0.3s ease;
+}
+
+.photo-page.zoomed {
+    transform: scale(1.05);
 }
 
 /* your slots */
