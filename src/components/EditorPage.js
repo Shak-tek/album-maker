@@ -9,17 +9,21 @@ import ThemeModal from "./ThemeModal";
 import SettingsBar from "./SettingsBar";
 import { pageTemplates } from "../templates/pageTemplates";
 
+const slotMargin = 5;
+const gap = 5;
+const halfWidth = (100 - 2 * slotMargin - gap) / 2;
+const halfHeight = halfWidth;
 const slotPositions = [
-    { top: '6.7%', left: '5.1%', width: '43.7%', height: '86.4%' },
-    { top: '6.7%', left: '51.1%', width: '43.7%', height: '41.7%' },
-    { top: '51.5%', left: '51.1%', width: '43.7%', height: '41.7%' },
-    { top: '10%', left: '5%', width: '42%', height: '80%' },
-    { top: '10%', left: '53%', width: '42%', height: '80%' },
-    { top: '5%', left: '3%', width: '45%', height: '45%' },
-    { top: '5%', left: '52%', width: '45%', height: '45%' },
-    { top: '52%', left: '3%', width: '45%', height: '45%' },
-    { top: '52%', left: '52%', width: '45%', height: '45%' },
-    { top: '10%', left: '10%', width: '80%', height: '80%' },
+    { top: `${slotMargin}%`, left: `${slotMargin}%`, width: `${halfWidth}%`, height: `${100 - 2 * slotMargin}%` },
+    { top: `${slotMargin}%`, left: `${slotMargin + halfWidth + gap}%`, width: `${halfWidth}%`, height: `${halfHeight}%` },
+    { top: `${slotMargin + halfHeight + gap}%`, left: `${slotMargin + halfWidth + gap}%`, width: `${halfWidth}%`, height: `${halfHeight}%` },
+    { top: `${slotMargin}%`, left: `${slotMargin}%`, width: `${halfWidth}%`, height: `${100 - 2 * slotMargin}%` },
+    { top: `${slotMargin}%`, left: `${slotMargin + halfWidth + gap}%`, width: `${halfWidth}%`, height: `${100 - 2 * slotMargin}%` },
+    { top: `${slotMargin}%`, left: `${slotMargin}%`, width: `${halfWidth}%`, height: `${halfHeight}%` },
+    { top: `${slotMargin}%`, left: `${slotMargin + halfWidth + gap}%`, width: `${halfWidth}%`, height: `${halfHeight}%` },
+    { top: `${slotMargin + halfHeight + gap}%`, left: `${slotMargin}%`, width: `${halfWidth}%`, height: `${halfHeight}%` },
+    { top: `${slotMargin + halfHeight + gap}%`, left: `${slotMargin + halfWidth + gap}%`, width: `${halfWidth}%`, height: `${halfHeight}%` },
+    { top: `${slotMargin}%`, left: `${slotMargin}%`, width: `${100 - 2 * slotMargin}%`, height: `${100 - 2 * slotMargin}%` },
 ];
 
 const slotPositionsNoBg = [
