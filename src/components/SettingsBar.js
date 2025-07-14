@@ -34,14 +34,6 @@ export default function SettingsBar({
       />
       <Button icon={<Add />} label="Add Pictures" onClick={() => fileRef.current && fileRef.current.click()} />
       <Box direction="row" align="center" gap="xsmall">
-        <input
-          type="color"
-          value={borderColor}
-          disabled={!borderEnabled}
-          onChange={e => setBorderColor(e.target.value)}
-          style={{ width: 32, height: 32, padding: 0, border: 'none', background: 'none' }}
-        />
-        <Button label={borderEnabled ? 'Hide Borders' : 'Show Borders'} onClick={() => setBorderEnabled(!borderEnabled)} />
         <Button label={backgroundEnabled ? 'Remove Background' : 'Show Background'} onClick={() => setBackgroundEnabled(!backgroundEnabled)} />
       </Box>
     </Box>

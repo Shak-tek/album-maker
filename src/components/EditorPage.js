@@ -41,8 +41,6 @@ export default function EditorPage({ images, onAddImages }) {
     const [templateModalPage, setTemplateModalPage] = useState(null);
     const [showThemeModal, setShowThemeModal] = useState(false);
     const [themeModalPage, setThemeModalPage] = useState(null);
-    const [borderColor, setBorderColor] = useState('#000000');
-    const [borderEnabled, setBorderEnabled] = useState(true);
     const [backgroundEnabled, setBackgroundEnabled] = useState(true);
 
     // track when all assigned images have been fully preloaded
@@ -391,9 +389,6 @@ export default function EditorPage({ images, onAddImages }) {
                                                 data-slot-index={slotIdx}
                                                 style={{
                                                     ...pos,
-                                                    border: borderEnabled
-                                                        ? `4px solid ${borderColor}`
-                                                        : 'none',
                                                 }}
                                             onMouseDown={e =>
                                                 startDrag(pi, slotIdx, e)
@@ -450,10 +445,6 @@ export default function EditorPage({ images, onAddImages }) {
             )}
 
             <SettingsBar
-                borderColor={borderColor}
-                setBorderColor={setBorderColor}
-                borderEnabled={borderEnabled}
-                setBorderEnabled={setBorderEnabled}
                 backgroundEnabled={backgroundEnabled}
                 setBackgroundEnabled={setBackgroundEnabled}
                 onAddImages={onAddImages}
