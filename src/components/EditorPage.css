@@ -58,74 +58,84 @@
 }
 
 /* your exact slot positions from the snippet */
+
 .slot1 {
-    top: 6.7%;
-    left: 5.1%;
-    width: 43.7%;
-    height: 86.4%;
+    top: 5%;
+    left: 5%;
+    width: 42.5%;
+    height: 90%;
 }
+
 
 .slot2 {
-    top: 6.7%;
-    left: 51.1%;
-    width: 43.7%;
-    height: 41.7%;
+    top: 5%;
+    left: 52.5%;
+    width: 42.5%;
+    height: 42.5%;
 }
+
 
 .slot3 {
-    top: 51.5%;
-    left: 51.1%;
-    width: 43.7%;
-    height: 41.7%;
+    top: 52.5%;
+    left: 52.5%;
+    width: 42.5%;
+    height: 42.5%;
 }
+
 
 .slot4 {
-    top: 10%;
+    top: 5%;
     left: 5%;
-    width: 42%;
-    height: 80%;
+    width: 42.5%;
+    height: 90%;
 }
 
+
 .slot5 {
-    top: 10%;
-    left: 53%;
-    width: 42%;
-    height: 80%;
+    top: 5%;
+    left: 52.5%;
+    width: 42.5%;
+    height: 90%;
 }
+
 
 .slot6 {
     top: 5%;
-    left: 3%;
-    width: 45%;
-    height: 45%;
+    left: 5%;
+    width: 42.5%;
+    height: 42.5%;
 }
+
 
 .slot7 {
     top: 5%;
-    left: 52%;
-    width: 45%;
-    height: 45%;
+    left: 52.5%;
+    width: 42.5%;
+    height: 42.5%;
 }
+
 
 .slot8 {
-    top: 52%;
-    left: 3%;
-    width: 45%;
-    height: 45%;
+    top: 52.5%;
+    left: 5%;
+    width: 42.5%;
+    height: 42.5%;
 }
+
 
 .slot9 {
-    top: 52%;
-    left: 52%;
-    width: 45%;
-    height: 45%;
+    top: 52.5%;
+    left: 52.5%;
+    width: 42.5%;
+    height: 42.5%;
 }
 
+
 .slot10 {
-    top: 10%;
-    left: 10%;
-    width: 80%;
-    height: 80%;
+    top: 5%;
+    left: 5%;
+    width: 90%;
+    height: 90%;
 }
 
 /* drag preview */
