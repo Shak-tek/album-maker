@@ -1,5 +1,6 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Box, Button, Text } from 'grommet';
+import { jsPDF } from 'jspdf';
 import './EditorPage.css';
 import { pageTemplates } from '../templates/pageTemplates';
 import { toJpeg } from 'html-to-image';
@@ -21,25 +22,34 @@ const slotPositions = [
     { top: `${slotMargin}%`, left: `${slotMargin}%`, width: `${100 - 2 * slotMargin}%`, height: `${100 - 2 * slotMargin}%` },
 ];
 
+const albumSizes = [
+    { label: '20cm × 15cm', width: 20, height: 15 },
+    { label: '27cm × 21cm', width: 27, height: 21 },
+    { label: '35cm × 26cm', width: 35, height: 26 },
+];
+
 export default function DownloadPage({ albumSettings, title, subtitle, onBack }) {
     const refs = useRef([]);
     const { pageSettings = [], backgroundEnabled = true } = albumSettings || {};
+    const [selectedSize, setSelectedSize] = useState(null);
+    const paddingPercent = selectedSize ? (selectedSize.height / selectedSize.width) * 100 : 75;
 
-    const handleDownload = (idx) => {
-        const node = refs.current[idx];
-        if (!node) return;
-        toJpeg(node, { quality: 0.95 })
-            .then((dataUrl) => {
-                const link = document.createElement('a');
-                link.download = `page-${idx + 1}.jpeg`;
-                link.href = dataUrl;
-                link.click();
-            })
-            .catch(console.error);
-    };
+    const handleDownloadAll = async () => {
+        if (!selectedSize) return;
+        const { width, height } = selectedSize;
+        const orientation = width >= height ? 'landscape' : 'portrait';
+        const pdf = new jsPDF({ orientation, unit: 'cm', format: [width, height] });
 
-    const handleDownloadAll = () => {
-        pageSettings.forEach((_, idx) => handleDownload(idx));
+        for (let i = 0; i < pageSettings.length; i++) {
+            const node = refs.current[i];
+            if (!node) continue;
+            // eslint-disable-next-line no-await-in-loop
+            const dataUrl = await toJpeg(node, { quality: 0.95 });
+            if (i > 0) pdf.addPage([width, height], orientation);
+            pdf.addImage(dataUrl, 'JPEG', 0, 0, width, height);
+        }
+
+        pdf.save('album.pdf');
     };
 
     const getLarge = (url) => {
@@ -54,7 +64,7 @@ export default function DownloadPage({ albumSettings, title, subtitle, onBack })
                 const tmpl = pageTemplates.find(t => t.id === ps.templateId);
                 if (!tmpl) return null;
                 return (
-                    <Box key={pi} gap="small">
+                    <Box key={pi} style={{ position: 'absolute', left: '-9999px', top: 0 }}>
                         <Box
                             ref={el => refs.current[pi] = el}
                             className="photo-page"
@@ -62,7 +72,7 @@ export default function DownloadPage({ albumSettings, title, subtitle, onBack })
                                 position: 'relative',
                                 width: '100%',
                                 maxWidth: '500px',
-                                paddingTop: '75%',
+                                paddingTop: `${paddingPercent}%`,
                                 backgroundColor: backgroundEnabled ? (ps.theme.color || 'transparent') : 'transparent'
                             }}
                         >
@@ -106,6 +116,20 @@ export default function DownloadPage({ albumSettings, title, subtitle, onBack })
                     </Box>
                 );
             })}
+            <Box direction="row" gap="small" wrap>
+                {albumSizes.map(size => (
+                    <Box
+                        key={size.label}
+                        pad="medium"
+                        border={{ color: selectedSize?.label === size.label ? 'brand' : 'border' }}
+                        round="small"
+                        onClick={() => setSelectedSize(size)}
+                        style={{ cursor: 'pointer' }}
+                    >
+                        <Text>{size.label}</Text>
+                    </Box>
+                ))}
+            </Box>
             <Button primary label="Download Album" onClick={handleDownloadAll} />
             <Button label="Back" onClick={onBack} />
         </Box>
