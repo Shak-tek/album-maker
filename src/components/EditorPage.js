@@ -39,7 +39,7 @@ const slotPositionsNoBg = [
     { top: '0%', left: '0%', width: '100%', height: '100%' },
 ];
 
-export default function EditorPage({ images, onAddImages }) {
+export default function EditorPage({ images, onAddImages, onNext }) {
     const [pageSettings, setPageSettings] = useState([]);
     const [showTemplateModal, setShowTemplateModal] = useState(false);
     const [templateModalPage, setTemplateModalPage] = useState(null);
@@ -454,6 +454,7 @@ export default function EditorPage({ images, onAddImages }) {
                 setBackgroundEnabled={setBackgroundEnabled}
                 onAddImages={onAddImages}
                 onOpenThemeModal={() => openThemeModal(null)}
+                onNext={() => onNext && onNext({ pageSettings, backgroundEnabled })}
             />
         </>
     );
