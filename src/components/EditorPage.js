@@ -297,17 +297,18 @@ export default function EditorPage({ images, onAddImages }) {
     };
     const pickTheme = (pi, { mode, color }) => {
         setPageSettings(prev =>
-            prev.map((s, i) =>
-                i === pi
-                    ? {
+            prev.map((s, i) => {
+                if (pi === null || pi === undefined || pi === -1 || i === pi) {
+                    return {
                         ...s,
                         theme: {
                             mode,
                             color: mode === "dynamic" ? null : color,
                         },
-                    }
-                    : s
-            )
+                    };
+                }
+                return s;
+            })
         );
         setShowThemeModal(false);
     };
@@ -374,7 +375,7 @@ export default function EditorPage({ images, onAddImages }) {
                                     />
                                 </Box>
 
-                                <div className="photo-page">
+                                <div className={`photo-page ${!backgroundEnabled ? 'zoomed' : ''}`}>
                                     {tmpl.slots.map((slotPos, slotIdx) => {
                                         const pos = backgroundEnabled
                                             ? slotPositions[slotPos]
@@ -448,6 +449,7 @@ export default function EditorPage({ images, onAddImages }) {
                 backgroundEnabled={backgroundEnabled}
                 setBackgroundEnabled={setBackgroundEnabled}
                 onAddImages={onAddImages}
+                onOpenThemeModal={() => openThemeModal(null)}
             />
         </>
     );
