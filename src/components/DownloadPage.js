@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Box, Button } from 'grommet';
+import { Box, Button, Text } from 'grommet';
 import './EditorPage.css';
 import { pageTemplates } from '../templates/pageTemplates';
 import { toJpeg } from 'html-to-image';
@@ -21,7 +21,7 @@ const slotPositions = [
     { top: `${slotMargin}%`, left: `${slotMargin}%`, width: `${100 - 2 * slotMargin}%`, height: `${100 - 2 * slotMargin}%` },
 ];
 
-export default function DownloadPage({ albumSettings, onBack }) {
+export default function DownloadPage({ albumSettings, title, subtitle, onBack }) {
     const refs = useRef([]);
     const { pageSettings = [], backgroundEnabled = true } = albumSettings || {};
 
@@ -36,6 +36,10 @@ export default function DownloadPage({ albumSettings, onBack }) {
                 link.click();
             })
             .catch(console.error);
+    };
+
+    const handleDownloadAll = () => {
+        pageSettings.forEach((_, idx) => handleDownload(idx));
     };
 
     const getLarge = (url) => {
@@ -62,6 +66,24 @@ export default function DownloadPage({ albumSettings, onBack }) {
                                 backgroundColor: backgroundEnabled ? (ps.theme.color || 'transparent') : 'transparent'
                             }}
                         >
+                            {pi === 0 && (
+                                <Box
+                                    style={{
+                                        position: 'absolute',
+                                        top: '5%',
+                                        left: '50%',
+                                        transform: 'translateX(-50%)',
+                                        textAlign: 'center',
+                                        color: 'white',
+                                        zIndex: 1,
+                                    }}
+                                >
+                                    <Text weight="bold" size="xxlarge">
+                                        {title}
+                                    </Text>
+                                    <Text size="large">{subtitle}</Text>
+                                </Box>
+                            )}
                             {tmpl.slots.map((slotPos, slotIdx) => (
                                 <Box
                                     key={slotPos}
@@ -81,10 +103,10 @@ export default function DownloadPage({ albumSettings, onBack }) {
                                 </Box>
                             ))}
                         </Box>
-                        <Button label="Download Page" onClick={() => handleDownload(pi)} />
                     </Box>
                 );
             })}
+            <Button primary label="Download Album" onClick={handleDownloadAll} />
             <Button label="Back" onClick={onBack} />
         </Box>
     );
