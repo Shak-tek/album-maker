@@ -11,6 +11,7 @@ export default function SettingsBar({
   setBackgroundEnabled,
   onAddImages,
   onOpenThemeModal,
+  onNext,
 }) {
   const fileRef = useRef();
 
@@ -38,6 +39,9 @@ export default function SettingsBar({
         <Button label={backgroundEnabled ? 'Remove Background' : 'Show Background'} onClick={() => setBackgroundEnabled(!backgroundEnabled)} />
         {onOpenThemeModal && (
           <Button label="Change Theme" onClick={onOpenThemeModal} />
+        )}
+        {onNext && (
+          <Button primary label="Next" onClick={onNext} />
         )}
       </Box>
     </Box>

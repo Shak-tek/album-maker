@@ -13,6 +13,7 @@ import {
 import { deepMerge } from "grommet/utils";
 import ImageUploader from "./components/ImageUploader";
 import EditorPage from "./components/EditorPage";
+import DownloadPage from "./components/DownloadPage";
 
 // theme
 const theme = deepMerge({
@@ -41,12 +42,13 @@ const IK_URL_ENDPOINT = process.env.REACT_APP_IMAGEKIT_URL_ENDPOINT || "";
 
 // helper to build an ImageKit transformation URL
 const getResizedUrl = (key, width = 1000) =>
-  `${IK_URL_ENDPOINT}/${encodeURI(key)}?tr=w-${width}`;
+  `${IK_URL_ENDPOINT}/${encodeURI(key)}?tr=w-${width},fo-face`;
 
 export default function App() {
   const [sessionId, setSessionId] = useState(null);
   const [view, setView] = useState("upload");
   const [loadedImages, setLoadedImages] = useState([]);
+  const [albumSettings, setAlbumSettings] = useState(null);
   const [showPrompt, setShowPrompt] = useState(false);
 
   // create-new-session fn (used by the "New Session" button)
@@ -67,6 +69,7 @@ export default function App() {
     localStorage.setItem("sessionId", sid);
     setSessionId(sid);
     setLoadedImages([]);
+    setAlbumSettings(null);
     setView("upload");
     setShowPrompt(false);
   };
@@ -84,6 +87,7 @@ export default function App() {
     });
 
     setLoadedImages(urls);
+    setAlbumSettings(null);
     setView("editor");
     setShowPrompt(false);
   };
@@ -144,12 +148,21 @@ export default function App() {
                 setView("editor");
               }}
             />
-          ) : (
+          ) : view === "editor" ? (
             <EditorPage
               images={loadedImages}
               onAddImages={(urls) =>
                 setLoadedImages((prev) => [...prev, ...urls])
               }
+              onNext={(settings) => {
+                setAlbumSettings(settings);
+                setView("download");
+              }}
+            />
+          ) : (
+            <DownloadPage
+              albumSettings={albumSettings}
+              onBack={() => setView("editor")}
             />
           )}
         </PageContent>

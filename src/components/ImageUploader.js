@@ -16,7 +16,7 @@ const IK_URL_ENDPOINT = process.env.REACT_APP_IMAGEKIT_URL_ENDPOINT || "";
 
 // helper to build a resize URL via ImageKit with cache-busting
 const getResizedUrl = (key, width = 300) =>
-    `${IK_URL_ENDPOINT}/${encodeURI(key)}?tr=w-${width}&v=${Date.now()}`;
+    `${IK_URL_ENDPOINT}/${encodeURI(key)}?tr=w-${width},fo-face&v=${Date.now()}`;
 
 export default function ImageUploader({ sessionId, onContinue }) {
     const [uploads, setUploads] = useState([]);
