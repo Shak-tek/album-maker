@@ -11,7 +11,7 @@ export default function SettingsBar({
   setBackgroundEnabled,
   onAddImages,
   onOpenThemeModal,
-  onNext,
+  onSave,
 }) {
   const fileRef = useRef();
 
@@ -40,8 +40,8 @@ export default function SettingsBar({
         {onOpenThemeModal && (
           <Button label="Change Theme" onClick={onOpenThemeModal} />
         )}
-        {onNext && (
-          <Button primary label="Next" onClick={onNext} />
+        {onSave && (
+          <Button primary label="Save" onClick={onSave} />
         )}
       </Box>
     </Box>

@@ -2,7 +2,9 @@
 import "./EditorPage.css";
 import React, { useState, useEffect, useRef } from "react";
 import ColorThief from "color-thief-browser";
-import { Box, Button } from "grommet";
+import { Box, Button, Layer, Text } from "grommet";
+import { jsPDF } from "jspdf";
+import { toJpeg } from "html-to-image";
 import { Template as TemplateIcon, Brush } from "grommet-icons";
 import TemplateModal from "./TemplateModal";
 import ThemeModal from "./ThemeModal";
@@ -39,7 +41,7 @@ const slotPositionsNoBg = [
     { top: '0%', left: '0%', width: '100%', height: '100%' },
 ];
 
-export default function EditorPage({ images, onAddImages, onNext }) {
+export default function EditorPage({ images, onAddImages, albumSize, s3, sessionId }) {
     const [pageSettings, setPageSettings] = useState([]);
     const [showTemplateModal, setShowTemplateModal] = useState(false);
     const [templateModalPage, setTemplateModalPage] = useState(null);
@@ -56,6 +58,9 @@ export default function EditorPage({ images, onAddImages, onNext }) {
     const dragActiveRef = useRef(false);
     const dragSrcRef = useRef({ page: null, slot: null });
     const touchTimerRef = useRef(null);
+    const refs = useRef([]);
+    const [saving, setSaving] = useState(false);
+    const paddingPercent = albumSize ? (albumSize.height / albumSize.width) * 100 : 75;
 
     // transparent placeholder for lazy images
   
@@ -317,6 +322,32 @@ export default function EditorPage({ images, onAddImages, onNext }) {
         setShowThemeModal(false);
     };
 
+    const handleSave = async () => {
+        if (!albumSize) return;
+        setSaving(true);
+        const { width, height } = albumSize;
+        const orientation = width >= height ? 'landscape' : 'portrait';
+        const pdf = new jsPDF({ orientation, unit: 'cm', format: [width, height] });
+        for (let i = 0; i < pageSettings.length; i++) {
+            const node = refs.current[i];
+            if (!node) continue;
+            // eslint-disable-next-line no-await-in-loop
+            const dataUrl = await toJpeg(node, { quality: 0.95, cacheBust: true, skipFonts: true });
+            if (i > 0) pdf.addPage([width, height], orientation);
+            pdf.addImage(dataUrl, 'JPEG', 0, 0, width, height);
+        }
+
+        const blob = pdf.output('blob');
+        const key = `${sessionId}/album.pdf`;
+        try {
+            await s3
+                .upload({ Key: key, Body: blob, ContentType: 'application/pdf' })
+                .promise();
+        } finally {
+            setSaving(false);
+        }
+    };
+
     return (
         <>
             {/** SKELETON WIREFRAME until all imagesWarm */}
@@ -427,6 +458,59 @@ export default function EditorPage({ images, onAddImages, onNext }) {
                 </div>
             )}
 
+            {/* hidden pages for PDF generation */}
+            <Box style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+                {pageSettings.map((ps, pi) => {
+                    const tmpl = pageTemplates.find(t => t.id === ps.templateId);
+                    if (!tmpl) return null;
+                    return (
+                        <Box key={pi}>
+                            <Box
+                                ref={el => (refs.current[pi] = el)}
+                                className="photo-page"
+                                style={{
+                                    position: 'relative',
+                                    width: '100%',
+                                    maxWidth: '500px',
+                                    paddingTop: `${paddingPercent}%`,
+                                    backgroundColor: backgroundEnabled
+                                        ? ps.theme.color || 'transparent'
+                                        : 'transparent',
+                                }}
+                            >
+                                {tmpl.slots.map((slotPos, slotIdx) => (
+                                    <Box
+                                        key={slotPos}
+                                        className={`photo-slot slot${slotPos + 1}`}
+                                        style={{
+                                            position: 'absolute',
+                                            overflow: 'hidden',
+                                            borderRadius: '4px',
+                                            ...slotPositions[slotPos],
+                                        }}
+                                    >
+                                        <img
+                                            src={ps.assignedImages[slotIdx]}
+                                            alt=""
+                                            crossOrigin="anonymous"
+                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                        />
+                                    </Box>
+                                ))}
+                            </Box>
+                        </Box>
+                    );
+                })}
+            </Box>
+
+            {saving && (
+                <Layer position="center" responsive={false} modal>
+                    <Box pad="medium">
+                        <Text>Saving album...</Text>
+                    </Box>
+                </Layer>
+            )}
+
             {/* drag preview overlay */}
             <div id="drag-preview" ref={previewRef}>
                 <img ref={previewImgRef} alt="" />
@@ -454,7 +538,7 @@ export default function EditorPage({ images, onAddImages, onNext }) {
                 setBackgroundEnabled={setBackgroundEnabled}
                 onAddImages={onAddImages}
                 onOpenThemeModal={() => openThemeModal(null)}
-                onNext={() => onNext && onNext({ pageSettings, backgroundEnabled })}
+                onSave={handleSave}
             />
         </>
     );
