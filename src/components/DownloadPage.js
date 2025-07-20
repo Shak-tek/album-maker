@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Box, Button, Text } from 'grommet';
+import { Box, Button, Text, Layer } from 'grommet';
 import { jsPDF } from 'jspdf';
 import './EditorPage.css';
 import { pageTemplates } from '../templates/pageTemplates';
@@ -32,10 +32,12 @@ export default function DownloadPage({ albumSettings, title, subtitle, onBack })
     const refs = useRef([]);
     const { pageSettings = [], backgroundEnabled = true } = albumSettings || {};
     const [selectedSize, setSelectedSize] = useState(null);
+    const [showDownloadMessage, setShowDownloadMessage] = useState(false);
     const paddingPercent = selectedSize ? (selectedSize.height / selectedSize.width) * 100 : 75;
 
     const handleDownloadAll = async () => {
         if (!selectedSize) return;
+        setShowDownloadMessage(true);
         const { width, height } = selectedSize;
         const orientation = width >= height ? 'landscape' : 'portrait';
         const pdf = new jsPDF({ orientation, unit: 'cm', format: [width, height] });
@@ -50,6 +52,7 @@ export default function DownloadPage({ albumSettings, title, subtitle, onBack })
         }
 
         pdf.save('album.pdf');
+        setShowDownloadMessage(false);
     };
 
     const getLarge = (url) => {
@@ -132,6 +135,13 @@ export default function DownloadPage({ albumSettings, title, subtitle, onBack })
             </Box>
             <Button primary label="Download Album" onClick={handleDownloadAll} />
             <Button label="Back" onClick={onBack} />
+            {showDownloadMessage && (
+                <Layer position="center" responsive={false} modal>
+                    <Box pad="medium">
+                        <Text>Your download will start shortly...</Text>
+                    </Box>
+                </Layer>
+            )}
         </Box>
     );
 }
