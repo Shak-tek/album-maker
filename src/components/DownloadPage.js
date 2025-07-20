@@ -46,7 +46,7 @@ export default function DownloadPage({ albumSettings, title, subtitle, onBack })
             const node = refs.current[i];
             if (!node) continue;
             // eslint-disable-next-line no-await-in-loop
-            const dataUrl = await toJpeg(node, { quality: 0.95 });
+            const dataUrl = await toJpeg(node, { quality: 0.95, cacheBust: true });
             if (i > 0) pdf.addPage([width, height], orientation);
             pdf.addImage(dataUrl, 'JPEG', 0, 0, width, height);
         }
@@ -111,6 +111,7 @@ export default function DownloadPage({ albumSettings, title, subtitle, onBack })
                                     <img
                                         src={getLarge(ps.assignedImages[slotIdx])}
                                         alt=""
+                                        crossOrigin="anonymous"
                                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                     />
                                 </Box>
