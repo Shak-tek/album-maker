@@ -14,7 +14,7 @@ import { deepMerge } from "grommet/utils";
 import ImageUploader from "./components/ImageUploader";
 import TitlePage from "./components/TitlePage";
 import EditorPage from "./components/EditorPage";
-import DownloadPage from "./components/DownloadPage";
+import SizePage from "./components/SizePage";
 
 // theme
 const theme = deepMerge({
@@ -47,12 +47,18 @@ const getResizedUrl = (key, width = 1000) =>
 
 export default function App() {
   const [sessionId, setSessionId] = useState(null);
-  const [view, setView] = useState("upload");
+  const [view, setView] = useState("size");
   const [loadedImages, setLoadedImages] = useState([]);
-  const [albumSettings, setAlbumSettings] = useState(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
+  const [albumSize, setAlbumSize] = useState(null);
+
+  useEffect(() => {
+    if (albumSize) {
+      localStorage.setItem("albumSize", JSON.stringify(albumSize));
+    }
+  }, [albumSize]);
 
   // create-new-session fn (used by the "New Session" button)
   const createNewSession = async () => {
@@ -70,12 +76,13 @@ export default function App() {
     }
     const sid = Date.now().toString();
     localStorage.setItem("sessionId", sid);
+    localStorage.removeItem("albumSize");
     setSessionId(sid);
     setLoadedImages([]);
-    setAlbumSettings(null);
     setTitle("");
     setSubtitle("");
-    setView("upload");
+    setAlbumSize(null);
+    setView("size");
     setShowPrompt(false);
   };
 
@@ -92,10 +99,15 @@ export default function App() {
     });
 
     setLoadedImages(urls);
-    setAlbumSettings(null);
     setTitle("");
     setSubtitle("");
-    setView("editor");
+    const storedSize = localStorage.getItem("albumSize");
+    if (storedSize) {
+      setAlbumSize(JSON.parse(storedSize));
+      setView("editor");
+    } else {
+      setView("size");
+    }
     setShowPrompt(false);
   };
 
@@ -104,6 +116,8 @@ export default function App() {
     const sid = localStorage.getItem("sessionId");
     if (sid) {
       setSessionId(sid);
+      const storedSize = localStorage.getItem("albumSize");
+      if (storedSize) setAlbumSize(JSON.parse(storedSize));
       s3.listObjectsV2({ Prefix: `${sid}/` })
         .promise()
         .then(({ Contents }) => {
@@ -116,7 +130,7 @@ export default function App() {
       localStorage.setItem("sessionId", newSid);
       setSessionId(newSid);
       setLoadedImages([]);
-      setView("upload");
+      setView("size");
       setShowPrompt(false);
     }
   }, []);
@@ -145,7 +159,14 @@ export default function App() {
             </Layer>
           )}
 
-          {view === "upload" ? (
+          {view === "size" ? (
+            <SizePage
+              onContinue={(size) => {
+                setAlbumSize(size);
+                setView("upload");
+              }}
+            />
+          ) : view === "upload" ? (
             <ImageUploader
               sessionId={sessionId}
               onContinue={(finishedUploads) => {
@@ -169,19 +190,11 @@ export default function App() {
               onAddImages={(urls) =>
                 setLoadedImages((prev) => [...prev, ...urls])
               }
-              onNext={(settings) => {
-                setAlbumSettings(settings);
-                setView("download");
-              }}
+              albumSize={albumSize}
+              s3={s3}
+              sessionId={sessionId}
             />
-          ) : (
-            <DownloadPage
-              albumSettings={albumSettings}
-              title={title}
-              subtitle={subtitle}
-              onBack={() => setView("editor")}
-            />
-          )}
+          ) : null}
         </PageContent>
       </Page>
     </Grommet>
