@@ -46,7 +46,11 @@ export default function DownloadPage({ albumSettings, title, subtitle, onBack })
             const node = refs.current[i];
             if (!node) continue;
             // eslint-disable-next-line no-await-in-loop
-            const dataUrl = await toJpeg(node, { quality: 0.95, cacheBust: true });
+            const dataUrl = await toJpeg(node, {
+                quality: 0.95,
+                cacheBust: true,
+                skipFonts: true,
+            });
             if (i > 0) pdf.addPage([width, height], orientation);
             pdf.addImage(dataUrl, 'JPEG', 0, 0, width, height);
         }
