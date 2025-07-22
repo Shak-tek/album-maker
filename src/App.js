@@ -50,8 +50,6 @@ export default function App() {
   const [view, setView] = useState("size");
   const [loadedImages, setLoadedImages] = useState([]);
   const [showPrompt, setShowPrompt] = useState(false);
-  const [title, setTitle] = useState("");
-  const [subtitle, setSubtitle] = useState("");
   const [albumSize, setAlbumSize] = useState(null);
 
   useEffect(() => {
@@ -79,8 +77,6 @@ export default function App() {
     localStorage.removeItem("albumSize");
     setSessionId(sid);
     setLoadedImages([]);
-    setTitle("");
-    setSubtitle("");
     setAlbumSize(null);
     setView("size");
     setShowPrompt(false);
@@ -99,8 +95,6 @@ export default function App() {
     });
 
     setLoadedImages(urls);
-    setTitle("");
-    setSubtitle("");
     const storedSize = localStorage.getItem("albumSize");
     if (storedSize) {
       setAlbumSize(JSON.parse(storedSize));
@@ -177,13 +171,7 @@ export default function App() {
               }}
             />
           ) : view === "title" ? (
-            <TitlePage
-              onContinue={({ title: t, subtitle: s }) => {
-                setTitle(t);
-                setSubtitle(s);
-                setView("editor");
-              }}
-            />
+            <TitlePage onContinue={() => setView("editor")} />
           ) : view === "editor" ? (
             <EditorPage
               images={loadedImages}
