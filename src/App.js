@@ -14,7 +14,7 @@ import { deepMerge } from "grommet/utils";
 import ImageUploader from "./components/ImageUploader";
 import TitlePage from "./components/TitlePage";
 import EditorPage from "./components/EditorPage";
-import SizePage from "./components/SizePage";
+import ProductDetailPage from "./components/ProductDetailPage";
 
 // theme
 const theme = deepMerge({
@@ -160,7 +160,7 @@ export default function App() {
           )}
 
           {view === "size" ? (
-            <SizePage
+            <ProductDetailPage
               onContinue={(size) => {
                 setAlbumSize(size);
                 setView("upload");
