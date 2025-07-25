@@ -90,6 +90,7 @@ React app and make the function available.
    - `IMAGEKIT_PRIVATE_KEY`
    - `IMAGEKIT_URL_ENDPOINT`
    - `CORS_ORIGIN` (optional, defaults to `*`)
+   - `NETLIFY_DB_PATH` (path to the JSON database, e.g. `netlify/db/db.json`)
 3. Netlify runs `npm run build` and publishes the `build` directory. The
    authentication endpoint will be available at
    `/.netlify/functions/imagekit-auth`.
@@ -99,5 +100,5 @@ the function.
 
 ## Adding User Authentication
 
-You can store user accounts in a database and access it from Netlify Functions. The example function in `netlify/functions/users.js` shows how to connect to MongoDB using the `mongodb` driver. Set `MONGODB_URI` or `DATABASE_URL` as environment variables in the Netlify dashboard. The function implements sign up with a 6 digit OTP sent to the provided email address and supports `/signup`, `/verify`, and `/login` endpoints.
+You can store user accounts in a database and access it from Netlify Functions. The example function in `netlify/functions/users.js` uses a simple Netlify DB (`lowdb`) JSON file located in `netlify/db/db.json`. The function implements sign up with a 6 digit OTP sent to the provided email address and supports `/signup`, `/verify`, and `/login` endpoints.
 
