@@ -99,5 +99,5 @@ the function.
 
 ## Adding User Authentication
 
-You can store user accounts in a database and access it from Netlify Functions. The example function in `netlify/functions/users.js` shows how to connect to MongoDB using the `mongodb` driver. Set `MONGODB_URI` or `DATABASE_URL` as environment variables in the Netlify dashboard. When calling the function use the paths `/.netlify/functions/users/signup` and `/.netlify/functions/users/login` for creating and logging in users.
+You can store user accounts in a database and access it from Netlify Functions. The example function in `netlify/functions/users.js` shows how to connect to MongoDB using the `mongodb` driver. Set `MONGODB_URI` or `DATABASE_URL` as environment variables in the Netlify dashboard. The function implements sign up with a 6 digit OTP sent to the provided email address and supports `/signup`, `/verify`, and `/login` endpoints.
 

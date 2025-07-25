@@ -9,26 +9,52 @@ async function getDb() {
   return client.db();
 }
 
+async function sendOtp(email, otp) {
+  console.log(`OTP for ${email}: ${otp}`);
+}
+
 exports.handler = async (event) => {
   try {
     const body = JSON.parse(event.body || '{}');
     const db = await getDb();
     const users = db.collection('users');
+
     if (event.httpMethod === 'POST' && event.path.endsWith('/signup')) {
-      const existing = await users.findOne({ email: body.email });
+      const { name, email, phone, address, password } = body;
+      if (!name || !email || !phone || !address || !password) {
+        return { statusCode: 400, body: 'Missing fields' };
+      }
+      const existing = await users.findOne({ email });
       if (existing) {
         return { statusCode: 400, body: 'User already exists' };
       }
-      await users.insertOne({ email: body.email, password: body.password });
-      return { statusCode: 200, body: JSON.stringify({ signedUp: true }) };
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      await users.insertOne({ name, email, phone, address, password, otp, verified: false });
+      await sendOtp(email, otp);
+      return { statusCode: 200, body: JSON.stringify({ pending: true }) };
     }
+
+    if (event.httpMethod === 'POST' && event.path.endsWith('/verify')) {
+      const { email, otp } = body;
+      const user = await users.findOne({ email });
+      if (!user || user.otp !== otp) {
+        return { statusCode: 400, body: 'Invalid OTP' };
+      }
+      await users.updateOne({ email }, { $set: { verified: true }, $unset: { otp: '' } });
+      const { name, phone, address } = user;
+      return { statusCode: 200, body: JSON.stringify({ user: { name, email, phone, address } }) };
+    }
+
     if (event.httpMethod === 'POST' && event.path.endsWith('/login')) {
-      const user = await users.findOne({ email: body.email });
-      if (!user || user.password !== body.password) {
+      const { email, password } = body;
+      const user = await users.findOne({ email });
+      if (!user || user.password !== password || !user.verified) {
         return { statusCode: 401, body: 'Invalid credentials' };
       }
-      return { statusCode: 200, body: JSON.stringify({ loggedIn: true }) };
+      const { name, phone, address } = user;
+      return { statusCode: 200, body: JSON.stringify({ user: { name, email, phone, address } }) };
     }
+
     return { statusCode: 400, body: 'Bad request' };
   } catch (err) {
     return { statusCode: 500, body: err.message };

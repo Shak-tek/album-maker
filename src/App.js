@@ -15,6 +15,8 @@ import ImageUploader from "./components/ImageUploader";
 import TitlePage from "./components/TitlePage";
 import EditorPage from "./components/EditorPage";
 import ProductDetailPage from "./components/ProductDetailPage";
+import LoginPage from "./LoginPage";
+import ProfilePage from "./ProfilePage";
 
 // theme
 const theme = deepMerge({
@@ -47,10 +49,23 @@ const getResizedUrl = (key, width = 1000) =>
 
 export default function App() {
   const [sessionId, setSessionId] = useState(null);
-  const [view, setView] = useState("size");
+  const [view, setView] = useState("login");
+  const [user, setUser] = useState(null);
   const [loadedImages, setLoadedImages] = useState([]);
   const [showPrompt, setShowPrompt] = useState(false);
   const [albumSize, setAlbumSize] = useState(null);
+
+  const handleLogin = (u) => {
+    setUser(u);
+    localStorage.setItem("user", JSON.stringify(u));
+    setView("size");
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.removeItem("user");
+    setView("login");
+  };
 
   useEffect(() => {
     if (albumSize) {
@@ -105,8 +120,17 @@ export default function App() {
     setShowPrompt(false);
   };
 
-  // On first mount: either discover an existing session or spin up a new one
+  // On first mount load user and discover an existing session
   useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+      setView("size");
+    } else {
+      setView("login");
+      return;
+    }
+
     const sid = localStorage.getItem("sessionId");
     if (sid) {
       setSessionId(sid);
@@ -119,21 +143,32 @@ export default function App() {
         })
         .catch(console.error);
     } else {
-      // inline "new session" for initial load
       const newSid = Date.now().toString();
       localStorage.setItem("sessionId", newSid);
       setSessionId(newSid);
       setLoadedImages([]);
-      setView("size");
       setShowPrompt(false);
     }
   }, []);
+
+  if (view === "login") {
+    return (
+      <Grommet theme={theme} full>
+        <LoginPage onLogin={handleLogin} />
+      </Grommet>
+    );
+  }
 
   return (
     <Grommet theme={theme} full>
       <Page>
         <Header background="brand" pad="small">
           <Text size="large">FlipSnip</Text>
+          <Button
+            label={user ? "Profile" : "Login"}
+            onClick={() => setView(user ? "profile" : "login")}
+          />
+          {user && <Button label="Logout" onClick={handleLogout} />}
         </Header>
         <PageContent pad="large">
           {showPrompt && (
@@ -153,7 +188,9 @@ export default function App() {
             </Layer>
           )}
 
-          {view === "size" ? (
+          {view === "profile" ? (
+            <ProfilePage user={user} />
+          ) : view === "size" ? (
             <ProductDetailPage
               onContinue={(size) => {
                 setAlbumSize(size);
