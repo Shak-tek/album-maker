@@ -1,12 +1,18 @@
-const { MongoClient } = require('mongodb');
-let client;
+const { Low } = require('lowdb');
+const { JSONFile } = require('lowdb/node');
+const path = require('path');
+let db;
 
 async function getDb() {
-  if (!client) {
-    client = new MongoClient(process.env.MONGODB_URI);
-    await client.connect();
+  if (!db) {
+    const dbPath = process.env.NETLIFY_DB_PATH || path.join(__dirname, '../db/db.json');
+    const file = path.resolve(dbPath);
+    const adapter = new JSONFile(file);
+    db = new Low(adapter);
+    await db.read();
+    db.data ||= { users: [] };
   }
-  return client.db();
+  return db;
 }
 
 async function sendOtp(email, otp) {
@@ -17,37 +23,40 @@ exports.handler = async (event) => {
   try {
     const body = JSON.parse(event.body || '{}');
     const db = await getDb();
-    const users = db.collection('users');
+    const users = db.data.users;
 
     if (event.httpMethod === 'POST' && event.path.endsWith('/signup')) {
       const { name, email, phone, address, password } = body;
       if (!name || !email || !phone || !address || !password) {
         return { statusCode: 400, body: 'Missing fields' };
       }
-      const existing = await users.findOne({ email });
+      const existing = users.find(u => u.email === email);
       if (existing) {
         return { statusCode: 400, body: 'User already exists' };
       }
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
-      await users.insertOne({ name, email, phone, address, password, otp, verified: false });
+      users.push({ name, email, phone, address, password, otp, verified: false });
+      await db.write();
       await sendOtp(email, otp);
       return { statusCode: 200, body: JSON.stringify({ pending: true }) };
     }
 
     if (event.httpMethod === 'POST' && event.path.endsWith('/verify')) {
       const { email, otp } = body;
-      const user = await users.findOne({ email });
+      const user = users.find(u => u.email === email);
       if (!user || user.otp !== otp) {
         return { statusCode: 400, body: 'Invalid OTP' };
       }
-      await users.updateOne({ email }, { $set: { verified: true }, $unset: { otp: '' } });
+      Object.assign(user, { verified: true });
+      delete user.otp;
+      await db.write();
       const { name, phone, address } = user;
       return { statusCode: 200, body: JSON.stringify({ user: { name, email, phone, address } }) };
     }
 
     if (event.httpMethod === 'POST' && event.path.endsWith('/login')) {
       const { email, password } = body;
-      const user = await users.findOne({ email });
+      const user = users.find(u => u.email === email);
       if (!user || user.password !== password || !user.verified) {
         return { statusCode: 401, body: 'Invalid credentials' };
       }
