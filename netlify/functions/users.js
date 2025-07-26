@@ -1,10 +1,16 @@
-const { Low } = require('lowdb');
-const { JSONFile } = require('lowdb/node');
 const path = require('path');
 let db;
+let Low;
+let JSONFile;
 
 async function getDb() {
   if (!db) {
+    if (!Low || !JSONFile) {
+      const lowdb = await import('lowdb');
+      const lowdbNode = await import('lowdb/node');
+      Low = lowdb.Low;
+      JSONFile = lowdbNode.JSONFile;
+    }
     const dbPath = process.env.NETLIFY_DB_PATH || path.join(__dirname, '../db/db.json');
     const file = path.resolve(dbPath);
     const adapter = new JSONFile(file);
