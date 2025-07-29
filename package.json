@@ -9,7 +9,7 @@
     "@testing-library/user-event": "^13.5.0",
     "aws-sdk": "^2.1692.0",
     "axios": "^1.8.4",
-    "bcryptjs": "^2.4.3",
+    "bcryptjs": "^3.0.2",
     "color-thief-browser": "^2.0.2",
     "cors": "^2.8.5",
     "dotenv": "^17.0.1",

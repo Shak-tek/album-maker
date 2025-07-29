@@ -1,9 +1,17 @@
+// src/components/SignupForm.jsx
 import { useState } from 'react';
 import axios from 'axios';
 
 export default function SignupForm() {
-  const [form, setForm] = useState({ email: '', password: '', name: '' });
+  const [form, setForm] = useState({
+    email: '', password: '',
+    name: '', address: '',
+    postcode: '', phone: ''
+  });
   const [message, setMessage] = useState('');
+
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,23 +25,12 @@ export default function SignupForm() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <input
-        type="text"
-        placeholder="Name"
-        onChange={(e) => setForm({ ...form, name: e.target.value })}
-      />
-      <input
-        type="email"
-        placeholder="Email"
-        required
-        onChange={(e) => setForm({ ...form, email: e.target.value })}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        required
-        onChange={(e) => setForm({ ...form, password: e.target.value })}
-      />
+      <input name="name" placeholder="Full Name" onChange={handleChange} />
+      <input name="address" placeholder="Address" onChange={handleChange} />
+      <input name="postcode" placeholder="Postcode" onChange={handleChange} />
+      <input name="phone" placeholder="Phone Number" onChange={handleChange} />
+      <input name="email" type="email" placeholder="Email" required onChange={handleChange} />
+      <input name="password" type="password" placeholder="Password" required onChange={handleChange} />
       <button type="submit">Sign Up</button>
       <p>{message}</p>
     </form>
