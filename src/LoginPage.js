@@ -28,6 +28,7 @@ export default function LoginPage({ onLogin }) {
       setOtpSent(true);
     } catch (err) {
       alert("Signup failed");
+      console.log(err);
     }
   };
 

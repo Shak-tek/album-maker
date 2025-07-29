@@ -15,8 +15,17 @@ async function getDb() {
     const file = path.resolve(dbPath);
     const adapter = new JSONFile(file);
     db = new Low(adapter);
-    await db.read();
-    db.data ||= { users: [] };
+
+    try {
+      await db.read();
+    } catch (e) {
+      console.warn('Failed to read DB file. Initializing default data.', e);
+    }
+
+    if (!db.data || typeof db.data !== 'object') {
+      db.data = { users: [] };
+      await db.write(); // Ensure file is created/written
+    }
   }
   return db;
 }
