@@ -1,12 +1,11 @@
 import React, { useState } from "react";
-import { Box, Button, Text, TextInput } from "grommet";
+import { Box, Button, TextInput } from "grommet";
 import axios from "axios";
+import SignupForm from "./components/SignupForm";
 
 export default function LoginPage({ onLogin }) {
   const [mode, setMode] = useState("login");
-  const [form, setForm] = useState({ name: "", email: "", phone: "", address: "", password: "" });
-  const [otp, setOtp] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
+  const [form, setForm] = useState({ email: "", password: "" });
 
   const update = (key) => (e) => setForm({ ...form, [key]: e.target.value });
 
@@ -22,54 +21,29 @@ export default function LoginPage({ onLogin }) {
     }
   };
 
-  const submitSignup = async () => {
-    try {
-      await axios.post("/.netlify/functions/users/signup", form);
-      setOtpSent(true);
-    } catch (err) {
-      alert("Signup failed");
-      console.log(err);
-    }
-  };
-
-  const submitVerify = async () => {
-    try {
-      const res = await axios.post("/.netlify/functions/users/verify", {
-        email: form.email,
-        otp,
-      });
-      onLogin(res.data.user);
-    } catch (err) {
-      alert("Verification failed");
-    }
-  };
-
   return (
     <Box pad="large" gap="medium" align="center">
       {mode === "login" && (
         <>
-          <TextInput placeholder="Email" value={form.email} onChange={update("email")} />
-          <TextInput placeholder="Password" type="password" value={form.password} onChange={update("password")} />
+          <TextInput
+            placeholder="Email"
+            value={form.email}
+            onChange={update("email")}
+          />
+          <TextInput
+            placeholder="Password"
+            type="password"
+            value={form.password}
+            onChange={update("password")}
+          />
           <Button label="Login" onClick={submitLogin} primary />
-          <Button label="Need an account?" onClick={() => setMode("signup")}></Button>
+          <Button label="Need an account?" onClick={() => setMode("signup")} />
         </>
       )}
-      {mode === "signup" && !otpSent && (
+      {mode === "signup" && (
         <>
-          <TextInput placeholder="Name" value={form.name} onChange={update("name")} />
-          <TextInput placeholder="Email" value={form.email} onChange={update("email")} />
-          <TextInput placeholder="Phone" value={form.phone} onChange={update("phone")} />
-          <TextInput placeholder="Address" value={form.address} onChange={update("address")} />
-          <TextInput placeholder="Password" type="password" value={form.password} onChange={update("password")} />
-          <Button label="Sign Up" onClick={submitSignup} primary />
-          <Button label="Have an account?" onClick={() => setMode("login")}></Button>
-        </>
-      )}
-      {mode === "signup" && otpSent && (
-        <>
-          <Text>Enter OTP sent to your email</Text>
-          <TextInput placeholder="OTP" value={otp} onChange={(e) => setOtp(e.target.value)} />
-          <Button label="Verify" onClick={submitVerify} primary />
+          <SignupForm />
+          <Button label="Have an account?" onClick={() => setMode("login")} />
         </>
       )}
     </Box>
