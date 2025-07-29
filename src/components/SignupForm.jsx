@@ -1,38 +1,55 @@
-// src/components/SignupForm.jsx
 import { useState } from 'react';
+import { Box, Button, Form, FormField, TextInput, Text } from 'grommet';
 import axios from 'axios';
 
-export default function SignupForm() {
+export default function SignupForm({ onSignup }) {
   const [form, setForm] = useState({
-    email: '', password: '',
-    name: '', address: '',
-    postcode: '', phone: ''
+    name: '', address: '', postcode: '', phone: '',
+    email: '', password: ''
   });
   const [message, setMessage] = useState('');
 
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (name) => (event) =>
+    setForm({ ...form, [name]: event.target.value });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     try {
       const res = await axios.post('/.netlify/functions/signup', form);
-      setMessage(`User created: ${res.data.email}`);
+      setMessage('');
+      if (onSignup) onSignup(res.data);
     } catch (err) {
       setMessage(err.response?.data?.error || 'Signup failed');
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input name="name" placeholder="Full Name" onChange={handleChange} />
-      <input name="address" placeholder="Address" onChange={handleChange} />
-      <input name="postcode" placeholder="Postcode" onChange={handleChange} />
-      <input name="phone" placeholder="Phone Number" onChange={handleChange} />
-      <input name="email" type="email" placeholder="Email" required onChange={handleChange} />
-      <input name="password" type="password" placeholder="Password" required onChange={handleChange} />
-      <button type="submit">Sign Up</button>
-      <p>{message}</p>
-    </form>
+    <Form value={form} onChange={(next) => setForm(next)} onSubmit={handleSubmit}>
+      <FormField name="name" label="Full Name" required>
+        <TextInput name="name" value={form.name} onChange={handleChange('name')} />
+      </FormField>
+      <FormField name="address" label="Address">
+        <TextInput name="address" value={form.address} onChange={handleChange('address')} />
+      </FormField>
+      <FormField name="postcode" label="Postcode">
+        <TextInput name="postcode" value={form.postcode} onChange={handleChange('postcode')} />
+      </FormField>
+      <FormField name="phone" label="Phone">
+        <TextInput name="phone" value={form.phone} onChange={handleChange('phone')} />
+      </FormField>
+      <FormField name="email" label="Email" required>
+        <TextInput type="email" name="email" value={form.email} onChange={handleChange('email')} />
+      </FormField>
+      <FormField name="password" label="Password" required>
+        <TextInput type="password" name="password" value={form.password} onChange={handleChange('password')} />
+      </FormField>
+      <Box pad={{ vertical: 'medium' }} align="center" gap="small">
+        <Button type="submit" label="Sign Up" primary />
+        {message && (
+          <Box background="status-critical" pad="small" round animation="fadeIn">
+            <Text>{message}</Text>
+          </Box>
+        )}
+      </Box>
+    </Form>
   );
 }
