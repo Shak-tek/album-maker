@@ -9,12 +9,13 @@ import {
   Button,
   Layer,
   Box,
+  Menu,
 } from "grommet";
 import { deepMerge } from "grommet/utils";
 import ImageUploader from "./components/ImageUploader";
-import TitlePage from "./components/TitlePage";
 import EditorPage from "./components/EditorPage";
-import ProductDetailPage from "./components/ProductDetailPage";
+import ProductsPage from "./ProductsPage";
+import AlbumsPage from "./AlbumsPage";
 import LoginPage from "./LoginPage";
 import ProfilePage from "./ProfilePage";
 
@@ -58,7 +59,7 @@ export default function App() {
   const handleLogin = (u) => {
     setUser(u);
     localStorage.setItem("user", JSON.stringify(u));
-    setView("size");
+    setView("products");
   };
 
   const handleLogout = () => {
@@ -93,7 +94,7 @@ export default function App() {
     setSessionId(sid);
     setLoadedImages([]);
     setAlbumSize(null);
-    setView("size");
+    setView("products");
     setShowPrompt(false);
   };
 
@@ -115,7 +116,7 @@ export default function App() {
       setAlbumSize(JSON.parse(storedSize));
       setView("editor");
     } else {
-      setView("size");
+      setView("products");
     }
     setShowPrompt(false);
   };
@@ -125,7 +126,7 @@ export default function App() {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
-      setView("size");
+      setView("products");
     } else {
       setView("login");
       return;
@@ -164,11 +165,18 @@ export default function App() {
       <Page>
         <Header background="brand" pad="small">
           <Text size="large">FlipSnip</Text>
-          <Button
-            label={user ? "Profile" : "Login"}
-            onClick={() => setView(user ? "profile" : "login")}
-          />
-          {user && <Button label="Logout" onClick={handleLogout} />}
+          {user ? (
+            <Menu
+              label="Profile"
+              items={[
+                { label: "My Profile", onClick: () => setView("profile") },
+                { label: "My Albums", onClick: () => setView("albums") },
+                { label: "Sign Out", onClick: handleLogout },
+              ]}
+            />
+          ) : (
+            <Button label="Login" onClick={() => setView("login")} />
+          )}
         </Header>
         <PageContent pad="large">
           {showPrompt && (
@@ -190,13 +198,10 @@ export default function App() {
 
           {view === "profile" ? (
             <ProfilePage user={user} />
-          ) : view === "size" ? (
-            <ProductDetailPage
-              onContinue={(size) => {
-                setAlbumSize(size);
-                setView("upload");
-              }}
-            />
+          ) : view === "albums" ? (
+            <AlbumsPage />
+          ) : view === "products" ? (
+            <ProductsPage onSelect={() => setView("upload")} />
           ) : view === "upload" ? (
             <ImageUploader
               sessionId={sessionId}
@@ -204,11 +209,9 @@ export default function App() {
                 const keys = finishedUploads.map((u) => u.key);
                 const urls = keys.map((k) => getResizedUrl(k, 1000));
                 setLoadedImages(urls);
-                setView("title");
+                setView("editor");
               }}
             />
-          ) : view === "title" ? (
-            <TitlePage onContinue={() => setView("editor")} />
           ) : view === "editor" ? (
             <EditorPage
               images={loadedImages}
