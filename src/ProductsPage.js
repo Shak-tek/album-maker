@@ -1,13 +1,16 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Image, Text } from "grommet";
 
-const products = [
-  { id: 1, title: "Soft Cover Album", price: "10 EUR", image: "boy_reading.png" },
-  { id: 2, title: "Hard Cover Album", price: "15 EUR", image: "girl_reading.png" },
-  { id: 3, title: "Premium Album", price: "25 EUR", image: "old_man_reading.png" },
-];
-
 export default function ProductsPage({ onSelect }) {
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    fetch("/.netlify/functions/products")
+      .then((res) => res.json())
+      .then(setProducts)
+      .catch(console.error);
+  }, []);
+
   return (
     <Box direction="row" gap="medium" wrap>
       {products.map((p) => (
@@ -20,8 +23,8 @@ export default function ProductsPage({ onSelect }) {
           onClick={() => onSelect(p)}
           hoverIndicator
         >
-          <Image src={p.image} alt="" fit="cover" />
-          <Text weight="bold">{p.title}</Text>
+          <Image src={p.images?.[0]} alt="" fit="cover" />
+          <Text weight="bold">{p.name}</Text>
           <Text>{p.price}</Text>
         </Box>
       ))}
