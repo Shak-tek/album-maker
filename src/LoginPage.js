@@ -12,7 +12,7 @@ export default function LoginPage({ onLogin }) {
 
   const submitLogin = async () => {
     try {
-      const res = await axios.post("/.netlify/functions/users/login", {
+      const res = await axios.post("/.netlify/functions/login", {
         email: form.email,
         password: form.password,
       });
