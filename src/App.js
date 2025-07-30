@@ -15,6 +15,7 @@ import { deepMerge } from "grommet/utils";
 import ImageUploader from "./components/ImageUploader";
 import EditorPage from "./components/EditorPage";
 import ProductsPage from "./ProductsPage";
+import ProductDetailPage from "./components/ProductDetailPage";
 import AlbumsPage from "./AlbumsPage";
 import LoginPage from "./LoginPage";
 import ProfilePage from "./ProfilePage";
@@ -55,10 +56,37 @@ export default function App() {
   const [loadedImages, setLoadedImages] = useState([]);
   const [showPrompt, setShowPrompt] = useState(false);
   const [albumSize, setAlbumSize] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
+  const loadSessionFromDb = async (userId) => {
+    try {
+      const res = await fetch(`/.netlify/functions/session?userId=${userId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setSessionId(data.session_id);
+        localStorage.setItem("sessionId", data.session_id);
+        if (data.settings?.albumSize) {
+          setAlbumSize(data.settings.albumSize);
+          localStorage.setItem("albumSize", JSON.stringify(data.settings.albumSize));
+        }
+      } else {
+        const sid = Date.now().toString();
+        setSessionId(sid);
+        localStorage.setItem("sessionId", sid);
+        await fetch("/.netlify/functions/session", {
+          method: "POST",
+          body: JSON.stringify({ userId, sessionId: sid, settings: {} }),
+        });
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const handleLogin = (u) => {
     setUser(u);
     localStorage.setItem("user", JSON.stringify(u));
+    loadSessionFromDb(u.id);
     setView("products");
   };
 
@@ -72,7 +100,17 @@ export default function App() {
     if (albumSize) {
       localStorage.setItem("albumSize", JSON.stringify(albumSize));
     }
-  }, [albumSize]);
+    if (user && sessionId) {
+      fetch("/.netlify/functions/session", {
+        method: "POST",
+        body: JSON.stringify({
+          userId: user.id,
+          sessionId,
+          settings: { albumSize },
+        }),
+      }).catch(console.error);
+    }
+  }, [albumSize, user, sessionId]);
 
   // create-new-session fn (used by the "New Session" button)
   const createNewSession = async () => {
@@ -96,6 +134,12 @@ export default function App() {
     setAlbumSize(null);
     setView("products");
     setShowPrompt(false);
+    if (user) {
+      fetch("/.netlify/functions/session", {
+        method: "POST",
+        body: JSON.stringify({ userId: user.id, sessionId: sid, settings: {} }),
+      }).catch(console.error);
+    }
   };
 
   // continue-session fn (used by the "Continue" button)
@@ -125,7 +169,9 @@ export default function App() {
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      const u = JSON.parse(storedUser);
+      setUser(u);
+      loadSessionFromDb(u.id);
       setView("products");
     } else {
       setView("login");
@@ -201,7 +247,15 @@ export default function App() {
           ) : view === "albums" ? (
             <AlbumsPage />
           ) : view === "products" ? (
-            <ProductsPage onSelect={() => setView("upload")} />
+            <ProductsPage onSelect={(p) => { setSelectedProduct(p); setView("productDetail"); }} />
+          ) : view === "productDetail" ? (
+            <ProductDetailPage
+              product={selectedProduct}
+              onContinue={(size) => {
+                setAlbumSize(size);
+                setView("upload");
+              }}
+            />
           ) : view === "upload" ? (
             <ImageUploader
               sessionId={sessionId}

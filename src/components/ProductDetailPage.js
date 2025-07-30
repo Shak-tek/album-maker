@@ -8,7 +8,7 @@ const albumSizes = [
   { label: '35cm × 26cm', width: 35, height: 26 },
 ];
 
-export default function ProductDetailPage({ onContinue }) {
+export default function ProductDetailPage({ product, onContinue }) {
   const [selected, setSelected] = useState(null);
 
 
@@ -27,37 +27,25 @@ export default function ProductDetailPage({ onContinue }) {
           ]}
         >
           <Box gridArea="main_pictures" background="brand" round="medium">
-            <GrommetImage
-              src="boy_reading.png"
-              alt=""
-              crossOrigin="anonymous"
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
+            {product?.images?.[0] && (
+              <GrommetImage
+                src={product.images[0]}
+                alt=""
+                crossOrigin="anonymous"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            )}
           </Box>
-          <Box gridArea="small1" background="light-5">
-            <GrommetImage
-              src="girl_reading.png"
-              alt=""
-              crossOrigin="anonymous"
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
-          </Box>
-          <Box gridArea="small2" background="light-2">
-            <GrommetImage
-              src="old_woman_reading.png"
-              alt=""
-              crossOrigin="anonymous"
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
-          </Box>
-          <Box gridArea="small3" background="light-2">
-            <GrommetImage
-              src="old_man_reading.png"
-              alt=""
-              crossOrigin="anonymous"
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
-          </Box>
+          {product?.images?.slice(1, 4).map((img, idx) => (
+            <Box key={img} gridArea={`small${idx + 1}`} background="light-2">
+              <GrommetImage
+                src={img}
+                alt=""
+                crossOrigin="anonymous"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            </Box>
+          ))}
         </Grid>
         
         
@@ -65,9 +53,10 @@ export default function ProductDetailPage({ onContinue }) {
      
       <Box width="medium" gap="small" >
         <Heading level={2} margin="none">
-          Soft cover Album
+          {product?.name}
         </Heading>
-        <Text weight="bold" size="large">10 EUR</Text>
+        <Text weight="bold" size="large">{product?.price}</Text>
+        {product?.details && <Text>{product.details}</Text>}
         <Box direction="row" gap="small" wrap>
           {albumSizes.map((size) => (
             <Box
