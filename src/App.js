@@ -90,6 +90,13 @@ export default function App() {
         if (data.settings?.pageSettings) {
           localStorage.setItem("pageSettings", JSON.stringify(data.settings.pageSettings));
         }
+        // check if S3 has uploads for this session
+        try {
+          const { Contents } = await s3.listObjectsV2({ Prefix: `${data.session_id}/` }).promise();
+          if (Contents.length) setShowPrompt(true);
+        } catch (err) {
+          console.error(err);
+        }
       } else {
         const sid = Date.now().toString();
         setSessionId(sid);
@@ -263,9 +270,17 @@ export default function App() {
               onClickOutside={() => setShowPrompt(false)}
             >
               <Box pad="medium" gap="small" style={{ maxWidth: '90vw' }}>
-                <Text>Continue your previous session?</Text>
-                <Box direction="row" gap="small">
+                <Text>You already have an album in session.</Text>
+                <Text>Would you like to continue or make a new one?</Text>
+                <Box direction="row" gap="small" wrap>
                   <Button label="Continue" primary onClick={continueSession} />
+                  <Button
+                    label="Show Previous Album"
+                    onClick={() => {
+                      setShowPrompt(false);
+                      setView('albums');
+                    }}
+                  />
                   <Button label="New Session" onClick={createNewSession} />
                 </Box>
               </Box>
@@ -275,7 +290,7 @@ export default function App() {
           {view === "profile" ? (
             <ProfilePage user={user} />
           ) : view === "albums" ? (
-            <AlbumsPage />
+            <AlbumsPage sessionId={sessionId} />
           ) : view === "products" ? (
             <ProductsPage onSelect={(p) => { setSelectedProduct(p); setView("productDetail"); }} />
           ) : view === "productDetail" ? (
