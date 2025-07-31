@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import AWS from "aws-sdk";
 import {
   Grommet,
@@ -72,7 +72,7 @@ export default function App() {
     });
   }, []);
 
-  const loadSessionFromDb = async (userId) => {
+  const loadSessionFromDb = useCallback(async (userId) => {
     try {
       const res = await fetch(`/.netlify/functions/session?userId=${userId}`);
       if (res.ok) {
@@ -81,20 +81,14 @@ export default function App() {
         localStorage.setItem("sessionId", data.session_id);
         if (data.settings?.albumSize) {
           setAlbumSize(data.settings.albumSize);
-          localStorage.setItem(
-            "albumSize",
-            JSON.stringify(data.settings.albumSize)
-          );
+          localStorage.setItem("albumSize", JSON.stringify(data.settings.albumSize));
         }
         if (data.settings?.identityId) {
           setIdentityId(data.settings.identityId);
           localStorage.setItem("identityId", data.settings.identityId);
         }
         if (data.settings?.pageSettings) {
-          localStorage.setItem(
-            "pageSettings",
-            JSON.stringify(data.settings.pageSettings)
-          );
+          localStorage.setItem("pageSettings", JSON.stringify(data.settings.pageSettings));
         }
       } else {
         const sid = Date.now().toString();
@@ -112,7 +106,8 @@ export default function App() {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [identityId]);
+
 
   const handleLogin = (u) => {
     setUser(u);
@@ -231,7 +226,7 @@ export default function App() {
       setLoadedImages([]);
       setShowPrompt(false);
     }
-  }, []);
+  }, [loadSessionFromDb]);
 
   if (view === "login") {
     return (

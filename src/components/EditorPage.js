@@ -111,7 +111,7 @@ export default function EditorPage({
 
         setPageSettings(withAssignments);
         setImagesWarm(false);
-    }, [images]);
+    }, [images, pageSettings.length]);
 
     // 2) persist settings to localStorage and database
     useEffect(() => {
