@@ -10,7 +10,7 @@ const IK_URL_ENDPOINT = process.env.REACT_APP_IMAGEKIT_URL_ENDPOINT || "";
 const getResizedUrl = (key, width = 300) =>
   `${IK_URL_ENDPOINT}/${encodeURI(key)}?tr=w-${width},fo-face`;
 
-export default function AlbumsPage({ sessionId }) {
+export default function AlbumsPage({ sessionId, onOpen }) {
   const [firstImage, setFirstImage] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -52,7 +52,12 @@ export default function AlbumsPage({ sessionId }) {
       </Text>
       {loading && <Text>Loading...</Text>}
       {!loading && firstImage && (
-        <Box height="small" width="small">
+        <Box
+          height="small"
+          width="small"
+          onClick={() => onOpen && onOpen()}
+          style={{ cursor: onOpen ? "pointer" : undefined }}
+        >
           <Image src={firstImage} fit="cover" />
         </Box>
       )}
