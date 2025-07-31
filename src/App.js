@@ -57,6 +57,20 @@ export default function App() {
   const [showPrompt, setShowPrompt] = useState(false);
   const [albumSize, setAlbumSize] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [identityId, setIdentityId] = useState(
+    localStorage.getItem("identityId") || null
+  );
+
+  // Fetch the Cognito identity ID on mount
+  useEffect(() => {
+    AWS.config.credentials.get((err) => {
+      if (!err) {
+        const id = AWS.config.credentials.identityId;
+        setIdentityId(id);
+        localStorage.setItem("identityId", id);
+      }
+    });
+  }, []);
 
   const loadSessionFromDb = async (userId) => {
     try {
@@ -67,7 +81,20 @@ export default function App() {
         localStorage.setItem("sessionId", data.session_id);
         if (data.settings?.albumSize) {
           setAlbumSize(data.settings.albumSize);
-          localStorage.setItem("albumSize", JSON.stringify(data.settings.albumSize));
+          localStorage.setItem(
+            "albumSize",
+            JSON.stringify(data.settings.albumSize)
+          );
+        }
+        if (data.settings?.identityId) {
+          setIdentityId(data.settings.identityId);
+          localStorage.setItem("identityId", data.settings.identityId);
+        }
+        if (data.settings?.pageSettings) {
+          localStorage.setItem(
+            "pageSettings",
+            JSON.stringify(data.settings.pageSettings)
+          );
         }
       } else {
         const sid = Date.now().toString();
@@ -75,7 +102,11 @@ export default function App() {
         localStorage.setItem("sessionId", sid);
         await fetch("/.netlify/functions/session", {
           method: "POST",
-          body: JSON.stringify({ userId, sessionId: sid, settings: {} }),
+          body: JSON.stringify({
+            userId,
+            sessionId: sid,
+            settings: { identityId },
+          }),
         });
       }
     } catch (err) {
@@ -106,11 +137,11 @@ export default function App() {
         body: JSON.stringify({
           userId: user.id,
           sessionId,
-          settings: { albumSize },
+          settings: { albumSize, identityId },
         }),
       }).catch(console.error);
     }
-  }, [albumSize, user, sessionId]);
+  }, [albumSize, user, sessionId, identityId]);
 
   // create-new-session fn (used by the "New Session" button)
   const createNewSession = async () => {
@@ -137,7 +168,11 @@ export default function App() {
     if (user) {
       fetch("/.netlify/functions/session", {
         method: "POST",
-        body: JSON.stringify({ userId: user.id, sessionId: sid, settings: {} }),
+        body: JSON.stringify({
+          userId: user.id,
+          sessionId: sid,
+          settings: { identityId },
+        }),
       }).catch(console.error);
     }
   };
@@ -275,6 +310,8 @@ export default function App() {
               albumSize={albumSize}
               s3={s3}
               sessionId={sessionId}
+              user={user}
+              identityId={identityId}
             />
           ) : null}
         </PageContent>
