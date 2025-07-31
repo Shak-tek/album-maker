@@ -41,7 +41,15 @@ const slotPositionsNoBg = [
     { top: '0%', left: '0%', width: '100%', height: '100%' },
 ];
 
-export default function EditorPage({ images, onAddImages, albumSize, s3, sessionId }) {
+export default function EditorPage({
+    images,
+    onAddImages,
+    albumSize,
+    s3,
+    sessionId,
+    user,
+    identityId,
+}) {
     const [pageSettings, setPageSettings] = useState([]);
     const [showTemplateModal, setShowTemplateModal] = useState(false);
     const [templateModalPage, setTemplateModalPage] = useState(null);
@@ -63,10 +71,27 @@ export default function EditorPage({ images, onAddImages, albumSize, s3, session
     const paddingPercent = albumSize ? (albumSize.height / albumSize.width) * 100 : 75;
 
     // transparent placeholder for lazy images
+
+    // on mount restore pageSettings from localStorage if available
+    useEffect(() => {
+        const stored = localStorage.getItem("pageSettings");
+        if (stored) {
+            try {
+                const parsed = JSON.parse(stored);
+                if (Array.isArray(parsed)) {
+                    setPageSettings(parsed);
+                    setImagesWarm(false);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    }, []);
   
 
     // 1) initialize per-page assignments whenever `images` changes
     useEffect(() => {
+        if (pageSettings.length) return;
         const remaining = images.slice();
         const initial = remaining.map((_, i) => ({
             templateId:
@@ -88,13 +113,20 @@ export default function EditorPage({ images, onAddImages, albumSize, s3, session
         setImagesWarm(false);
     }, [images]);
 
-    // 2) persist settings to localStorage
+    // 2) persist settings to localStorage and database
     useEffect(() => {
-        localStorage.setItem(
-            "pageSettings",
-            JSON.stringify(pageSettings)
-        );
-    }, [pageSettings]);
+        localStorage.setItem("pageSettings", JSON.stringify(pageSettings));
+        if (user && sessionId) {
+            fetch("/.netlify/functions/session", {
+                method: "POST",
+                body: JSON.stringify({
+                    userId: user.id,
+                    sessionId,
+                    settings: { albumSize, identityId, pageSettings, user },
+                }),
+            }).catch(console.error);
+        }
+    }, [pageSettings, albumSize, identityId, user, sessionId]);
 
     // compute dynamic theme colors using ColorThief
     useEffect(() => {
