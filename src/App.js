@@ -290,7 +290,7 @@ export default function App() {
           {view === "profile" ? (
             <ProfilePage user={user} />
           ) : view === "albums" ? (
-            <AlbumsPage sessionId={sessionId} />
+            <AlbumsPage sessionId={sessionId} onOpen={continueSession} />
           ) : view === "products" ? (
             <ProductsPage onSelect={(p) => { setSelectedProduct(p); setView("productDetail"); }} />
           ) : view === "productDetail" ? (
