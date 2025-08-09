@@ -12,6 +12,7 @@
     "bcryptjs": "^3.0.2",
     "color-thief-browser": "^2.0.2",
     "cors": "^2.8.5",
+    "crypto-browserify": "^3.12.1",
     "dotenv": "^17.0.1",
     "express": "^5.1.0",
     "grommet": "^2.46.1",
