@@ -1,6 +1,12 @@
 // src/components/EditorPage.js
 import "./EditorPage.css";
-import React, { useState, useEffect, useRef } from "react";
+import React, {
+    useState,
+    useEffect,
+    useRef,
+    useMemo,
+    useCallback,
+} from "react";
 import ColorThief from "color-thief-browser";
 import { Box, Button, Layer, Text } from "grommet";
 import { jsPDF } from "jspdf";
@@ -10,6 +16,8 @@ import TemplateModal from "./TemplateModal";
 import ThemeModal from "./ThemeModal";
 import SettingsBar from "./SettingsBar";
 import { pageTemplates } from "../templates/pageTemplates";
+import ImageKit from "imagekit";
+import CropModal from "./CropModal";
 
 const slotMargin = 5;
 const gap = 5;
@@ -56,6 +64,7 @@ export default function EditorPage({
     const [showThemeModal, setShowThemeModal] = useState(false);
     const [themeModalPage, setThemeModalPage] = useState(null);
     const [backgroundEnabled, setBackgroundEnabled] = useState(true);
+    const [cropModal, setCropModal] = useState(null);
 
     // track when all assigned images have been fully preloaded
     const [imagesWarm, setImagesWarm] = useState(false);
@@ -72,6 +81,37 @@ export default function EditorPage({
 
     // transparent placeholder for lazy images
 
+    const imagekit = useMemo(
+        () =>
+            new ImageKit({
+                urlEndpoint:
+                    process.env.REACT_APP_IMAGEKIT_URL_ENDPOINT || "",
+            }),
+        []
+    );
+
+    const getImageSrc = useCallback(
+        img => {
+            if (!img) return "";
+            if (typeof img === "string") return img;
+            if (img.crop) {
+                return imagekit.url({
+                    src: img.url,
+                    transformation: [
+                        {
+                            width: Math.round(img.crop.width),
+                            height: Math.round(img.crop.height),
+                            x: Math.round(img.crop.x),
+                            y: Math.round(img.crop.y),
+                        },
+                    ],
+                });
+            }
+            return img.url;
+        },
+        [imagekit]
+    );
+
     // on mount restore pageSettings from localStorage if available
     useEffect(() => {
         const stored = localStorage.getItem("pageSettings");
@@ -79,7 +119,13 @@ export default function EditorPage({
             try {
                 const parsed = JSON.parse(stored);
                 if (Array.isArray(parsed)) {
-                    setPageSettings(parsed);
+                    const normalized = parsed.map(ps => ({
+                        ...ps,
+                        assignedImages: (ps.assignedImages || []).map(img =>
+                            typeof img === "string" ? { url: img } : img
+                        ),
+                    }));
+                    setPageSettings(normalized);
                     setImagesWarm(false);
                 }
             } catch (err) {
@@ -105,7 +151,9 @@ export default function EditorPage({
 
         const withAssignments = initial.map(ps => {
             const tmpl = pageTemplates.find(t => t.id === ps.templateId);
-            const assigned = remaining.splice(0, tmpl.slots.length);
+            const assigned = remaining
+                .splice(0, tmpl.slots.length)
+                .map(url => ({ url }));
             return { ...ps, assignedImages: assigned };
         });
 
@@ -135,12 +183,12 @@ export default function EditorPage({
         pageSettings.forEach((ps, idx) => {
             if (
                 ps.theme.mode === "dynamic" &&
-                ps.assignedImages[0] &&
+                ps.assignedImages[0]?.url &&
                 !ps.theme.color
             ) {
                 const img = new Image();
                 img.crossOrigin = "Anonymous";
-                img.src = ps.assignedImages[0];
+                img.src = ps.assignedImages[0].url;
                 img.onload = () => {
                     const [r, g, b] = thief.getColor(img);
                     const rgb = `rgb(${r}, ${g}, ${b})`;
@@ -161,7 +209,11 @@ export default function EditorPage({
     // 3) preload all assignedImages; when every one fires onload/onerror → mark warm
     useEffect(() => {
         if (!pageSettings.length) return;
-        const allUrls = pageSettings.flatMap(ps => ps.assignedImages);
+        const allUrls = pageSettings.flatMap(ps =>
+            ps.assignedImages.map(img =>
+                typeof img === "string" ? img : img.url
+            )
+        );
         if (!allUrls.length) {
             setImagesWarm(true);
             return;
@@ -231,12 +283,11 @@ export default function EditorPage({
 
     const startDrag = (pageIdx, slotIdx, e) => {
         e.stopPropagation();
-        const url =
-            pageSettings[pageIdx].assignedImages[slotIdx];
-        if (!url) return;
+        const imgObj = pageSettings[pageIdx].assignedImages[slotIdx];
+        if (!imgObj) return;
         dragActiveRef.current = true;
         dragSrcRef.current = { page: pageIdx, slot: slotIdx };
-        previewImgRef.current.src = url;
+        previewImgRef.current.src = getImageSrc(imgObj);
         const { x, y } = getTouchCoords(e);
         lastTouchRef.current = { x, y };
         previewRef.current.style.display = "block";
@@ -352,6 +403,10 @@ export default function EditorPage({
             })
         );
         setShowThemeModal(false);
+    };
+
+    const openCrop = (pi, si, aspect) => {
+        setCropModal({ page: pi, slot: si, aspect });
     };
 
     const handleSave = async () => {
@@ -470,9 +525,19 @@ export default function EditorPage({
                                                 }
                                             }}
                                             onTouchEnd={cancelTouchDrag}
+                                            onDoubleClick={() =>
+                                                openCrop(
+                                                    pi,
+                                                    slotIdx,
+                                                    parseFloat(pos.width) /
+                                                        parseFloat(pos.height)
+                                                )
+                                            }
                                         >
                                                 <img
-                                                    src={ps.assignedImages[slotIdx]}
+                                                    src={getImageSrc(
+                                                        ps.assignedImages[slotIdx]
+                                                    )}
                                                     alt=""
                                                     style={{
                                                         width: '100%',
@@ -522,10 +587,16 @@ export default function EditorPage({
                                         }}
                                     >
                                         <img
-                                            src={ps.assignedImages[slotIdx]}
+                                            src={getImageSrc(
+                                                ps.assignedImages[slotIdx]
+                                            )}
                                             alt=""
                                             crossOrigin="anonymous"
-                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                            style={{
+                                                width: '100%',
+                                                height: '100%',
+                                                objectFit: 'cover',
+                                            }}
                                         />
                                     </Box>
                                 ))}
@@ -562,6 +633,37 @@ export default function EditorPage({
                     pageIdx={themeModalPage}
                     onSelect={pickTheme}
                     onClose={() => setShowThemeModal(false)}
+                />
+            )}
+
+            {cropModal && (
+                <CropModal
+                    image={
+                        pageSettings[cropModal.page].assignedImages[
+                            cropModal.slot
+                        ].url
+                    }
+                    aspect={cropModal.aspect}
+                    crop={
+                        pageSettings[cropModal.page].assignedImages[
+                            cropModal.slot
+                        ].crop
+                    }
+                    onSave={data => {
+                        setPageSettings(prev => {
+                            const next = [...prev];
+                            const img =
+                                next[cropModal.page].assignedImages[
+                                    cropModal.slot
+                                ];
+                            next[cropModal.page].assignedImages[
+                                cropModal.slot
+                            ] = { ...img, crop: data };
+                            return next;
+                        });
+                        setCropModal(null);
+                    }}
+                    onClose={() => setCropModal(null)}
                 />
             )}
 
