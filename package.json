@@ -7,7 +7,6 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
-    "assert": "^2.1.0",
     "aws-sdk": "^2.1692.0",
     "axios": "^1.8.4",
     "bcryptjs": "^3.0.2",
@@ -22,20 +21,17 @@
     "jspdf": "^3.0.1",
     "lowdb": "^7.0.1",
     "netlify": "^22.3.0",
-    "path-browserify": "^1.0.1",
     "pg": "^8.16.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-easy-crop": "^5.5.0",
     "react-scripts": "5.0.1",
-    "stream-browserify": "^3.0.0",
     "styled-components": "^6.1.17",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-app-rewired start",
-    "build": "react-app-rewired build",
-    "test": "react-app-rewired test",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
     "eject": "react-scripts eject",
     "server": "node server.js"
   },
@@ -58,7 +54,6 @@
     ]
   },
   "devDependencies": {
-    "netlify-cli": "^22.3.0",
-    "react-app-rewired": "^2.2.1"
+    "netlify-cli": "^22.3.0"
   }
 }
