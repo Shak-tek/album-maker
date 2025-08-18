@@ -127,8 +127,8 @@ export default function ImageUploader({ sessionId, onContinue }) {
                         </Text>
                     </Box>
                 </Box>
-
-                <Box pad="medium">
+                
+                <Box className="page-container upload-zone" gap="s20">
                     <Box data-cy="uploadDropzone">
                         <Box
                             animation={[
