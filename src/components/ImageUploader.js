@@ -114,7 +114,7 @@ export default function ImageUploader({ sessionId, onContinue }) {
     const readyToContinue = allUploaded && photosUploaded >= MIN_IMAGES;
 
     return (
-        <div className="StyledGrommet-sc-19lkkz7-0 daORNg pageBanner">
+        <div className="StyledGrommet-sc-19lkkz7-0 daORNg">
             <div className="StyledBox-sc-13pk1d4-0 ejlvja sc-8340680b-0 jylZUp">
                 {/* page header */}
                 <Box gap="small" pad={{ horizontal: "medium", top: "medium" }}>
@@ -122,7 +122,7 @@ export default function ImageUploader({ sessionId, onContinue }) {
                         Upload Photos
                     </Heading>
                     <Text size="small" color="dark-5">
-                         Select the photos you would like to print to make your Photo Book.
+                         ssssSelect the photos you would like to print to make your Photo Book.
                     </Text>
                 </Box>
 
