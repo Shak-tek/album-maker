@@ -58,7 +58,7 @@ const theme = deepMerge({
     font: {
       family: "Inter, Times, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif",
       size: "16px",
-      weight: "500",
+      weight: "400",
       height: "1.57",
 
     },
