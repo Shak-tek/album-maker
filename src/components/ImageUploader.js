@@ -118,11 +118,11 @@ export default function ImageUploader({ sessionId, onContinue }) {
             <div className="StyledBox-sc-13pk1d4-0 ejlvja sc-8340680b-0 jylZUp">
                 {/* page header */}
                 <Box className="page-header">
-                    <Box className="page-container" gap="s4">
+                    <Box className="page-container" gap="s20">
                         <Heading level={2}>
                             Upload Photo
                         </Heading>
-                        <Text size="small">
+                        <Text size="t14">
                             Select the photos you would like to print to make your Photo Book.
                         </Text>
                     </Box>

@@ -59,7 +59,7 @@ const theme = deepMerge({
       family: "Inter, Times, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif",
       size: "16px",
       weight: "500",
-      height: "1.5",
+      height: "1.57",
 
     },
 
@@ -76,7 +76,7 @@ const theme = deepMerge({
     },
   },
   text: {
-    t14: { size: '14px', height: '1.2' },
+    t14: { size: '14px', height: '1.57' },
     t16: { size: '16px', height: '1.2' },
     t18: { size: '18px', height: '1.2' },
     t20: { size: '20px', height: '1.2' },
