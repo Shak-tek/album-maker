@@ -1,6 +1,6 @@
 // src/components/ImageUploader.js
 import React, { useEffect, useState, useRef } from "react";
-import { Box, Heading, Text } from "grommet";
+import { Box, Heading, Text, Paragraph } from "grommet";
 import AWS from "aws-sdk";
 import UploadStepContent from "./UploadStepContent";
 import GridStep from "./GridStep";
