@@ -11,14 +11,14 @@
     --h6: 16px;
 
     @media (max-width: 767px) {
---h1: 28px;
+        --h1: 28px;
         --h2: 24px;
         --h3: 22px;
         --h4: 18px;
         --h5: 16px;
         --h6: 14px;
     }
-    
+
 }
 
 body {
@@ -71,6 +71,7 @@ h1,
 .h1 {
     font-size: var(--h1) !important;
 }
+
 h2,
 .h2 {
     font-size: var(--h2) !important;

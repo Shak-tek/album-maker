@@ -122,9 +122,11 @@ export default function ImageUploader({ sessionId, onContinue }) {
                         <Heading level={2}>
                             Upload Photo
                         </Heading>
-                        <Text size="t14">
+                        <Paragraph size="small">
+                        
                             Select the photos you would like to print to make your Photo Book.
-                        </Text>
+                        
+                        </Paragraph>
                     </Box>
                 </Box>
                 
