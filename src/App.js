@@ -336,11 +336,7 @@ export default function App() {
             <Button label="Login" onClick={() => setView("login")} />
           )}
         </Header>
-        <PageContent className="hello" {
-          constructor(parameters) {
-            
-          }
-        }>
+        <PageContent pad="large">
           {showPrompt && (
             <Layer
               position="center"
