@@ -21,10 +21,95 @@ import LoginPage from "./LoginPage";
 import ProfilePage from "./ProfilePage";
 
 // theme
+/*
 const theme = deepMerge({
   global: {
     colors: { brand: "#228BE6" },
     font: { family: "Roboto", size: "18px", height: "20px" },
+  },
+});
+*/
+const theme = deepMerge({
+  global: {
+    colors: {
+      brand: "#2e2e2e",
+      text: "#585858",
+      background: "#FFFFFF",
+      border: "#E5E7EB",
+      muted: "#6B7280",
+      surface: "#F8FAFC",
+      accent: "#2563EB",
+    },
+
+
+    breakpoints: {
+      small: {
+        value: 767,
+        edgeSize: {
+
+          s40: "20px",
+          s80: "40px",
+        },
+      },
+      medium: { value: 1023 },
+      large: { value: 1250 },
+    },
+
+    font: {
+      family: "Inter, Times, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif",
+      size: "16px",
+      weight: "500",
+      height: "1.5",
+
+    },
+
+    edgeSize: {
+      s4: "4px",
+      s8: "8px",
+      s12: "12px",
+      s16: "16px",
+      s20: "20px",
+      s24: "24px",
+      s32: "32px",
+      s40: "40px",
+      s80: "80px",
+    },
+
+
+
+
+
+  },
+  /*
+    heading: {
+        level: {
+          1: { size: '44px', height: 1.81, weight: 600 },
+          2: { size: '30px', height: 1.2, weight: 600 },
+          3: { size: '24px', height: 1.3, weight: 600 },
+        },
+      },*/
+  text: {
+    t14: { size: '14px', height: '1.2' },
+    t16: { size: '16px', height: '1.2' },
+    t18: { size: '18px', height: '1.2' },
+    t20: { size: '20px', height: '1.2' },
+    t28: { size: '28px', height: '1.2' },
+    t44: { size: '44px', height: '1.2' },
+  },
+  paragraph: {
+    small: { size: '16px', height: '1.2' },
+    medium: { size: '18px', height: '1.2' },
+    large: { size: '29px', height: '1.2' },
+  },
+
+  button: {
+    border: { radius: "8px" },
+  },
+  card: {
+    container: {
+      round: "12px",
+      background: "white",
+    },
   },
 });
 
