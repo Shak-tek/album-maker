@@ -85,9 +85,9 @@ const theme = deepMerge({
     t44: { size: '44px', height: '1.2' },
   },
   paragraph: {
-    small: { size: '14px', height: '1.57' },
-    medium: { size: '16px', height: '1.57' },
-    large: { size: '18px', height: '1.57' },
+    small: { size: '12px', height: '1.57' },
+    medium: { size: '14px', height: '1.57' },
+    large: { size: '16px', height: '1.57' },
   },
 
   button: {
