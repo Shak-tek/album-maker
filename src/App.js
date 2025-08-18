@@ -74,20 +74,7 @@ const theme = deepMerge({
       s40: "40px",
       s80: "80px",
     },
-
-
-
-
-
   },
-  /*
-    heading: {
-        level: {
-          1: { size: '44px', height: 1.81, weight: 600 },
-          2: { size: '30px', height: 1.2, weight: 600 },
-          3: { size: '24px', height: 1.3, weight: 600 },
-        },
-      },*/
   text: {
     t14: { size: '14px', height: '1.2' },
     t16: { size: '16px', height: '1.2' },
