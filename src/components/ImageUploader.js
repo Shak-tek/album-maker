@@ -113,7 +113,7 @@ export default function ImageUploader({ sessionId, onContinue }) {
         uploads.length > 0 && uploads.every(u => u.status === "uploaded");
     const readyToContinue = allUploaded && photosUploaded >= MIN_IMAGES;
 
-    return (
+    return ( 
         <div className="pageBanner">
             <Container>
                 {/* page header */}
