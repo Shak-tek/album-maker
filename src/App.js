@@ -5,7 +5,6 @@ import {
   Header,
   Page,
   Text,
-  Paragraph,
   Button,
   Layer,
   Box,
