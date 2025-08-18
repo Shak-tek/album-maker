@@ -119,7 +119,7 @@ export default function ImageUploader({ sessionId, onContinue }) {
                 {/* page header */}
                 <Box className="page-header">
                     <Box className="page-container" >
-                        <Box gap="s20" style={{ maxWidth: '400px'; width: 100%; }}>
+                        <Box gap="s20" style={{ maxWidth: '400px', width:'100%' }}>
                             <Heading level={2}>
                                 Upload Photo
                             </Heading>
