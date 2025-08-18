@@ -67,3 +67,10 @@ h2,
     font-size: var(--h2) !important;
 
 }
+
+
+.page-header {
+    position: relative;
+    background: #ccc;
+    padding: 40px 0;
+}
