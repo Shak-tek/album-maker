@@ -117,13 +117,13 @@ export default function ImageUploader({ sessionId, onContinue }) {
         <div className="StyledGrommet-sc-19lkkz7-0 daORNg section-upload">
             <div className="StyledBox-sc-13pk1d4-0 ejlvja sc-8340680b-0 jylZUp">
                 {/* page header */}
-                <Box className="page-header">
+                <Box className="page-header" background="gray">
                     <Box className="page-container" >
                         <Box gap="s20" style={{ maxWidth: '400px', width:'100%' }}>
                             <Heading level={2}>
                                 Upload Photo
                             </Heading>
-                            <Paragraph size="small">
+                            <Paragraph>
                             
                                 Select the photos you would like to print to make your Photo Book.
                             

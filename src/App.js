@@ -34,6 +34,7 @@ const theme = deepMerge({
     colors: {
       brand: "#2e2e2e",
       text: "#585858",
+      gray: "#f9f9f9",
       background: "#FFFFFF",
       border: "#E5E7EB",
       muted: "#6B7280",
@@ -56,8 +57,8 @@ const theme = deepMerge({
     },
 
     font: {
-      family: "Inter, Times, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif",
-      size: "16px",
+      family: "-apple-system, BlinkMacSystemFont, SFUI, HelveticaNeue, Helvetica, Arial, sans-serif",
+      size: "14px",
       weight: "400",
       height: "1.57",
 
@@ -320,7 +321,7 @@ export default function App() {
   return (
     <Grommet theme={theme} full>
       <Page>
-        <Header background="brand" pad="small">
+        <Header background="gray" pad="small">
           <Text size="large">FlipSnip</Text>
           {user ? (
             <Menu

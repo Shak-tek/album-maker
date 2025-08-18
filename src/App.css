@@ -53,9 +53,9 @@ h4,
 h5,
 h6 {
     color: var(--primary);
-    font-family: 'Sharp Sans', sans-serif;
+    font-family: "Sharp Sans", serif;
     line-height: 1.2 !important;
-    font-weight: 600;
+    font-weight: 700 !important;
 }
 
 h1,
