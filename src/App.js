@@ -47,7 +47,7 @@ const theme = deepMerge({
       small: {
         value: 767,
         edgeSize: {
-
+          s20: "16px",
           s40: "20px",
           s80: "40px",
         },
