@@ -1,0 +1,61 @@
+:root {
+    --primary: #2e2e2e;
+    --text: #585858;
+    --family: "Inter", Arial;
+    --h1: 44px;
+  --h2: 32px;
+  --h3: 24px;
+  --h4: 20px;
+  --h5: 18px;
+  --h6: 16px;
+
+  @media (max-width: 767px) {
+    --h1: 28px;
+    --h2: 28px;
+    --h3: 22px;
+    --h4: 18px;
+    --h5: 16px; 
+    --h6: 14px;
+  }
+}
+
+
+body {
+    margin: 0;
+    background: #fff;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-family: var(--family);
+    color: var(--text);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: var(--primary);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+    margin: 0;
+    font-weight: 600;
+    max-width: none !important;
+}
+
+h1, .h1 {
+    font-size: var(--h1);
+}
