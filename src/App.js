@@ -3,13 +3,10 @@ import AWS from "aws-sdk";
 import {
   Grommet,
   Header,
-  Heading,
   Page,
   PageContent,
-  ResponsiveContext,
   Text,
   Button,
-  Anchor,
   Layer,
   Box,
   Menu,
