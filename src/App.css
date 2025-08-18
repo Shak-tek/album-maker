@@ -10,8 +10,12 @@
     --h4: 20px;
     --h5: 18px;
     --h6: 16px;
+    --s32: 32px;
+    --s64: 64px;
 
     @media (max-width: 767px) {
+        --s32: 16px;
+        --s64: 32px;
         --h1: 28px;
         --h2: 24px;
         --h3: 22px;
@@ -86,5 +90,5 @@ h2,
 .page-header {
     position: relative;
     background: var(--gray-light);
-    padding: 40px 0;
+    padding: var(--s32) 0 var(--s64);
 }
