@@ -119,7 +119,7 @@ export default function ImageUploader({ sessionId, onContinue }) {
                 {/* page header */}
                 <Box gap="small" pad={{ horizontal: "medium", top: "medium" }}>
                     <Heading level={2} size="xlarge" margin="none">
-                        Upload Photos
+                        Upload Photosss
                     </Heading>
                     <Text size="small" color="dark-5">
                         Select the photos you would like to print to make your Photo Book.
