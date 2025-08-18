@@ -114,8 +114,8 @@ export default function ImageUploader({ sessionId, onContinue }) {
     const readyToContinue = allUploaded && photosUploaded >= MIN_IMAGES;
 
     return (
-        <div className="StyledGrommet-sc-19lkkz7-0 daORNg">
-            <div className="StyledBox-sc-13pk1d4-0 ejlvja sc-8340680b-0 jylZUp">
+        <div className="StyledGrommet-sc-19lkkz7-0 daORNg section-wrap">
+            <div className="StyledBox-sc-13pk1d4-0 ejlvja sc-8340680b-0 jylZUp container">
                 {/* page header */}
                 <Box gap="small" pad={{ horizontal: "medium", top: "medium" }}>
                     <Heading level={2} size="xlarge" margin="none">
