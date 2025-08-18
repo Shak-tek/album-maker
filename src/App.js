@@ -101,7 +101,11 @@ const theme = deepMerge({
   },
 });
 
-
+const Container = ({ children }) => (
+  <Box width={{ max: "1254px", width: "100%" }} margin={{ horizontal: "auto" }} pad={{ horizontal: "s24" }}>
+    {children}
+  </Box>
+);
 
 // S3 config
 const REGION = "us-east-1";
@@ -336,7 +340,7 @@ export default function App() {
             <Button label="Login" onClick={() => setView("login")} />
           )}
         </Header>
-        <PageContent pad="large">
+        <div className="main-content">
           {showPrompt && (
             <Layer
               position="center"
@@ -399,7 +403,7 @@ export default function App() {
               identityId={identityId}
             />
           ) : null}
-        </PageContent>
+        </div>
       </Page>
     </Grommet>
   );
