@@ -2,7 +2,8 @@
     --primary: #2e2e2e;
     --text: #585858;
     --gray-light: #f9f9f9;
-    --family: "Inter", Times;
+    /*--family: "Inter", Times;*/
+    --family: -apple-system, BlinkMacSystemFont, SFUI, HelveticaNeue, Helvetica, Arial, sans-serif;
     --h1: 44px;
     --h2: 30px;
     --h3: 24px;
@@ -52,6 +53,7 @@ h4,
 h5,
 h6 {
     color: var(--primary);
+    font-family: 'Sharp Sans', sans-serif;
     line-height: 1.2 !important;
     font-weight: 600;
 }
