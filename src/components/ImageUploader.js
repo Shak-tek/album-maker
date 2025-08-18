@@ -127,6 +127,7 @@ export default function ImageUploader({ sessionId, onContinue }) {
                             Select the photos you would like to print to make your Photo Book.
                         
                         </Paragraph>
+                        <Text size="large">FlipSnip</Text>
                     </Box>
                 </Box>
                 
