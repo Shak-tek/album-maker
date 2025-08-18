@@ -3,10 +3,13 @@ import AWS from "aws-sdk";
 import {
   Grommet,
   Header,
+  Heading,
   Page,
   PageContent,
+  ResponsiveContext,
   Text,
   Button,
+  Anchor,
   Layer,
   Box,
   Menu,
@@ -29,6 +32,7 @@ const theme = deepMerge({
   },
 });
 */
+
 const theme = deepMerge({
   global: {
     colors: {
@@ -99,6 +103,12 @@ const theme = deepMerge({
     },
   },
 });
+
+const Container = ({ children }) => (
+  <Box width={{ max: "1254px", width: "100%" }} margin={{ horizontal: "auto" }} pad={{ horizontal: "s24" }}>
+    {children}
+  </Box>
+);
 
 // S3 config
 const REGION = "us-east-1";
