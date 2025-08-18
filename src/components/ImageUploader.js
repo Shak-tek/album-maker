@@ -119,10 +119,10 @@ export default function ImageUploader({ sessionId, onContinue }) {
                 {/* page header */}
                 <Box gap="small" pad={{ horizontal: "medium", top: "medium" }}>
                     <Heading level={2} size="xlarge" margin="none">
-                        Upload Photos
+                        Hello Upload Photos
                     </Heading>
                     <Text size="small" color="dark-5">
-                         ssssSelect the photos you would like to print to make your Photo Book.
+                         ssssSelect the photos you would like to print to make your Photo Book. 
                     </Text>
                 </Box>
 
