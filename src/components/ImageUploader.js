@@ -122,7 +122,7 @@ export default function ImageUploader({ sessionId, onContinue }) {
                         Upload Phot
                     </Heading>
                     <Text size="small" color="dark-5">
-                        Hello, Select the photos you would like to print to make your Photo Book.
+                        Select the photos you would like to print to make your Photo Book.
                     </Text>
                 </Box>
 
