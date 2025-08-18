@@ -17,15 +17,11 @@ const IK_URL_ENDPOINT = process.env.REACT_APP_IMAGEKIT_URL_ENDPOINT || "";
 // helper to build a resize URL via ImageKit with cache-busting
 const getResizedUrl = (key, width = 300) =>
     `${IK_URL_ENDPOINT}/${encodeURI(key)}?tr=w-${width},fo-face&v=${Date.now()}`;
-const Container = ({ children }) => (
-  <Box width={{ max: "1254px", width: "100%" }} margin={{ horizontal: "auto" }} pad={{ horizontal: "s24" }}>
-    {children}
-  </Box>
-);
+
 export default function ImageUploader({ sessionId, onContinue }) {
     const [uploads, setUploads] = useState([]);
     const [step, setStep] = useState(1);
-    const [s3Client, setS3Client] = useState(null); 
+    const [s3Client, setS3Client] = useState(null);
     const fileInputRef = useRef();
 
     // Cognito + S3 init
@@ -117,16 +113,16 @@ export default function ImageUploader({ sessionId, onContinue }) {
         uploads.length > 0 && uploads.every(u => u.status === "uploaded");
     const readyToContinue = allUploaded && photosUploaded >= MIN_IMAGES;
 
-    return ( 
-        <div className="pageBanner">
-            <div className="container">
+    return (
+        <div className="StyledGrommet-sc-19lkkz7-0 daORNg">
+            <div className="StyledBox-sc-13pk1d4-0 ejlvja sc-8340680b-0 jylZUp">
                 {/* page header */}
                 <Box gap="small" pad={{ horizontal: "medium", top: "medium" }}>
                     <Heading level={2} size="xlarge" margin="none">
                         Upload Photos
                     </Heading>
                     <Text size="small" color="dark-5">
-                        Select the photos you would like to print to make your Photo Book.
+                        Hello, Select the photos you would like to print to make your Photo Book.
                     </Text>
                 </Box>
 
