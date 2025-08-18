@@ -25,7 +25,7 @@ const Container = ({ children }) => (
 export default function ImageUploader({ sessionId, onContinue }) {
     const [uploads, setUploads] = useState([]);
     const [step, setStep] = useState(1);
-    const [s3Client, setS3Client] = useState(null);
+    const [s3Client, setS3Client] = useState(null); 
     const fileInputRef = useRef();
 
     // Cognito + S3 init
@@ -119,14 +119,14 @@ export default function ImageUploader({ sessionId, onContinue }) {
 
     return ( 
         <div className="pageBanner">
-            <Container>
+            <div className="container">
                 {/* page header */}
                 <Box gap="small" pad={{ horizontal: "medium", top: "medium" }}>
                     <Heading level={2} size="xlarge" margin="none">
                         Upload Photos
                     </Heading>
                     <Text size="small" color="dark-5">
-                        Hello, Select the photos you would like to print to make your Photo Book.
+                        Select the photos you would like to print to make your Photo Book.
                     </Text>
                 </Box>
 
@@ -163,7 +163,7 @@ export default function ImageUploader({ sessionId, onContinue }) {
                         </Box>
                     </Box>
                 </Box>
-            </Container>
+            </div>
 
             {/* single hidden input always mounted */}
             <input
