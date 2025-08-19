@@ -105,7 +105,7 @@ const theme = deepMerge({
       small: {
         value: 767,
         edgeSize: {
-          s20: "16px",
+          large: "16px",
           s40: "20px",
           s80: "40px",
         },
@@ -123,19 +123,17 @@ const theme = deepMerge({
     },
 
     edgeSize: {
-      s4: "4px",
-      s8: "8px",
-      s12: "12px",
-      s16: "16px",
-      s20: "20px",
-      s24: "24px",
-      s32: "32px",
+      
+      xxsmall: "4px",
+      xsmall: "8px",
+      small: "12px",
+      medium: "16px",
+      large: "20px",
+      xlarge: "24px",
+      xxlarge: "32px",
       s40: "40px",
       s80: "80px",
     },
-  },
-  columns: {
-    s6: "6"
   },
 
   text: {

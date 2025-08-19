@@ -20,7 +20,7 @@ export default function GridStep({
 }) {
     return (
         <Box>
-            <Grid className="uploader-grid" rows="small" columns={["small", "small", "small", "small", "small", "small"]} gap="s4">
+            <Grid className="uploader-grid" rows="small" columns={["small", "small", "small", "small", "small", "small"]} gap="large">
                 {uploads.length < 24 && (
                     <Box
                         key="add"
@@ -89,7 +89,7 @@ export default function GridStep({
                 <Text
                     color="status-warning"
                     size="small"
-                    margin={{ top: "small", bottom: "small", horizontal: "small" }}
+                    margin={{ top: "xxlarge" }}
                 >
                     Please upload at least {minImages} photos to continue.
                 </Text>
@@ -99,9 +99,9 @@ export default function GridStep({
                 direction="row"
                 align="center"
                 justify="between"
-                margin={{ top: "medium" }}
+                margin={{ top: "s64" }}
                 pad="small"
-                background="light-1"
+                background="surface"
                 round="xsmall"
             >
                 <Button primary className="btn btn-primary"  label="Back" onClick={onBack} />

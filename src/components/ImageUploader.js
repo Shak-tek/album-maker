@@ -121,7 +121,7 @@ export default function ImageUploader({ sessionId, onContinue }) {
         <div className="StyledGrommet-sc-19lkkz7-0 daORNg section-upload page-height-section">
             <Box className="page-header" background="gray">
                 <Box className="page-container" >
-                    <Box gap="s20" style={{ maxWidth: '400px', width:'100%' }}>
+                    <Box gap="large" style={{ maxWidth: '400px', width:'100%' }}>
                         <Heading level={2}>
                             Upload Photo
                         </Heading>
@@ -132,10 +132,10 @@ export default function ImageUploader({ sessionId, onContinue }) {
                 </Box>
             </Box>
 
-            <Box className="page-container page-height-content upload-zone text-center" gap="s20">
+            <Box className="page-container page-height-content upload-zone text-center" gap="large">
                 <Box className="page-height-content-holder page-container">
                     {!shouldHideHeader && (
-                        <Box className="upload-header" margin={{ bottom: "s32" }}>
+                        <Box className="upload-header" margin={{ bottom: "xxlarge" }}>
                             <div class="img-holder">
                                 <img src="./ICON_DESKTOP.webp" class="hide-mobile" alt="" width="80" height="80" />
                                 <img src="./ICON_MOBILE.png" class="hide-desktop" alt="" width="80" height="80" />
