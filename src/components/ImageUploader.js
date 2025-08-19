@@ -130,42 +130,44 @@ export default function ImageUploader({ sessionId, onContinue }) {
                     </Box>
                 </Box>
                 
-                <Box className="page-container page-height-content upload-zone" gap="s20">
-                    <Box className="page-height-content-holder">
-                        <div class="img-holder">
-                            <img src="./ICON_DESKTOP.webp" class="desktop" alt="" width="80" height="80" />
-                            
-                        </div>
-                        <Heading level={3}>Select 21 photos to start</Heading>
-                        <Box data-cy="uploadDropzone">
-                            <Box
-                                animation={[
-                                    { type: "fadeOut", duration: 200 },
-                                    { type: "fadeIn", duration: 200 },
-                                ]}
-                            >
-                                {step === 1 ? (
-                                    <UploadStepContent fileInputRef={fileInputRef} />
-                                ) : (
-                                    <GridStep
-                                        uploads={uploads}
-                                        photosUploaded={photosUploaded}
-                                        minImages={MIN_IMAGES}
-                                        allDone={readyToContinue}
-                                        onBack={() => setStep(1)}
-                                        onContinue={() => {
-                                            if (readyToContinue) onContinue(uploads);
-                                        }}
-                                        fileInputRef={fileInputRef}
-                                        // retry a failed thumbnail by regenerating the preview URL
-                                        onImageError={idx => {
-                                            const u = uploads[idx];
-                                            updateUpload(idx, {
-                                                preview: getResizedUrl(u.key, 300),
-                                            });
-                                        }}
-                                    />
-                                )}
+                <Box className="page-container page-height-content upload-zone text-center" gap="s20">
+                    <Box className="page-height-content-holder page-container">
+                        <Box>
+                            <div class="img-holder">
+                                <img src="./ICON_DESKTOP.webp" class="desktop" alt="" width="80" height="80" />
+                                
+                            </div>
+                            <Heading level={3}>Select 21 photos to start</Heading>
+                            <Box data-cy="uploadDropzone">
+                                <Box
+                                    animation={[
+                                        { type: "fadeOut", duration: 200 },
+                                        { type: "fadeIn", duration: 200 },
+                                    ]}
+                                >
+                                    {step === 1 ? (
+                                        <UploadStepContent fileInputRef={fileInputRef} />
+                                    ) : (
+                                        <GridStep
+                                            uploads={uploads}
+                                            photosUploaded={photosUploaded}
+                                            minImages={MIN_IMAGES}
+                                            allDone={readyToContinue}
+                                            onBack={() => setStep(1)}
+                                            onContinue={() => {
+                                                if (readyToContinue) onContinue(uploads);
+                                            }}
+                                            fileInputRef={fileInputRef}
+                                            // retry a failed thumbnail by regenerating the preview URL
+                                            onImageError={idx => {
+                                                const u = uploads[idx];
+                                                updateUpload(idx, {
+                                                    preview: getResizedUrl(u.key, 300),
+                                                });
+                                            }}
+                                        />
+                                    )}
+                                </Box>
                             </Box>
                         </Box>
                     </Box>

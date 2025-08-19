@@ -119,3 +119,6 @@ h2,
 .page-height-content-holder {
     width: 100%;
 }
+.upload-zone {
+    position: relative;
+}
