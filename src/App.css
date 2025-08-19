@@ -108,17 +108,17 @@ h3,
     }
 }
 
-button, .btn {
+.btn {
     -webkit-appearance: none;
     border: 2px solid transparent !important;
     box-shadow: none !important;
-    padding: 15px 24px !important;
+    padding: 13px 24px 11px !important;
     display: inline-block;
     vertical-align: top;
     max-width: 100% !important;
     font-size: 14px !important;
     font-weight: 700 !important;
-    line-height: 20px !important;
+    line-height: 18px !important;
     font-family: "Sharp Sans", Times !important;
     box-sizing: border-box !important;
     background: var(--brand) !important;

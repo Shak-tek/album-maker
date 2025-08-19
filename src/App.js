@@ -60,7 +60,7 @@ const theme = deepMerge({
         color: "transparent",
       },
     },
-    /*
+    
     button: {
       border: {
         radius: "8px",
@@ -97,7 +97,7 @@ const theme = deepMerge({
         },
       },
       elevation: "none",
-    },*/
+    },
 
 
 

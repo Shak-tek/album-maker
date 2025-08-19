@@ -104,7 +104,7 @@ export default function GridStep({
                 background="light-1"
                 round="xsmall"
             >
-                <Button label="Back" onClick={onBack} />
+                <Button primary className="btn btn-primary"  label="Back" onClick={onBack} />
                 <Button
                     label={`Continue (${photosUploaded}/${uploads.length})`}
                     onClick={onContinue}
