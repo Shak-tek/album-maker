@@ -185,6 +185,7 @@ h3,
 }
 .upload-field > div > div {
     padding: 0 !important;
+    margin: 0 !important;
 }
 .upload-field [data-cy="uploadDropzone"] {
     border: 0;
