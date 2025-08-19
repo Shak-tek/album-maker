@@ -18,7 +18,6 @@ import ProductDetailPage from "./components/ProductDetailPage";
 import AlbumsPage from "./AlbumsPage";
 import LoginPage from "./LoginPage";
 import ProfilePage from "./ProfilePage";
-import { WifiNone } from "grommet-icons";
 
 // theme
 /*
