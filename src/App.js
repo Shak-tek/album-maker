@@ -33,8 +33,8 @@ const theme = deepMerge({
   global: {
     colors: {
       brand: "#2e2e2e",
-      active: "#a6c732",
-      accent: "#a6c732",
+      active: "#df3b3b",
+      accent: "#df3b3b",
       text: "#585858",
       gray: "#f9f9f9",
       surface: "#f9f9f9",
@@ -45,12 +45,15 @@ const theme = deepMerge({
       white: "#fff",
       border: "#E5E7EB",
       muted: "#6B7280",
-      focus: "#a6c732",
+      focus: "#df3b3b",
       
     },
     focus: {
+      background: {
+        color: "#df3b3b", // replace green with your brand color
+      },
       border: {
-        color: "#a6c732", // replace green with your brand color
+        color: "#df3b3b", // replace green with your brand color
       },
       shadow: {
         color: "transparent", // disable box-shadow glow completely
