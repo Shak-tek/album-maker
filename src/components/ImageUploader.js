@@ -174,7 +174,7 @@ export default function ImageUploader({ sessionId, onContinue }) {
                                     }}
                                 />
                             )}
-                        </Box>
+                        </Box> 
                     </Box>
                 </Box>
             </Box>
