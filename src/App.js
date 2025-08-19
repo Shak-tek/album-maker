@@ -36,6 +36,8 @@ const theme = deepMerge({
       text: "#585858",
       success: "#f00",
       gray: "#f9f9f9",
+      light2: "rgba(0,0,0,.05)",
+      light2: "rgba(0,0,0,.09)",
       background: "#FFFFFF",
       black: "#ff0",
       border: "#E5E7EB",

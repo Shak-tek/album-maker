@@ -21,6 +21,20 @@ export default function GridStep({
     return (
         <Box>
             <Grid className="uploader-grid" rows="small" columns={["small", "small", "small", "small", "small", "small"]} gap="small">
+                {uploads.length < 24 && (
+                    <Box
+                        key="add"
+                        align="center"
+                        justify="center"
+                        background="light3"
+                        
+                        
+                        style={{ cursor: "pointer" }}
+                        onClick={() => fileInputRef.current.click()}
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" width="24" height="24"><path fill="#585858" fill-rule="evenodd" d="M10.598 1.491c-.098.193-.098.445-.098.949v8.06H2.44c-.504 0-.756 0-.949.098a.9.9 0 0 0-.393.393C1 11.184 1 11.436 1 11.94v.12c0 .504 0 .756.098.949a.9.9 0 0 0 .393.393c.193.098.445.098.949.098h8.06v8.06c0 .504 0 .756.098.949a.9.9 0 0 0 .393.393c.193.098.445.098.949.098h.12c.504 0 .756 0 .949-.098a.9.9 0 0 0 .393-.393c.098-.193.098-.445.098-.949V13.5h8.06c.504 0 .756 0 .949-.098a.9.9 0 0 0 .393-.393c.098-.193.098-.445.098-.949v-.12c0-.504 0-.756-.098-.949a.9.9 0 0 0-.393-.393c-.193-.098-.445-.098-.949-.098H13.5V2.44c0-.504 0-.756-.098-.949a.9.9 0 0 0-.393-.393C12.816 1 12.564 1 12.06 1h-.12c-.504 0-.756 0-.949.098a.9.9 0 0 0-.393.393" clip-rule="evenodd"></path></svg>
+                    </Box>
+                )}
                 {uploads.map((slot, idx) => (
                     <Box
                         key={idx}
@@ -68,20 +82,7 @@ export default function GridStep({
                     </Box>
                 ))}
 
-                {uploads.length < 24 && (
-                    <Box
-                        key="add"
-                        align="center"
-                        justify="center"
-                        background="light-3"
-                        
-                        
-                        style={{ cursor: "pointer" }}
-                        onClick={() => fileInputRef.current.click()}
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" width="24" height="24"><path fill="#585858" fill-rule="evenodd" d="M10.598 1.491c-.098.193-.098.445-.098.949v8.06H2.44c-.504 0-.756 0-.949.098a.9.9 0 0 0-.393.393C1 11.184 1 11.436 1 11.94v.12c0 .504 0 .756.098.949a.9.9 0 0 0 .393.393c.193.098.445.098.949.098h8.06v8.06c0 .504 0 .756.098.949a.9.9 0 0 0 .393.393c.193.098.445.098.949.098h.12c.504 0 .756 0 .949-.098a.9.9 0 0 0 .393-.393c.098-.193.098-.445.098-.949V13.5h8.06c.504 0 .756 0 .949-.098a.9.9 0 0 0 .393-.393c.098-.193.098-.445.098-.949v-.12c0-.504 0-.756-.098-.949a.9.9 0 0 0-.393-.393c-.193-.098-.445-.098-.949-.098H13.5V2.44c0-.504 0-.756-.098-.949a.9.9 0 0 0-.393-.393C12.816 1 12.564 1 12.06 1h-.12c-.504 0-.756 0-.949.098a.9.9 0 0 0-.393.393" clip-rule="evenodd"></path></svg>
-                    </Box>
-                )}
+                
             </Grid>
             {/* ← Warning message if under the minimum */}
             {photosUploaded < minImages && (
