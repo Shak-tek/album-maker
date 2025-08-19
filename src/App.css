@@ -162,6 +162,7 @@ h3,
     min-height: calc(100vh - 80px);
     display: flex;
     flex-flow: column nowrap;
+    padding: var(--xl2) 0;
 }
 
 .page-height-content {

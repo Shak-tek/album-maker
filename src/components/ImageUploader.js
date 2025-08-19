@@ -132,7 +132,7 @@ export default function ImageUploader({ sessionId, onContinue }) {
                 </Box>
             </Box>
 
-            <Box className="page-container page-height-content upload-zone text-center" gap="large" pad="xl2">
+            <Box className="page-container page-height-content upload-zone text-center" gap="large">
                 <Box className="page-height-content-holder page-container">
                     {!shouldHideHeader && (
                         <Box className="upload-header" margin={{ bottom: "xxlarge" }}>
