@@ -152,3 +152,22 @@ h3,
     display: block;
     margin: 0 auto;
 }
+
+
+/* Uplaoder Grid Styling */
+.uploader-grid {
+    grid-template-columns: repeat(6, 1fr);
+}
+.uploader-grid .item-uploader {
+    height: 199px;
+}
+@media (max-width: 1199px) {
+    .uploader-grid {
+    grid-template-columns: repeat(5, 1fr);
+}
+}
+@media (max-width: 1023px) {
+    .uploader-grid {
+    grid-template-columns: repeat(4, 1fr);
+}
+}
