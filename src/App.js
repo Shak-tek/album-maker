@@ -50,13 +50,13 @@ const theme = deepMerge({
     },
     focus: {
       background: {
-        color: "#df3b3b", // replace green with your brand color
+        color: "#df3b3b",
       },
       border: {
-        color: "#df3b3b", // replace green with your brand color
+        color: "#df3b3b",
       },
       shadow: {
-        color: "transparent", // disable box-shadow glow completely
+        color: "transparent",
       },
     },
 
