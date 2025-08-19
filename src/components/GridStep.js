@@ -65,7 +65,7 @@ export default function GridStep({
                                     pad={{ horizontal: "xsmall", bottom: "xsmall" }}
                                     style={{ position: "absolute", bottom: 0, width: "100%" }}
                                 >
-                                    <Meter values={[{ value: slot.progress }]} max={100} thickness="small" />
+                                    <Meter color="accent" values={[{ value: slot.progress }]} max={100} thickness="small" />
                                 </Box>
                             </>
                         )}
