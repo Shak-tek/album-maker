@@ -379,13 +379,12 @@ export default function EditorPage({
             setSaving(false);
         }
     };
-    <div className="page-container">
-        d
-    </div>
+   
     return (
         <>
             {/** SKELETON WIREFRAME until all imagesWarm */}
             {!imagesWarm ? (
+                 <div className="page-container">
                 <div className="container">
                     {pageSettings.map((ps, pi) => {
                         const tmpl = pageTemplates.find(
@@ -408,8 +407,10 @@ export default function EditorPage({
                         );
                     })}
                 </div>
+                </div>
             ) : (
                 /** REAL EDITOR PAGE once warm **/
+                <div className="page-container">
                 <div className="container">
                     {pageSettings.map((ps, pi) => {
                         if (!ps.assignedImages?.length) return null;
@@ -490,9 +491,11 @@ export default function EditorPage({
                         );
                     })}
                 </div>
+                </div>
             )}
 
             {/* hidden pages for PDF generation */}
+           
             <Box style={{ position: 'absolute', left: '-9999px', top: 0 }}>
                 {pageSettings.map((ps, pi) => {
                     const tmpl = pageTemplates.find(t => t.id === ps.templateId);
