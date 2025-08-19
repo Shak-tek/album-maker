@@ -59,7 +59,7 @@ export default function GridStep({
                                     style={{ position: "absolute", top: 0 }}
                                 >
                                     <Spinner />
-                                    <Text color="white" margin={{ top: "small" }}>{`${slot.progress}%`}</Text>
+                                    <Text color="brand" margin={{ top: "small" }}>{`${slot.progress}%`}</Text>
                                 </Box>
                                 <Box
                                     pad={{ horizontal: "xsmall", bottom: "xsmall" }}
