@@ -18,6 +18,7 @@ import ProductDetailPage from "./components/ProductDetailPage";
 import AlbumsPage from "./AlbumsPage";
 import LoginPage from "./LoginPage";
 import ProfilePage from "./ProfilePage";
+import { WifiNone } from "grommet-icons";
 
 // theme
 /*
@@ -46,7 +47,7 @@ const theme = deepMerge({
       border: "#E5E7EB",
       muted: "#6B7280",
       focus: "#df3b3b",
-      
+
     },
     focus: {
       background: {
@@ -55,23 +56,49 @@ const theme = deepMerge({
       border: {
         color: "#df3b3b",
       },
+      elevation: "none",
       shadow: {
         color: "transparent",
       },
     },
     button: {
-      background: {
-        color: "#fff",
-        
-        
-        position: "string",
-        opacity: "...",
-        repeat: "...",
-        size: "...",
-        light: "string"
+      border: {
+        radius: "8px",
       },
-      elevation: "none"
+      padding: {
+        vertical: "8px",
+        horizontal: "16px",
+      },
+      background: {
+        color: "#ffffff", // default background color
+        opacity: 1,       // opacity: 0 - 1 or 'strong'/'medium'/'weak'
+      },
+      color: "#fff", // text color
+      primary: {
+        color: "#1f1f1f", // background of primary buttons
+      },
+      hover: {
+        background: {
+          color: "#d74012", // background on hover
+        },
+        color: "#fff", // text color on hover
+      },
+      active: {
+        background: {
+          color: "#f0f0f0", // active state
+        },
+      },
+      focus: {
+        border: {
+          color: "#d74012",
+        },
+        shadow: {
+          color: "transparent", // disable glow if needed
+        },
+      },
+      elevation: "none",
     },
+
 
 
     breakpoints: {
