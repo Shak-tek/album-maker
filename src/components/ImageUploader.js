@@ -137,14 +137,15 @@ export default function ImageUploader({ sessionId, onContinue }) {
                                 <img src="./ICON_DESKTOP.webp" class="desktop" alt="" width="80" height="80" />
                                 
                             </div>
-                            <Heading level={3}>Select 21 photos to start</Heading>
-                            <Paragraph>You can change them later. The more photos you add, the better it looks.</Paragraph>
+                            
                             <Box
                                 animation={[
                                     { type: "fadeOut", duration: 200 },
                                     { type: "fadeIn", duration: 200 },
                                 ]}
                             >
+                                <Heading level={3}>Select 21 photos to start</Heading>
+                                <Paragraph>You can change them later. The more photos you add, the better it looks.</Paragraph>
                                 {step === 1 ? (
                                     <UploadStepContent fileInputRef={fileInputRef} />
                                 ) : (
