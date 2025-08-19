@@ -109,7 +109,7 @@ export default function GridStep({
                     label={`Continue (${photosUploaded}/${uploads.length})`}
                     onClick={onContinue}
                     primary
-                    className="btn btn-primary" 
+                    className="btn btn-accent" 
                     disabled={!allDone}
                 />
             </Box>

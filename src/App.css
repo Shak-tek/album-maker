@@ -115,10 +115,12 @@ button, .btn {
     padding: 15px 24px !important;
     display: inline-block;
     vertical-align: top;
-    max-width: 100%;
-    font-size: 14px;
-    font-weight: 700;
-    font-family: "Sharp Sans", Times;
+    max-width: 100% !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    line-height: 20px !important;
+    font-family: "Sharp Sans", Times !important;
+    box-sizing: border-box !important;
 }
 .btn-primary {
     background: var(--brand) !important;

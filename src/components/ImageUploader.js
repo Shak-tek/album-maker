@@ -135,7 +135,7 @@ export default function ImageUploader({ sessionId, onContinue }) {
             <Box className="page-container page-height-content upload-zone text-center" gap="s20">
                 <Box className="page-height-content-holder page-container">
                     {!shouldHideHeader && (
-                        <Box className="upload-header">
+                        <Box className="upload-header" margin={{ bottom: "s32" }}>
                             <div class="img-holder">
                                 <img src="./ICON_DESKTOP.webp" class="hide-mobile" alt="" width="80" height="80" />
                                 <img src="./ICON_MOBILE.png" class="hide-desktop" alt="" width="80" height="80" />
