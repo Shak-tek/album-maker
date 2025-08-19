@@ -19,8 +19,8 @@ export default function GridStep({
     fileInputRef,
 }) {
     return (
-        <Box pad="medium">
-            <Grid rows="small" columns={["small", "small", "small", "small"]} gap="small">
+        <Box>
+            <Grid rows="small" columns={["small", "small", "small", "small"]} gap="s4">
                 {uploads.map((slot, idx) => (
                     <Box
                         key={idx}

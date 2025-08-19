@@ -148,7 +148,7 @@ export default function ImageUploader({ sessionId, onContinue }) {
 
                         <Box className=""
                             animation={[
-                                { type: "fadeOut", duration: 0 },
+                                { type: "fadeOut", duration: 200 },
                                 { type: "fadeIn", duration: 200 },
                             ]}
                         >
