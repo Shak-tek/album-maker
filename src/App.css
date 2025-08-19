@@ -123,6 +123,7 @@ h3,
     box-sizing: border-box !important;
     background: var(--brand) !important;
     color: #fff !important;
+    letter-spacing: .03em;
 }
 
 .btn-accent {
