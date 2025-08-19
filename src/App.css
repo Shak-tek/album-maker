@@ -96,6 +96,7 @@ h2,
     padding: var(--s32) 0 var(--s64);
     flex-shrink: 0;
     width: 100%;
+    height: 80px;
 }
 
 .page-height-section {
