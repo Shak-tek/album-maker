@@ -108,7 +108,7 @@ h3,
     }
 }
 
-.btn {
+.btn,  .upload-field [data-cy="uploadDropzone"] > button{
     -webkit-appearance: none;
     border: 2px solid transparent !important;
     box-shadow: none !important;
