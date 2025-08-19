@@ -138,7 +138,7 @@ export default function ImageUploader({ sessionId, onContinue }) {
                                 
                             </div>
                             
-                            <Box
+                            <Box className="hello" 
                                 animation={[
                                     { type: "fadeOut", duration: 200 },
                                     { type: "fadeIn", duration: 200 },
