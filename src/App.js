@@ -59,6 +59,19 @@ const theme = deepMerge({
         color: "transparent",
       },
     },
+    button: {
+      background: {
+        color: "#fff",
+        
+        
+        position: "string",
+        opacity: "...",
+        repeat: "...",
+        size: "...",
+        light: "string"
+      },
+      elevation: "none"
+    },
 
 
     breakpoints: {
