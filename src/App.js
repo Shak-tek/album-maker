@@ -33,17 +33,18 @@ const theme = deepMerge({
   global: {
     colors: {
       brand: "#2e2e2e",
+      active: "#d74012",
+      accent: "#d74012",
       text: "#585858",
-      success: "#f00",
       gray: "#f9f9f9",
+      surface: "#f9f9f9",
       light2: "rgba(0,0,0,.05)",
       light3: "rgba(0,0,0,.09)",
       background: "#FFFFFF",
-      black: "#ff0",
+      black: "#000",
+      white: "#fff",
       border: "#E5E7EB",
       muted: "#6B7280",
-      surface: "#F8FAFC",
-      accent: "#2563EB",
     },
 
 
