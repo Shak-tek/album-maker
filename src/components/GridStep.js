@@ -55,17 +55,17 @@ export default function GridStep({
                                     fill
                                     align="center"
                                     justify="center"
-                                    background={{ color: "black", opacity: "strong" }}
+                                    background={{ color: "white", opacity: "strong" }}
                                     style={{ position: "absolute", top: 0 }}
                                 >
                                     <Spinner />
-                                    <Text margin={{ top: "small" }}>{`${slot.progress}%`}</Text>
+                                    <Text color="white" margin={{ top: "small" }}>{`${slot.progress}%`}</Text>
                                 </Box>
                                 <Box
                                     pad={{ horizontal: "xsmall", bottom: "xsmall" }}
                                     style={{ position: "absolute", bottom: 0, width: "100%" }}
                                 >
-                                    <Meter values={[{ value: slot.progress, color: 'accent' }]} max={100} thickness="small" />
+                                    <Meter values={[{ value: slot.progress, color: 'accent' }]} max={100} thickness="xsmall" />
                                 </Box>
                             </>
                         )}
@@ -89,7 +89,7 @@ export default function GridStep({
                 <Text
                     color="status-warning"
                     size="small"
-                    margin={{ top: "xxlarge" }}
+                    margin={{ top: "xl1" }}
                 >
                     Please upload at least {minImages} photos to continue.
                 </Text>
@@ -99,7 +99,7 @@ export default function GridStep({
                 direction="row"
                 align="center"
                 justify="between"
-                margin={{ top: "xl2" }}
+                margin={{ top: "xl1" }}
                 pad="small"
                 background="surface"
                 round="xsmall"
