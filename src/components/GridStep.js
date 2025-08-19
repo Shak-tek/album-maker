@@ -20,14 +20,13 @@ export default function GridStep({
 }) {
     return (
         <Box>
-            <Grid rows="small" columns={["small", "small", "small", "small"]} gap="s4">
+            <Grid className="uploader-grid" rows="small" columns={["s6", "small", "small", "small"]} gap="small">
                 {uploads.map((slot, idx) => (
                     <Box
                         key={idx}
                         round="xsmall"
                         border={{ color: "light-4", size: "xsmall" }}
                         overflow="hidden"
-                        background="light-2"
                         style={{ position: "relative" }}
                     >
                         <GrommetImage

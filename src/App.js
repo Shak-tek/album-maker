@@ -77,6 +77,10 @@ const theme = deepMerge({
       s80: "80px",
     },
   },
+  columns: {
+    s6: "6"
+  },
+
   text: {
     t14: { size: '14px', height: '1.57' },
     t16: { size: '16px', height: '1.2' },
