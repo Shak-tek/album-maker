@@ -1,7 +1,7 @@
 :root {
-    --primary: #2e2e2e;
+    --brand: #2e2e2e;
     --text: #585858;
-    --gray-light: #f9f9f9;
+    --surface: #f9f9f9;
     /*--family: "Inter", Times;*/
     --family: -apple-system, BlinkMacSystemFont, SFUI, HelveticaNeue, Helvetica, Arial, sans-serif;
     --h1: 44px;
@@ -59,7 +59,7 @@ h3,
 h4,
 h5,
 h6 {
-    color: var(--primary);
+    color: var(--brand);
     font-family: "Sharp Sans", serif;
     line-height: 1.2 !important;
     font-weight: 700 !important;
@@ -113,7 +113,7 @@ h3,
 
 .page-header {
     position: relative;
-    background: var(--gray-light);
+    background: var(--surface);
     padding: var(--s32) 0 var(--s64);
     flex-shrink: 0;
     width: 100%;
@@ -161,6 +161,13 @@ h3,
     margin: 0 auto;
 }
 
+.upload-field data-cy[uploadDropzone] {
+    border: 0;
+    padding: 0;
+    border-radius: 0;
+    background: var(--surface);
+    border-radius: 8px;
+}
 
 /* Uplaoder Grid Styling */
 .uploader-grid {
@@ -195,3 +202,4 @@ h3,
         grid-template-columns: repeat(2, 1fr) !important;
     }
 }
+

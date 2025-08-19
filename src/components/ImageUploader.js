@@ -144,7 +144,7 @@ export default function ImageUploader({ sessionId, onContinue }) {
                             <Paragraph>You can change them later. The more photos you add, the better it looks.</Paragraph>
                         </Box>
                     )}
-                    <Box className="upload-field" data-cy="uploadDropzone">
+                    <Box className="upload-field" data-cy="uploadDropzone" >
 
                         <Box className=""
                             animation={[
