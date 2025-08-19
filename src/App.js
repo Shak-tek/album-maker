@@ -70,22 +70,22 @@ const theme = deepMerge({
         horizontal: "16px",
       },
       background: {
-        color: "#ffffff", // default background color
-        opacity: 1,       // opacity: 0 - 1 or 'strong'/'medium'/'weak'
+        color: "#ffffff",
+        opacity: 1,      
       },
-      color: "#fff", // text color
+      color: "#fff", 
       primary: {
-        color: "#1f1f1f", // background of primary buttons
+        color: "#1f1f1f", 
       },
       hover: {
         background: {
-          color: "#d74012", // background on hover
+          color: "#d74012",
         },
-        color: "#fff", // text color on hover
+        color: "#fff",
       },
       active: {
         background: {
-          color: "#f0f0f0", // active state
+          color: "#f0f0f0", 
         },
       },
       focus: {
@@ -93,7 +93,7 @@ const theme = deepMerge({
           color: "#d74012",
         },
         shadow: {
-          color: "transparent", // disable glow if needed
+          color: "transparent", 
         },
       },
       elevation: "none",
