@@ -45,6 +45,7 @@ const theme = deepMerge({
       white: "#fff",
       border: "#E5E7EB",
       muted: "#6B7280",
+      focus: "#d74012"
     },
 
 
