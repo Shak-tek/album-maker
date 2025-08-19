@@ -133,7 +133,7 @@ export default function ImageUploader({ sessionId, onContinue }) {
                 <Box className="page-container page-height-content upload-zone" gap="s20">
                     <Box className="page-height-content-holder">
                         <div class="img-holder">
-                            <img src="./public/ICON_DESKTOP.webp" class="desktop" alt="" />
+                            <img src="./ICON_DESKTOP.webp" class="desktop" alt="" width="80" height="80" />
                             
                         </div>
                         <Heading level={3}>Select 21 photos to start</Heading>
