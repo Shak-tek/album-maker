@@ -114,9 +114,7 @@ export default function ImageUploader({ sessionId, onContinue }) {
     const readyToContinue = allUploaded && photosUploaded >= MIN_IMAGES;
 
     return (
-        <div className="StyledGrommet-sc-19lkkz7-0 daORNg section-upload">
-            <div className="StyledBox-sc-13pk1d4-0 ejlvja sc-8340680b-0 jylZUp">
-                {/* page header */}
+        <div className="StyledGrommet-sc-19lkkz7-0 daORNg section-upload page-height-section">
                 <Box className="page-header" background="gray">
                     <Box className="page-container" >
                         <Box gap="s20" style={{ maxWidth: '400px', width:'100%' }}>
@@ -132,7 +130,7 @@ export default function ImageUploader({ sessionId, onContinue }) {
                     </Box>
                 </Box>
                 
-                <Box className="page-container upload-zone" gap="s20">
+                <Box className="page-container page-height-content upload-zone" gap="s20">
                     <Box data-cy="uploadDropzone">
                         <Box
                             animation={[
@@ -165,7 +163,7 @@ export default function ImageUploader({ sessionId, onContinue }) {
                         </Box>
                     </Box>
                 </Box>
-            </div>
+            
 
             {/* single hidden input always mounted */}
             <input

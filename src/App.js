@@ -320,8 +320,8 @@ export default function App() {
 
   return (
     <Grommet theme={theme} full>
-      <Page>
-        <Header background="gray" pad="small">
+      <Page className="page">
+        <Header className="header" background="gray" pad="small">
           <Text size="large">FlipSnip</Text>
           {user ? (
             <Menu
