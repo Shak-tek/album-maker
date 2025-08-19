@@ -138,7 +138,8 @@ export default function ImageUploader({ sessionId, onContinue }) {
                                 
                             </div>
                             <Heading level={3}>Select 21 photos to start</Heading>
-                            <Box data-cy="uploadDropzone">
+                            <Paragraph>You can change them later. The more photos you add, the better it looks.</Paragraph>
+                            <Box className="upload-field" data-cy="uploadDropzone">
                                 <Box
                                     animation={[
                                         { type: "fadeOut", duration: 200 },

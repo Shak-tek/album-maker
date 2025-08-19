@@ -18,7 +18,7 @@
         --s64: 32px;
         --h1: 28px;
         --h2: 24px;
-        --h3: 22px;
+        --h3: 20px;
         --h4: 18px;
         --h5: 16px;
         --h6: 14px;
@@ -88,6 +88,13 @@ h2,
 
 }
 
+h3,
+.h3 {
+    font-size: var(--h3) !important;
+    letter-spacing: .02em;
+
+}
+
 .header {
     height: 80px;
 }
@@ -121,4 +128,17 @@ h2,
 }
 .upload-zone {
     position: relative;
+    text-align: center;
+}
+.upload-zone h3 {
+    margin: 0 0 8px;
+}
+.upload-zone .img-holder {
+    margin: 0 0 16px;
+}
+.upload-zone .img-holder img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
 }
