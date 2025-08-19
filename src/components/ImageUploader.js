@@ -137,9 +137,10 @@ export default function ImageUploader({ sessionId, onContinue }) {
                     {!shouldHideHeader && (
                         <Box className="upload-header">
                             <div class="img-holder">
-                                <img src="./ICON_DESKTOP.webp" class="desktop" alt="" width="80" height="80" />
+                                <img src="./ICON_DESKTOP.webp" class="hide-mobile" alt="" width="80" height="80" />
+                                <img src="./ICON_MOBILE.png" class="hide-desktop" alt="" width="80" height="80" />
                             </div>
-                            <Heading level={3}>Select 21 photos to start</Heading>
+                            <Heading level={3}>Select 20 photos to start</Heading>
                             <Paragraph>You can change them later. The more photos you add, the better it looks.</Paragraph>
                         </Box>
                     )}
@@ -147,7 +148,7 @@ export default function ImageUploader({ sessionId, onContinue }) {
 
                         <Box className=""
                             animation={[
-                                { type: "fadeOut", duration: 200 },
+                                { type: "fadeOut", duration: 0 },
                                 { type: "fadeIn", duration: 200 },
                             ]}
                         >
