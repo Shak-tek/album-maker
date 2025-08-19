@@ -36,7 +36,6 @@ export default function ImageUploader({ sessionId, onContinue }) {
         });
     }, []);
 
-
     const updateUpload = (idx, fields) =>
         setUploads(all => {
             const next = [...all];
@@ -113,66 +112,72 @@ export default function ImageUploader({ sessionId, onContinue }) {
         uploads.length > 0 && uploads.every(u => u.status === "uploaded");
     const readyToContinue = allUploaded && photosUploaded >= MIN_IMAGES;
 
+    // Determine if the upload-header should be hidden
+    const shouldHideHeader = uploads.some(
+        u => u.status === "uploaded" || u.status === "error"
+    );
+
     return (
         <div className="StyledGrommet-sc-19lkkz7-0 daORNg section-upload page-height-section">
-                <Box className="page-header" background="gray">
-                    <Box className="page-container" >
-                        <Box gap="s20" style={{ maxWidth: '400px', width:'100%' }}>
-                            <Heading level={2}>
-                                Upload Photo
-                            </Heading>
-                            <Paragraph>
-                            
-                                Select the photos you would like to print to make your Photo Book.
-                            
-                            </Paragraph>
-                        </Box>
+            <Box className="page-header" background="gray">
+                <Box className="page-container" >
+                    <Box gap="s20" style={{ maxWidth: '400px', width:'100%' }}>
+                        <Heading level={2}>
+                            Upload Photo
+                        </Heading>
+                        <Paragraph>
+                            Select the photos you would like to print to make your Photo Book.
+                        </Paragraph>
                     </Box>
                 </Box>
-                
-                <Box className="page-container page-height-content upload-zone text-center" gap="s20">
-                    <Box className="page-height-content-holder page-container">
-                        <Box className="upload-field" data-cy="uploadDropzone">
+            </Box>
+
+            <Box className="page-container page-height-content upload-zone text-center" gap="s20">
+                <Box className="page-height-content-holder page-container">
+                    {!shouldHideHeader && (
+                        <Box className="upload-header">
                             <div class="img-holder">
                                 <img src="./ICON_DESKTOP.webp" class="desktop" alt="" width="80" height="80" />
-                                
                             </div>
-                            
-                            <Box className="hello" 
-                                animation={[
-                                    { type: "fadeOut", duration: 200 },
-                                    { type: "fadeIn", duration: 200 },
-                                ]}
-                            >
-                                <Heading level={3}>Select 21 photos to start</Heading>
-                                <Paragraph>You can change them later. The more photos you add, the better it looks.</Paragraph>
-                                {step === 1 ? (
-                                    <UploadStepContent fileInputRef={fileInputRef} />
-                                ) : (
-                                    <GridStep
-                                        uploads={uploads}
-                                        photosUploaded={photosUploaded}
-                                        minImages={MIN_IMAGES}
-                                        allDone={readyToContinue}
-                                        onBack={() => setStep(1)}
-                                        onContinue={() => {
-                                            if (readyToContinue) onContinue(uploads);
-                                        }}
-                                        fileInputRef={fileInputRef}
-                                        // retry a failed thumbnail by regenerating the preview URL
-                                        onImageError={idx => {
-                                            const u = uploads[idx];
-                                            updateUpload(idx, {
-                                                preview: getResizedUrl(u.key, 300),
-                                            });
-                                        }}
-                                    />
-                                )}
-                            </Box>
+                            <Heading level={3}>Select 21 photos to start</Heading>
+                            <Paragraph>You can change them later. The more photos you add, the better it looks.</Paragraph>
+                        </Box>
+                    )}
+                    <Box className="upload-field" data-cy="uploadDropzone">
+
+                        <Box className=""
+                            animation={[
+                                { type: "fadeOut", duration: 200 },
+                                { type: "fadeIn", duration: 200 },
+                            ]}
+                        >
+
+                            {step === 1 ? (
+                                <UploadStepContent fileInputRef={fileInputRef} />
+                            ) : (
+                                <GridStep
+                                    uploads={uploads}
+                                    photosUploaded={photosUploaded}
+                                    minImages={MIN_IMAGES}
+                                    allDone={readyToContinue}
+                                    onBack={() => setStep(1)}
+                                    onContinue={() => {
+                                        if (readyToContinue) onContinue(uploads);
+                                    }}
+                                    fileInputRef={fileInputRef}
+                                    // retry a failed thumbnail by regenerating the preview URL
+                                    onImageError={idx => {
+                                        const u = uploads[idx];
+                                        updateUpload(idx, {
+                                            preview: getResizedUrl(u.key, 300),
+                                        });
+                                    }}
+                                />
+                            )}
                         </Box>
                     </Box>
                 </Box>
-            
+            </Box>
 
             {/* single hidden input always mounted */}
             <input
