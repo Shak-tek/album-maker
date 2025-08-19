@@ -11,12 +11,25 @@
     --h4: 20px;
     --h5: 18px;
     --h6: 16px;
-    --s32: 32px;
-    --s64: 64px;
+
+
+    --xxsmall: 4px;
+    --xsmall: 8px;
+    --small: 12px;
+    --medium: 16px;
+    --large: 20px;
+    --xlarge: 24px;
+    --xxlarge: 32px;
+    --xl1: 40px;
+    --xl2: 60px;
+    --xl3: 80px;
+    --xl4: 100px;
 
     @media (max-width: 767px) {
-        --s32: 16px;
-        --s64: 32px;
+        --xl1: 20px;
+        --xl2: 40px;
+        --xl3: 60px;
+        --xl4: 80px;
         --h1: 28px;
         --h2: 24px;
         --h3: 20px;
@@ -108,7 +121,8 @@ h3,
     }
 }
 
-.btn,  .upload-field [data-cy="uploadDropzone"] > button{
+.btn,
+.upload-field [data-cy="uploadDropzone"]>button {
     -webkit-appearance: none;
     border: 2px solid transparent !important;
     box-shadow: none !important;
@@ -138,7 +152,7 @@ h3,
 .page-header {
     position: relative;
     background: var(--surface);
-    padding: var(--s32) 0 var(--s64);
+    padding: var(--xxlarge) 0 var(--xl2);
     flex-shrink: 0;
     width: 100%;
 }
@@ -183,10 +197,12 @@ h3,
     display: block;
     margin: 0 auto;
 }
-.upload-field > div > div {
+
+.upload-field>div>div {
     padding: 0 !important;
     margin: 0 !important;
 }
+
 .upload-field [data-cy="uploadDropzone"] {
     border: 0;
     padding: 0;
@@ -224,9 +240,9 @@ h3,
         grid-template-columns: repeat(3, 1fr) !important;
     }
 }
+
 @media (max-width: 479px) {
     .uploader-grid {
         grid-template-columns: repeat(2, 1fr) !important;
     }
 }
-

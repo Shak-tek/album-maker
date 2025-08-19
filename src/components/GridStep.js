@@ -99,7 +99,7 @@ export default function GridStep({
                 direction="row"
                 align="center"
                 justify="between"
-                margin={{ top: "s64" }}
+                margin={{ top: "xl2" }}
                 pad="small"
                 background="surface"
                 round="xsmall"
