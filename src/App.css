@@ -2,6 +2,7 @@
     --brand: #2e2e2e;
     --text: #585858;
     --surface: #f9f9f9;
+    --accent: #df3b3b;
     /*--family: "Inter", Times;*/
     --family: -apple-system, BlinkMacSystemFont, SFUI, HelveticaNeue, Helvetica, Arial, sans-serif;
     --h1: 44px;
@@ -107,6 +108,27 @@ h3,
     }
 }
 
+button, .btn {
+    -webkit-appearance: none;
+    border: 2px solid transparent !important;
+    box-shadow: none !important;
+    padding: 15px 24px !important;
+    display: inline-block;
+    vertical-align: top;
+    max-width: 100%;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: "Sharp Sans", Times;
+}
+.btn-primary {
+    background: var(--brand) !important;
+    color: #fff !important;
+}
+.btn-accent {
+    background: var(--accent) !important;
+    color: #fff !important;
+}
+
 .header {
     height: 80px;
 }
@@ -160,13 +182,16 @@ h3,
     display: block;
     margin: 0 auto;
 }
-
+.upload-field > div > div {
+    padding: 0 !important;
+}
 .upload-field [data-cy="uploadDropzone"] {
     border: 0;
     padding: 0;
     border-radius: 0;
     background: var(--surface);
     border-radius: 8px;
+    padding: 32px 24px;
 }
 
 /* Uplaoder Grid Styling */
