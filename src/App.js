@@ -165,6 +165,7 @@ const theme = deepMerge({
     padding: { vertical: "12px", horizontal: "24px", },
     color: "#fff",
     font: { size: "12px"},
+    secondary: {background: "#000" },
   },
   card: {
     container: {
