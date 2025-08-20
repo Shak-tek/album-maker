@@ -423,14 +423,14 @@ export default function App() {
                 <Text>Would you like to continue or make a new one?</Text>
                 <Box direction="row" gap="small" wrap>
                   <Button label="Continue" primary onClick={continueSession} />
-                  <Button
+                  <Button primary 
                     label="Show Previous Album"
                     onClick={() => {
                       setShowPrompt(false);
                       setView('albums');
                     }}
                   />
-                  <Button label="New Session" onClick={createNewSession} />
+                  <Button primary label="New Session" onClick={createNewSession} />
                 </Box>
               </Box>
             </Layer>
