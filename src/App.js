@@ -162,6 +162,8 @@ const theme = deepMerge({
 
   button: {
     border: { radius: "38px" },
+    color: "#fff",
+    font: { size: "20px"},
   },
   card: {
     container: {
