@@ -384,6 +384,7 @@ export default function EditorPage({
         <>
             {/** SKELETON WIREFRAME until all imagesWarm */}
             {!imagesWarm ? (
+                <div className="editor-page">
                  <div className="page-container">
                 <div className="container">
                     {pageSettings.map((ps, pi) => {
@@ -408,8 +409,10 @@ export default function EditorPage({
                     })}
                 </div>
                 </div>
+                </div>
             ) : (
                 /** REAL EDITOR PAGE once warm **/
+                <div className="editor-page">
                 <div className="page-container">
                 <div className="container">
                     {pageSettings.map((ps, pi) => {
@@ -490,6 +493,7 @@ export default function EditorPage({
                             </div>
                         );
                     })}
+                </div>
                 </div>
                 </div>
             )}

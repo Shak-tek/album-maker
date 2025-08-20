@@ -10,6 +10,7 @@
     /* align toolbars/photos at top of each cell */
 }
 
+/*
 @media (max-width: 600px) {
     .container {
         display: block;
@@ -20,7 +21,7 @@
     display: flex;
     width: 100%;
     max-width: 1020px;
-}
+}*/
 
 /* photo pages */
 .photo-page {
@@ -30,9 +31,7 @@
     height: 0;
     padding-top: 75%;
     overflow: hidden;
-    /* allow vertical scrolling while still enabling touch drag */
     touch-action: pan-y;
-    /* background-color / background-image will be set inline via React */
     transition: transform 0.3s ease;
 }
 
