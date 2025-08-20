@@ -145,14 +145,11 @@ const theme = deepMerge({
   },
 
   button: {
-    
-    font: {
-      size: '26px', 
+    default: {
+      font: {
+        size: '26px',
+      },
     },
-    border: {
-      radius: "18px",
-    },
-    
   },
 
   text: {
