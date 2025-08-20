@@ -1,13 +1,13 @@
 /* src/components/EditorPage.css */
 
-/* container & rows */
-.container {
+.editor-page {
+    padding: 60px 0;
+}
+.editor-page .container {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-    /* space between pages */
+    gap: 40px 0;
     align-items: start;
-    /* align toolbars/photos at top of each cell */
 }
 
 /*
@@ -27,7 +27,7 @@
 .photo-page {
     position: relative;
     width: 100%;
-    max-width: 500px;
+    /*max-width: 500px;*/
     height: 0;
     padding-top: 75%;
     overflow: hidden;
@@ -163,25 +163,17 @@
 }
 /* wrap each page + toolbar together */
 .page-wrapper {
-  display: inline-block;
-  position: relative;
-  margin: 10px;
-  width: 100%;
-  max-width: 500px;
+  display: block;
 }
 
 .page-wrapper .toolbar {
-  position: absolute;
-  top: -40px;
-  left: 0;
-  right: 0;
-  height: 40px;
-  background: #f9f9f9;
+  position: relative;
+  
+  /*background: #f9f9f9;*/
   z-index: 10;
   display: flex;
   align-items: center;
-  padding: 0 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 0 0 24px;
 }
 
 /* page wrapper when skeleton loading */
