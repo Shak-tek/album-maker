@@ -10,11 +10,11 @@ export default function ThemeModal({ onSelect, onClose, pageIdx }) {
             onEsc={onClose}
             onClickOutside={onClose}
         >
-            <Box pad="small" gap="medium" width="medium" style={{ maxWidth: '90vw' }}>
+            <Box pad="small" gap="medium" width="medium" style={{ maxWidth: '90vw', overflowY: 'auto', maxHeight: '90vh' }}>
                 {themeGroups.map(group => (
                     <Box key={group.name}>
                         <Text weight="bold">{group.name}</Text>
-                        <Box className="dynamicColors" direction="row" wrap gap="small" pad={{ vertical: 'xsmall' }}>
+                        <Box className="dynamicColors" direction="row" wrap pad={{ vertical: 'xsmall' }}>
                             {group.dynamic
                                 ? <Box
                                     pad="small"
