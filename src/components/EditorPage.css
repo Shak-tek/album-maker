@@ -215,6 +215,7 @@
     justify-content: center;
     display: flex;
     flex-flow: row nowrap;
+    align-items: flex-start !important;
     gap: 0 !important;
 }
 
