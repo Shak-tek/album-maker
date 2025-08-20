@@ -231,7 +231,7 @@
 
 
 .btn-setting {
-    display: flex;
+    display: inline-flex;
     flex-flow: column nowrap;
     gap: 0 !important;
     font-size: 14px !important;
