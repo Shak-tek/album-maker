@@ -13,6 +13,35 @@ export default function SettingsBar({
   onOpenThemeModal,
   onSave,
 }) {
+const RemoveIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="16"
+    height="16"
+    fill="currentColor"
+    viewBox="0 0 24 24"
+    style={{ marginRight: '8px' }}
+  >
+    <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+  </svg>
+);
+
+const ShowIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="16"
+    height="16"
+    fill="currentColor"
+    viewBox="0 0 24 24"
+    style={{ marginRight: '8px' }}
+  >
+    <path d="M12 4.5C7 4.5 2.73 8.11 1 12c1.73 3.89 6 7.5 11 7.5s9.27-3.61 11-7.5C21.27 8.11 17 4.5 12 4.5zm0 12a4.5 4.5 0 110-9 4.5 4.5 0 010 9z" />
+    <circle cx="12" cy="12" r="2.5" fill="white" />
+  </svg>
+);
+
+
+
   const fileRef = useRef();
 
   const handleFiles = (e) => {
@@ -40,6 +69,22 @@ export default function SettingsBar({
       </Button>
       <Box direction="row" align="center" gap="xsmall">
         <Button label={backgroundEnabled ? 'Remove Background' : 'Show Background'} onClick={() => setBackgroundEnabled(!backgroundEnabled)} />
+
+
+          <Button onClick={() => setBackgroundEnabled(!backgroundEnabled)}>
+  {backgroundEnabled ? (
+    <>
+      <RemoveIcon />
+      Remove Background
+    </>
+  ) : (
+    <>
+      <ShowIcon />
+      Show Background
+    </>
+  )}
+</Button>
+
         {onOpenThemeModal && (
           <Button label="Change Theme" onClick={onOpenThemeModal} />
         )}
