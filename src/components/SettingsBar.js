@@ -15,15 +15,72 @@ export default function SettingsBar({
 }) {
 const RemoveIcon = () => (
   <svg
+    viewBox="0 0 256 256"
     xmlns="http://www.w3.org/2000/svg"
-    width="16"
-    height="16"
-    fill="currentColor"
-    viewBox="0 0 24 24"
-    style={{ marginRight: '8px' }}
+    width="24"
+    height="24"
   >
-    <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    <rect width="256" height="256" fill="none" />
+    <rect
+      x="40"
+      y="88"
+      width="128"
+      height="128"
+      rx="8"
+      stroke="#000"
+      strokeWidth="12"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      fill="none"
+    />
+    <line
+      x1="160"
+      y1="40"
+      x2="144"
+      y2="40"
+      stroke="#000"
+      strokeWidth="12"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      fill="none"
+    />
+    <path
+      d="M200,40h8a8,8,0,0,1,8,8v8"
+      stroke="#000"
+      strokeWidth="12"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      fill="none"
+    />
+    <line
+      x1="216"
+      y1="112"
+      x2="216"
+      y2="96"
+      stroke="#000"
+      strokeWidth="12"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      fill="none"
+    />
+    <path
+      d="M200,168h8a8,8,0,0,0,8-8v-8"
+      stroke="#000"
+      strokeWidth="12"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      fill="none"
+    />
+    <path
+      d="M104,40H96a8,8,0,0,0-8,8v8"
+      stroke="#000"
+      strokeWidth="12"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      fill="none"
+    />
   </svg>
+
 );
 
 const PhotosIcon = () => (
