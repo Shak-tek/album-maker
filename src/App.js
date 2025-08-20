@@ -144,13 +144,7 @@ const theme = deepMerge({
     },
   },
 
-  button: {
-    default: {
-      font: {
-        size: '26px',
-      },
-    },
-  },
+  
 
   text: {
     t14: { size: '14px', height: '1.57' },
