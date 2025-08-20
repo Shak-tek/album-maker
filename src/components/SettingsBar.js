@@ -73,7 +73,7 @@ const SavingIcon = () => (
   };
 
   return (
-    <Box className="settings-bar" direction="row" gap="small" pad="small" background="light-1" elevation="medium" align="center">
+    <Box className="settings-bar" direction="row" gap="small" pad="xsmall" background="light-1" elevation="medium" align="center">
       <input
         ref={fileRef}
         type="file"

@@ -14,7 +14,7 @@ export default function ThemeModal({ onSelect, onClose, pageIdx }) {
                 {themeGroups.map(group => (
                     <Box key={group.name}>
                         <Text weight="bold">{group.name}</Text>
-                        <Box direction="row" wrap gap="small" pad={{ vertical: 'small' }}>
+                        <Box className="dynamicColors" direction="row" wrap gap="small" pad={{ vertical: 'xsmall' }}>
                             {group.dynamic
                                 ? <Box
                                     pad="small"
