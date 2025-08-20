@@ -60,6 +60,8 @@ const theme = deepMerge({
         color: "transparent",
       },
     },
+
+    
     
     button: {
       border: {
@@ -136,6 +138,14 @@ const theme = deepMerge({
       xl2: "60px",
       xl3: "80px",
       xl4: "100px",
+    },
+  },
+
+  button: {
+    default: {
+      font: {
+        size: '26px', // 👈 Your custom size
+      },
     },
   },
 
