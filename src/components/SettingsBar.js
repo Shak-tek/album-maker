@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { Box, Button } from 'grommet';
-import { Add } from 'grommet-icons';
+//import { Add } from 'grommet-icons';
 
 export default function SettingsBar({
   borderColor,
