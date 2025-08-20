@@ -69,7 +69,7 @@ const ShowIcon = () => (
         style={{ display: 'none' }}
         onChange={handleFiles}
       />
-      <Button label="Add Pictures" onClick={() => fileRef.current && fileRef.current.click()}>
+      <Button  onClick={() => fileRef.current && fileRef.current.click()}>
         <photosIcon />
       Add Photos
       </Button>
