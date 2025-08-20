@@ -64,8 +64,11 @@ const theme = deepMerge({
     
     
     button: {
+      font: {
+        size: '26px', 
+      },
       border: {
-        radius: "8px",
+        radius: "18px",
       },
       padding: {
         vertical: "8px",
@@ -142,11 +145,14 @@ const theme = deepMerge({
   },
 
   button: {
-    default: {
+    
       font: {
-        size: '26px', // 👈 Your custom size
+        size: '26px', 
       },
-    },
+      border: {
+        radius: "18px",
+      },
+    
   },
 
   text: {
