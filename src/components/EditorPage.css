@@ -167,8 +167,7 @@
 }
 
 .page-wrapper .toolbar {
-  position: relative;
-  
+  position: relative;  
   background: #f8f8f8;
   z-index: 10;
   display: flex;
@@ -177,7 +176,11 @@
   
 }
 
-
+.page-wrapper .toolbar .btn-ico svg{
+    stroke-color: #000;
+    color: #000;
+    fill: #000;
+}
 
 @media (min-width: 768px) {
     

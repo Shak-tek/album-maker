@@ -440,12 +440,14 @@ export default function EditorPage({
                                         icon={<TemplateIcon />}
                                         tip="Layout"
                                         color="black" 
+                                        className="btn-ico" 
                                         onClick={() => openTemplateModal(pi)}
                                     />
                                     <Button
                                         icon={<Brush />}
                                         tip="Theme"
                                         color="black" 
+                                        className="btn-ico" 
                                         onClick={() => openThemeModal(pi)}
                                     />
                                 </Box>
