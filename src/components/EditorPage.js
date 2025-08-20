@@ -439,11 +439,13 @@ export default function EditorPage({
                                     <Button
                                         icon={<TemplateIcon />}
                                         tip="Layout"
+                                        color="black" 
                                         onClick={() => openTemplateModal(pi)}
                                     />
                                     <Button
                                         icon={<Brush />}
                                         tip="Theme"
+                                        color="black" 
                                         onClick={() => openThemeModal(pi)}
                                     />
                                 </Box>

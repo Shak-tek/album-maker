@@ -6,7 +6,7 @@
 .editor-page .container {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 40px 0;
+    gap: 40px 2px;
     align-items: start;
 }
 
@@ -159,7 +159,7 @@
 
 /* highlight target slot */
 .highlight {
-    outline: 3px dashed #ffffff;
+    outline: 3px dashed #f8f8f8;
 }
 /* wrap each page + toolbar together */
 .page-wrapper {
@@ -169,11 +169,22 @@
 .page-wrapper .toolbar {
   position: relative;
   
-  /*background: #f9f9f9;*/
+  background: #f8f8f8;
   z-index: 10;
   display: flex;
   align-items: center;
-  padding: 0 0 24px;
+  padding: 10px;
+  
+}
+
+
+
+@media (min-width: 768px) {
+    
+.page-wrapper:nth-child(even) .toolbar {
+    justify-content: flex-end;
+   
+}
 }
 
 /* page wrapper when skeleton loading */
