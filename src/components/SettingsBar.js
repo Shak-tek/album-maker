@@ -81,7 +81,7 @@ const ShowIcon = () => (
   {backgroundEnabled ? (
     <>
       <RemoveIcon />
-      Remove Background
+      Remove Background 
     </>
   ) : (
     <>
