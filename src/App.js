@@ -159,10 +159,10 @@ const theme = deepMerge({
     medium: { size: '14px', height: '1.57' },
     large: { size: '16px', height: '1.57' },
   },
-/*
+
   button: {
-    border: { radius: "8px" },
-  },*/
+    border: { radius: "38px" },
+  },
   card: {
     container: {
       round: "12px",
