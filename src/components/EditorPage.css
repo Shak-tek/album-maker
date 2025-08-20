@@ -228,3 +228,20 @@
         flex-wrap: wrap;
     }
 }
+
+
+.btn-setting {
+    display: flex;
+    flex-flow: column nowrap;
+    gap: 0 !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    line-height: 20px !important;
+
+}
+.btn-setting svg {
+    display: block;
+    width: 24px !important;
+    height: 24px !important;
+    margin: 0 0 10px !important;
+}
