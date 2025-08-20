@@ -237,7 +237,17 @@
     font-size: 14px !important;
     font-weight: 700 !important;
     line-height: 20px !important;
+    width: 100px;
+    color: #585858 !important;
 
+}
+.btn-setting > div {
+    display: flex !important;
+    flex-flow: column nowrap !important;
+    gap: 0 !important;
+}
+.btn-setting div:empty {
+    display: none !important;
 }
 .btn-setting svg {
     display: block;
