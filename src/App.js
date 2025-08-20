@@ -61,7 +61,7 @@ const theme = deepMerge({
       },
     },
 
-    
+    /*
     
     button: {
       font: {
@@ -104,7 +104,7 @@ const theme = deepMerge({
       elevation: "none",
     },
 
-
+*/
 
     breakpoints: {
       small: {
