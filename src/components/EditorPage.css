@@ -205,10 +205,17 @@
 /* floating settings bar */
 .settings-bar {
     position: fixed;
-    bottom: 16px;
-    right: 16px;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
     z-index: 1000;
-    border-radius: 4px;
+    border-radius: 8px !important;
+    background: rgba(255,255,255,.9) !important;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px !important;
+    justify-content: center;
+    display: flex;
+    flex-flow: row nowrap;
+    gap: 0 !important;
 }
 
 @media (max-width: 600px) {
