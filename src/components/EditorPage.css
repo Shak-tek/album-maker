@@ -3,6 +3,7 @@
 .editor-page {
     padding: 60px 0;
 }
+
 .editor-page .container {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -161,33 +162,34 @@
 .highlight {
     outline: 3px dashed #f8f8f8;
 }
+
 /* wrap each page + toolbar together */
 .page-wrapper {
-  display: block;
+    display: block;
 }
 
 .page-wrapper .toolbar {
-  position: relative;  
-  background: #f8f8f8;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  
+    position: relative;
+    background: #f8f8f8;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+
 }
 
-.page-wrapper .toolbar .btn-ico svg{
+.page-wrapper .toolbar .btn-ico svg {
     stroke-color: #000;
     color: #000;
     fill: #000;
 }
 
 @media (min-width: 768px) {
-    
-.page-wrapper:nth-child(even) .toolbar {
-    justify-content: flex-end;
-   
-}
+
+    .page-wrapper:nth-child(even) .toolbar {
+        justify-content: flex-end;
+
+    }
 }
 
 /* page wrapper when skeleton loading */
@@ -201,7 +203,10 @@
 .skeleton-photo-slot {
     background: #e0e0e0;
     flex: 1;
-    border-radius: 4px;    height: 150px; }
+    border-radius: 4px;
+    height: 150px;
+}
+
 /* floating settings bar */
 .settings-bar {
     position: fixed;
@@ -210,7 +215,7 @@
     transform: translateX(-50%);
     z-index: 1000;
     border-radius: 8px !important;
-    background: rgba(255,255,255,.9) !important;
+    background: rgba(255, 255, 255, .9) !important;
     box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px !important;
     justify-content: center;
     display: flex;
@@ -244,14 +249,17 @@
     padding: 5px !important;
 
 }
-.btn-setting > div {
+
+.btn-setting>div {
     display: flex !important;
     flex-flow: column nowrap !important;
     gap: 0 !important;
 }
+
 .btn-setting div:empty {
     display: none !important;
 }
+
 .btn-setting svg {
     display: block;
     width: 24px !important;
@@ -267,14 +275,23 @@
 .modalTemplates {
     width: 650px;
 }
+
 .btnLayoutWrap {
     display: flex;
     flex-flow: row wrap;
     gap: 20px !important;
 }
+
 .btnLayoutWrap .btnLayout {
     width: calc(25% - 15px) !important;
 }
-.btnLayoutWrap .btnLayout > div > div {
+
+.btnLayoutWrap .btnLayout>div {
     background-color: #efefef;
+}
+
+@media (max-width: 549px) {
+    .btnLayoutWrap .btnLayout {
+        width: calc(50% - 15px) !important;
+    }
 }

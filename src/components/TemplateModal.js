@@ -18,7 +18,7 @@ export default function TemplateModal({ onSelect, onClose }) {
                     <Button label="X" className="modalClose" Text="white" onClick={onClose} />
                 </Box>
 
-                <Box className="btnLayoutWrap" wrap direction="row" gap="small">
+                <Box className="btnLayoutWrap" wrap direction="row">
                     {pageTemplates.map(t => (
                         <Button className="btnLayout" 
                             key={t.id}
@@ -26,9 +26,9 @@ export default function TemplateModal({ onSelect, onClose }) {
                             plain
                             a11yTitle={`Choose ${t.name}`}
                         >
-                            <Box gap="xsmall" align="center">
+                            
                                 <Box
-                                    width="150px"
+                                    
                                     height="117px"
                                     round="xsmall"
                                     overflow="hidden"
@@ -40,7 +40,7 @@ export default function TemplateModal({ onSelect, onClose }) {
                                     }
                                 />
                                 <Text size="small">{t.name}</Text>
-                            </Box>
+                            
                         </Button>
                     ))}
                 </Box>
