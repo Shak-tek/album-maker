@@ -263,3 +263,18 @@
 .dynamicColors {
     gap: 8px !important;
 }
+
+.modalTemplates {
+    width: 650px;
+}
+.btnLayoutWrap {
+    display: flex;
+    flex-flow: row wrap;
+    gap: 20px !important;
+}
+.btnLayoutWrap .btnLayout {
+    width: calc(25% - 15px) !important;
+}
+.btnLayoutWrap .btnLayout > div > div {
+    background-color: #efefef;
+}
