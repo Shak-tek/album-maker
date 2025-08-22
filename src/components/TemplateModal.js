@@ -28,15 +28,15 @@ export default function TemplateModal({ onSelect, onClose }) {
                         >
                             <Box gap="xsmall" align="center">
                                 <Box
-                                    width="140px"
-                                    height="90px"
+                                    width="150px"
+                                    height="117px"
                                     round="xsmall"
                                     overflow="hidden"
-                                    border={{ color: 'dark-3' }}
+                                    border={{ color: '#efefef' }}
                                     background={
                                         t.thumbnailUrl
                                             ? { image: `url(${t.thumbnailUrl})`, size: 'cover', position: 'center' }
-                                            : 'light-4'
+                                            : '#efefef'
                                     }
                                 />
                                 <Text size="small">{t.name}</Text>
