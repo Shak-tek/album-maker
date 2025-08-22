@@ -15,7 +15,7 @@ export default function TemplateModal({ onSelect, onClose }) {
             <Box pad="medium" className="modalTemplates" width="" gap="medium" style={{ maxWidth: '90vw' }}>
                 <Box direction="row" justify="between" align="center">
                     <Text weight="bold">Templates</Text>
-                    <Button label="X" className="modalClose" Text="white" onClick={onClose} />
+                    <Button label="x" className="modalClose" Text="white" onClick={onClose} />
                 </Box>
 
                 <Box className="btnLayoutWrap" wrap direction="row">
@@ -29,13 +29,13 @@ export default function TemplateModal({ onSelect, onClose }) {
                             
                                 <Box
                                     
-                                    height="117px"
+                                    height="110px"
                                     round="xsmall"
                                     overflow="hidden"
                                     border={{ color: '#efefef' }}
                                     background={
                                         t.thumbnailUrl
-                                            ? { image: `url(${t.thumbnailUrl})`, size: 'cover', position: 'center' }
+                                            ? { image: `url(${t.thumbnailUrl})`, size: 'contain', position: 'center' }
                                             : '#efefef'
                                     }
                                 />

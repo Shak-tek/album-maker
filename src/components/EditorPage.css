@@ -10,7 +10,12 @@
     gap: 40px 2px;
     align-items: start;
 }
-
+@media (max-width: 767px) {
+    .editor-page .container {
+    
+    grid-template-columns: repeat(1, 1fr);
+    }
+}
 /*
 @media (max-width: 600px) {
     .container {
@@ -301,6 +306,7 @@
     color: #000 !important;
     padding: 0 !important;
     margin: 0 !important;
+    font-weight: 700;
 
 }
 @media (max-width: 549px) {
