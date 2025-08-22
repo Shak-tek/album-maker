@@ -10,28 +10,35 @@ export default function TemplateModal({ onSelect, onClose }) {
             responsive={false}
             onEsc={onClose}
             onClickOutside={onClose}
+            modal
         >
-            <Box pad="medium" width="medium" gap="small" style={{ maxWidth: '90vw' }}>
+            <Box pad="medium" width="large" gap="medium" style={{ maxWidth: '90vw' }}>
                 <Box direction="row" justify="between" align="center">
                     <Text weight="bold">Templates</Text>
-                    <Button label="×" onClick={onClose} />
+                    <Button label="Close" onClick={onClose} />
                 </Box>
+
                 <Box wrap direction="row" gap="small">
                     {pageTemplates.map(t => (
                         <Button
                             key={t.id}
-                            pad="none"
                             onClick={() => onSelect(t.id)}
+                            plain
+                            a11yTitle={`Choose ${t.name}`}
                         >
-                            <Box
-                                width="100px"
-                                height="60px"
-                                background={t.thumbnailUrl ? `url(${t.thumbnailUrl})` : 'light-4'}
-                                round="xsmall"
-                                border={{ color: 'dark-3' }}
-                                justify="center"
-                                align="center"
-                            >
+                            <Box gap="xsmall" align="center">
+                                <Box
+                                    width="140px"
+                                    height="90px"
+                                    round="xsmall"
+                                    overflow="hidden"
+                                    border={{ color: 'dark-3' }}
+                                    background={
+                                        t.thumbnailUrl
+                                            ? { image: `url(${t.thumbnailUrl})`, size: 'cover', position: 'center' }
+                                            : 'light-4'
+                                    }
+                                />
                                 <Text size="small">{t.name}</Text>
                             </Box>
                         </Button>
