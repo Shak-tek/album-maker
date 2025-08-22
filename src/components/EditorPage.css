@@ -289,7 +289,16 @@
 .btnLayoutWrap .btnLayout>div {
     background-color: #efefef;
 }
+.btnLayoutWrap .btnLayout > span {
+    display: block;
+    margin-top: 8px;
+}
+.modalClose {
+    color: #000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
 
+}
 @media (max-width: 549px) {
     .btnLayoutWrap .btnLayout {
         width: calc(50% - 15px) !important;
