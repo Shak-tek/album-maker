@@ -292,6 +292,9 @@
 .btnLayoutWrap .btnLayout > span {
     display: block;
     margin-top: 8px;
+    font-size: 11px !important;
+    font-weight: 500;
+    letter-spacing: .5px;
 }
 .modalClose {
     color: #000 !important;
