@@ -143,6 +143,13 @@
     height: 90%;
 }
 
+.slot11 {
+    top: 5%;
+    left: 5%;
+    width: 70%;
+    height: 90%;
+}
+
 /* drag preview */
 #drag-preview {
     position: fixed;

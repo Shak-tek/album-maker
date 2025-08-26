@@ -27,5 +27,11 @@ export const pageTemplates = [
         slots: [9],            // CSS: .slot10
         thumbnailUrl: '/ICON_TEMPLATE_3_LANDSCAPE.webp',
     },
+    {
+        id: 4,
+        name: '1‑Up (Full‑Bleed)',
+        slots: [11],            // CSS: .slot10
+        thumbnailUrl: '/ICON_TEMPLATE_3_LANDSCAPE.webp',
+    },
     // …you can add more templates here as you please
 ];
