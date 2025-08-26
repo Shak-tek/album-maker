@@ -10,6 +10,7 @@ import TemplateModal from "./TemplateModal";
 import ThemeModal from "./ThemeModal";
 import SettingsBar from "./SettingsBar";
 import { pageTemplates } from "../templates/pageTemplates";
+import TitleModal from "./TitleModal";
 
 const slotMargin = 5;
 const gap = 5;
@@ -44,18 +45,23 @@ const slotPositionsNoBg = [
 export default function EditorPage({
     images,
     onAddImages,
-    albumSize,
-    s3,
-    sessionId,
-    user,
-    identityId,
-}) {
-    const [pageSettings, setPageSettings] = useState([]);
-    const [showTemplateModal, setShowTemplateModal] = useState(false);
-    const [templateModalPage, setTemplateModalPage] = useState(null);
-    const [showThemeModal, setShowThemeModal] = useState(false);
-    const [themeModalPage, setThemeModalPage] = useState(null);
-    const [backgroundEnabled, setBackgroundEnabled] = useState(true);
+        albumSize,
+        s3,
+        sessionId,
+        user,
+        identityId,
+        title,
+        subtitle,
+        setTitle,
+        setSubtitle,
+    }) {
+      const [pageSettings, setPageSettings] = useState([]);
+      const [showTemplateModal, setShowTemplateModal] = useState(false);
+      const [templateModalPage, setTemplateModalPage] = useState(null);
+      const [showThemeModal, setShowThemeModal] = useState(false);
+      const [themeModalPage, setThemeModalPage] = useState(null);
+      const [showTitleModal, setShowTitleModal] = useState(false);
+      const [backgroundEnabled, setBackgroundEnabled] = useState(true);
 
     // track when all assigned images have been fully preloaded
     const [imagesWarm, setImagesWarm] = useState(false);
@@ -93,15 +99,17 @@ export default function EditorPage({
     useEffect(() => {
         if (pageSettings.length) return;
         const remaining = images.slice();
-        const initial = remaining.map((_, i) => ({
-            templateId:
-                i < 2
-                    ? 1
-                    : pageTemplates[
-                        Math.floor(Math.random() * pageTemplates.length)
-                    ].id,
-            theme: { mode: "dynamic", color: null },
-        }));
+          const initial = remaining.map((_, i) => ({
+              templateId:
+                  i === 0
+                      ? 3
+                      : i < 2
+                      ? 1
+                      : pageTemplates[
+                            Math.floor(Math.random() * pageTemplates.length)
+                        ].id,
+              theme: { mode: "dynamic", color: null },
+          }));
 
         const withAssignments = initial.map(ps => {
             const tmpl = pageTemplates.find(t => t.id === ps.templateId);
@@ -122,11 +130,11 @@ export default function EditorPage({
                 body: JSON.stringify({
                     userId: user.id,
                     sessionId,
-                    settings: { albumSize, identityId, pageSettings, user },
+                    settings: { albumSize, identityId, pageSettings, user, title, subtitle },
                 }),
             }).catch(console.error);
         }
-    }, [pageSettings, albumSize, identityId, user, sessionId]);
+    }, [pageSettings, albumSize, identityId, user, sessionId, title, subtitle]);
 
     // compute dynamic theme colors using ColorThief
     useEffect(() => {
@@ -436,18 +444,18 @@ export default function EditorPage({
                                     gap="small"
                                     align="center"
                                 >
-                                    <Button
-                                        icon={<TemplateIcon />}
-                                        
-                                        color="black" 
-                                        className="btn-ico" 
-                                        onClick={() => openTemplateModal(pi)}
-                                    />
+                                    {pi !== 0 && (
+                                        <Button
+                                            icon={<TemplateIcon />}
+                                            color="black"
+                                            className="btn-ico"
+                                            onClick={() => openTemplateModal(pi)}
+                                        />
+                                    )}
                                     <Button
                                         icon={<Brush />}
-                                        
-                                        color="black" 
-                                        className="btn-ico" 
+                                        color="black"
+                                        className="btn-ico"
                                         onClick={() => openThemeModal(pi)}
                                     />
                                 </Box>
@@ -493,6 +501,12 @@ export default function EditorPage({
                                             </div>
                                         );
                                     })}
+                                    {pi === 0 && (
+                                        <div className="title-overlay">
+                                            {title && <h1>{title}</h1>}
+                                            {subtitle && <h2>{subtitle}</h2>}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         );
@@ -542,6 +556,12 @@ export default function EditorPage({
                                         />
                                     </Box>
                                 ))}
+                                {pi === 0 && (
+                                    <Box className="title-overlay">
+                                        {title && <h1>{title}</h1>}
+                                        {subtitle && <h2>{subtitle}</h2>}
+                                    </Box>
+                                )}
                             </Box>
                         </Box>
                     );
@@ -577,12 +597,25 @@ export default function EditorPage({
                     onClose={() => setShowThemeModal(false)}
                 />
             )}
+            {showTitleModal && (
+                <TitleModal
+                    title={title}
+                    subtitle={subtitle}
+                    onSave={({ title: t, subtitle: st }) => {
+                        setTitle(t);
+                        setSubtitle(st);
+                        setShowTitleModal(false);
+                    }}
+                    onClose={() => setShowTitleModal(false)}
+                />
+            )}
 
             <SettingsBar
                 backgroundEnabled={backgroundEnabled}
                 setBackgroundEnabled={setBackgroundEnabled}
                 onAddImages={onAddImages}
                 onOpenThemeModal={() => openThemeModal(null)}
+                onEditTitle={() => setShowTitleModal(true)}
                 onSave={handleSave}
             />
         </>

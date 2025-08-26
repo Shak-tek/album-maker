@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { Box, Button } from 'grommet';
+import { Edit } from 'grommet-icons';
 //import { Add } from 'grommet-icons';
 
 export default function SettingsBar({
@@ -9,10 +10,11 @@ export default function SettingsBar({
   setBorderEnabled,
   backgroundEnabled,
   setBackgroundEnabled,
-  onAddImages,
-  onOpenThemeModal,
-  onSave,
-}) {
+    onAddImages,
+    onOpenThemeModal,
+    onSave,
+    onEditTitle,
+  }) {
 const BackgroundIcon = () => (
   <svg
     viewBox="0 0 256 256"
@@ -96,12 +98,15 @@ const SavingIcon = () => (
 
           
 
-        {onOpenThemeModal && (
-          <Button className="btn-setting" icon={<ThemeIcon />} label="Change Theme" onClick={onOpenThemeModal} />
-        )}
-        {onSave && (
-          <Button className="btn-setting" icon={<SavingIcon />} label="Save" onClick={onSave} />
-        )}
+          {onOpenThemeModal && (
+            <Button className="btn-setting" icon={<ThemeIcon />} label="Change Theme" onClick={onOpenThemeModal} />
+          )}
+          {onEditTitle && (
+            <Button className="btn-setting" icon={<Edit />} label="Edit Title" onClick={onEditTitle} />
+          )}
+          {onSave && (
+            <Button className="btn-setting" icon={<SavingIcon />} label="Save" onClick={onSave} />
+          )}
      
     </Box>
   );
