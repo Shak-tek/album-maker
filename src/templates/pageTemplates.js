@@ -29,9 +29,9 @@ export const pageTemplates = [
     },
     {
         id: 4,
-        name: '1‑Up sdafdf',
-        slots: [11],            // CSS: .slot10
-        thumbnailUrl: '/ICON_TEMPLATE_3_LANDSCAPE.webp',
+        name: '2-Up (Horizontal)',
+        slots: [11, 12],
+        thumbnailUrl: 'https://popsa.com/webapp/assets/icons/Templates/ICON_TEMPLATE_6_LANDSCAPE.webp',
     },
     // …you can add more templates here as you please
 ];
