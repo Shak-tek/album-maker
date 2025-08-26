@@ -156,6 +156,31 @@
     height: 42.5%;
 }
 
+
+
+
+
+
+.slot14 {
+    top: 5%;
+    left: 5%;
+    width: 42.5%;
+    height: 42.5%;
+}
+
+
+.slot15 {
+    top: 52.5%;
+    left: 5%;
+    width: 42.5%;
+    height: 42.5%;
+}
+.slot16 {
+    top: 5%;
+    left: 52.5%;
+    width: 42.5%;
+    height: 90%;
+}
 /* drag preview */
 #drag-preview {
     position: fixed;
