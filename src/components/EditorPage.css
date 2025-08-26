@@ -167,8 +167,6 @@
     width: 42.5%;
     height: 42.5%;
 }
-
-
 .slot15 {
     top: 52.5%;
     left: 5%;
@@ -180,6 +178,48 @@
     left: 52.5%;
     width: 42.5%;
     height: 90%;
+}
+
+
+
+.slot16 {
+    top: 5%;
+    left: 5%;
+    width: 42.5%;
+    height: 42.5%;
+}
+.slot17 {
+    top: 5%;
+    left: 52.5%;
+    width: 42.5%;
+    height: 42.5%;
+}
+.slot18 {
+    top: 52.5%;
+    left: 5%;
+    width: 90%;
+    height: 42.5%;
+}
+
+
+
+.slot19 {
+    top: 5%;
+    left: 5%;
+    width: 90%;
+    height: 42.5%;
+}
+.slot20 {
+    top: 52.5%;
+    left: 5%;
+    width: 42.5%;
+    height: 42.5%;
+}
+.slot21 {
+    top: 52.5%;
+    left: 52.5%;
+    width: 42.5%;
+    height: 42.5%;
 }
 /* drag preview */
 #drag-preview {
