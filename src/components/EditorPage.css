@@ -221,6 +221,26 @@
     width: 42.5%;
     height: 42.5%;
 }
+
+
+.slot23 {
+    top: 5%;
+    left: 5%;
+    width: 60%;
+    height: 90%;
+}
+.slot24 {
+    top: 5%;
+    left: 70%;
+    width: 25%;
+    height: 42.5%;
+}
+.slot25 {
+    top: 52.5%;
+    left: 70%;
+    width: 25%;
+    height: 42.5%;
+}
 /* drag preview */
 #drag-preview {
     position: fixed;

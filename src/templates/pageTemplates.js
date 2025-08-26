@@ -51,5 +51,11 @@ export const pageTemplates = [
         slots: [19, 20, 21],
         thumbnailUrl: 'https://popsa.com/webapp/assets/icons//Templates/ICON_TEMPLATE_10_LANDSCAPE.webp',
     },
+    {
+        id: 8,
+        name: '3‑Up (Row of 3)',
+        slots: [22, 23, 24],
+        thumbnailUrl: 'https://popsa.com/webapp/assets/icons//Templates/ICON_TEMPLATE_11_LANDSCAPE.webp',
+    },
     // …you can add more templates here as you please
 ];
