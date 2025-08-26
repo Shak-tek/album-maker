@@ -29,7 +29,7 @@ export const pageTemplates = [
     },
     {
         id: 4,
-        name: '1‑Up (Full‑Bleed)',
+        name: '1‑Up sdafdf',
         slots: [11],            // CSS: .slot10
         thumbnailUrl: '/ICON_TEMPLATE_3_LANDSCAPE.webp',
     },
