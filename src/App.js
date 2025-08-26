@@ -13,6 +13,7 @@ import {
 import { deepMerge } from "grommet/utils";
 import ImageUploader from "./components/ImageUploader";
 import EditorPage from "./components/EditorPage";
+import TitlePage from "./components/TitlePage";
 import ProductsPage from "./ProductsPage";
 import ProductDetailPage from "./components/ProductDetailPage";
 import AlbumsPage from "./AlbumsPage";
@@ -205,6 +206,12 @@ export default function App() {
   const [loadedImages, setLoadedImages] = useState([]);
   const [showPrompt, setShowPrompt] = useState(false);
   const [albumSize, setAlbumSize] = useState(null);
+  const [albumTitle, setAlbumTitle] = useState(
+    localStorage.getItem("albumTitle") || ""
+  );
+  const [albumSubtitle, setAlbumSubtitle] = useState(
+    localStorage.getItem("albumSubtitle") || ""
+  );
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [identityId, setIdentityId] = useState(
     localStorage.getItem("identityId") || null
@@ -235,6 +242,14 @@ export default function App() {
         if (data.settings?.identityId) {
           setIdentityId(data.settings.identityId);
           localStorage.setItem("identityId", data.settings.identityId);
+        }
+        if (data.settings?.title) {
+          setAlbumTitle(data.settings.title);
+          localStorage.setItem("albumTitle", data.settings.title);
+        }
+        if (data.settings?.subtitle) {
+          setAlbumSubtitle(data.settings.subtitle);
+          localStorage.setItem("albumSubtitle", data.settings.subtitle);
         }
         if (data.settings?.pageSettings) {
           localStorage.setItem("pageSettings", JSON.stringify(data.settings.pageSettings));
@@ -282,17 +297,24 @@ export default function App() {
     if (albumSize) {
       localStorage.setItem("albumSize", JSON.stringify(albumSize));
     }
+    localStorage.setItem("albumTitle", albumTitle);
+    localStorage.setItem("albumSubtitle", albumSubtitle);
     if (user && sessionId) {
       fetch("/.netlify/functions/session", {
         method: "POST",
         body: JSON.stringify({
           userId: user.id,
           sessionId,
-          settings: { albumSize, identityId },
+          settings: {
+            albumSize,
+            identityId,
+            title: albumTitle,
+            subtitle: albumSubtitle,
+          },
         }),
       }).catch(console.error);
     }
-  }, [albumSize, user, sessionId, identityId]);
+  }, [albumSize, albumTitle, albumSubtitle, user, sessionId, identityId]);
 
   // create-new-session fn (used by the "New Session" button)
   const createNewSession = async () => {
@@ -311,9 +333,13 @@ export default function App() {
     const sid = Date.now().toString();
     localStorage.setItem("sessionId", sid);
     localStorage.removeItem("albumSize");
+    localStorage.removeItem("albumTitle");
+    localStorage.removeItem("albumSubtitle");
     setSessionId(sid);
     setLoadedImages([]);
     setAlbumSize(null);
+    setAlbumTitle("");
+    setAlbumSubtitle("");
     setView("products");
     setShowPrompt(false);
     if (user) {
@@ -344,6 +370,10 @@ export default function App() {
     const storedSize = localStorage.getItem("albumSize");
     if (storedSize) {
       setAlbumSize(JSON.parse(storedSize));
+      const storedTitle = localStorage.getItem("albumTitle");
+      if (storedTitle) setAlbumTitle(storedTitle);
+      const storedSubtitle = localStorage.getItem("albumSubtitle");
+      if (storedSubtitle) setAlbumSubtitle(storedSubtitle);
       setView("editor");
     } else {
       setView("products");
@@ -369,6 +399,10 @@ export default function App() {
       setSessionId(sid);
       const storedSize = localStorage.getItem("albumSize");
       if (storedSize) setAlbumSize(JSON.parse(storedSize));
+      const storedTitle = localStorage.getItem("albumTitle");
+      if (storedTitle) setAlbumTitle(storedTitle);
+      const storedSubtitle = localStorage.getItem("albumSubtitle");
+      if (storedSubtitle) setAlbumSubtitle(storedSubtitle);
       s3.listObjectsV2({ Prefix: `${sid}/` })
         .promise()
         .then(({ Contents }) => {
@@ -457,8 +491,18 @@ export default function App() {
                 const keys = finishedUploads.map((u) => u.key);
                 const urls = keys.map((k) => getResizedUrl(k, 1000));
                 setLoadedImages(urls);
+                setView("title");
+              }}
+            />
+          ) : view === "title" ? (
+            <TitlePage
+              onContinue={({ title, subtitle }) => {
+                setAlbumTitle(title);
+                setAlbumSubtitle(subtitle);
                 setView("editor");
               }}
+              initialTitle={albumTitle}
+              initialSubtitle={albumSubtitle}
             />
           ) : view === "editor" ? (
             <EditorPage
@@ -471,6 +515,10 @@ export default function App() {
               sessionId={sessionId}
               user={user}
               identityId={identityId}
+              title={albumTitle}
+              subtitle={albumSubtitle}
+              setTitle={setAlbumTitle}
+              setSubtitle={setAlbumSubtitle}
             />
           ) : null}
         </div>

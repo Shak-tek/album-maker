@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Box, Heading, TextInput, Button } from 'grommet';
 
-export default function TitlePage({ onContinue }) {
-  const [title, setTitle] = useState('');
-  const [subtitle, setSubtitle] = useState('');
+export default function TitlePage({ onContinue, initialTitle = '', initialSubtitle = '' }) {
+  const [title, setTitle] = useState(initialTitle);
+  const [subtitle, setSubtitle] = useState(initialSubtitle);
 
   return (
     <Box pad="medium" gap="medium" align="start">
