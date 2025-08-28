@@ -432,3 +432,79 @@
         width: calc(50% - 15px) !important;
     }
 }
+/* Sheikh saab button change kar dein*/
+/* --- Image cropper: per-slot overlay buttons --- */
+.slot-edit-btn,
+.slot-reset-btn {
+    position: absolute;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 4px 6px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    cursor: pointer;
+    line-height: 1;
+    opacity: 0;
+    /* hidden until hover/focus (desktop) */
+    transition: opacity 120ms ease, transform 120ms ease;
+}
+
+.slot-edit-btn {
+    top: 6px;
+    right: 6px;
+}
+
+.slot-reset-btn {
+    top: 6px;
+    left: 6px;
+    font-size: 11px;
+    padding: 2px 6px;
+}
+
+.slot-edit-btn:hover,
+.slot-reset-btn:hover {
+    transform: translateY(-1px);
+}
+
+.slot-edit-btn:focus-visible,
+.slot-reset-btn:focus-visible {
+    outline: 2px solid #000;
+    outline-offset: 2px;
+    opacity: 1;
+}
+
+/* reveal buttons on hover (desktop/mouse) */
+.photo-slot:hover .slot-edit-btn,
+.photo-slot:hover .slot-reset-btn {
+    opacity: 1;
+}
+
+/* ensure the icon sizes are tidy */
+.slot-edit-btn svg {
+    width: 16px;
+    height: 16px;
+    display: block;
+}
+
+/* on touch devices, keep buttons visible (no hover) */
+@media (hover: none) and (pointer: coarse) {
+
+    .slot-edit-btn,
+    .slot-reset-btn {
+        opacity: 1;
+    }
+}
+
+/* optional: show grab cursor for draggable slots (keeps your DnD UX familiar) */
+.photo-slot {
+    cursor: grab;
+}
+
+.photo-slot:active {
+    cursor: grabbing;
+}
