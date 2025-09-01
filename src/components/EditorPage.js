@@ -1,6 +1,6 @@
 // src/components/EditorPage.js (with non‑destructive per‑slot Image Cropper)
 import "./EditorPage.css";
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ColorThief from "color-thief-browser";
 import { Box, Button, Layer, Text } from "grommet";
 import { jsPDF } from "jspdf";
@@ -130,18 +130,6 @@ export default function EditorPage({
     const [cropTarget, setCropTarget] = useState({ pageIdx: null, slotIdx: null, aspect: 1 });
     const [cropState, setCropState] = useState({ crop: { x: 0, y: 0 }, zoom: 1, rotation: 0 });
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
-
-    const currentTemplateSlots = (ps) => (backgroundEnabled ? slotPositions : slotPositionsNoBg);
-
-    const computeSlotAspect = (slotIdx, bgEnabled) => {
-        // slot positions are addressed by template's slots array values
-        return (ps, slotPosIndex) => {
-            const pos = bgEnabled ? slotPositions[slotPosIndex] : slotPositionsNoBg[slotPosIndex];
-            const w = parseFloat(String(pos.width).replace('%', ''));
-            const h = parseFloat(String(pos.height).replace('%', ''));
-            return w / h;
-        };
-    };
 
     const getSlotSrc = (ps, slotIdx) => {
         const edit = ps.edits?.[slotIdx];
