@@ -356,6 +356,47 @@
     width: 90%;
 }
 
+
+
+.slot40 {
+    top: 5%;
+    left: 5%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+.slot41 {
+    top: 5%;
+    left: 36.6667%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+.slot42 {
+    top: 5%;
+    left: 68.3334%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+
+
+.slot43 {
+    top: 52.5%;
+    left: 5%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+.slot44 {
+    top: 52.5%;
+    left: 36.6667%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+.slot45 {
+    top: 52.5%;
+    left: 68.3334%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+
 /* drag preview */
 #drag-preview {
     position: fixed;
