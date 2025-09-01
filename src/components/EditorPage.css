@@ -315,6 +315,47 @@
     height: 42.5%;
 }
 
+
+.slot34 {
+    top: 5%;
+    left: 5%;
+    width: 26.6667%;
+    height: 90%;
+}
+.slot35 {
+    top: 5%;
+    left: 36.6667%;
+    width: 26.6667%;
+    height: 90%;
+}
+.slot36 {
+    top: 5%;
+    left: 68.3334%;
+    width: 26.6667%;
+    height: 90%;
+}
+
+
+
+.slot37 {
+    left: 5%;
+    top: 5%;
+    height: 26.6667%;
+    width: 90%;
+}
+.slot38 {
+    left: 5%;
+    top: 36.6667%;
+    height: 26.6667%;
+    width: 90%;
+}
+.slot39 {
+    left: 5%;
+    top: 68.3334%;
+    height: 26.6667%;
+    width: 90%;
+}
+
 /* drag preview */
 #drag-preview {
     position: fixed;
