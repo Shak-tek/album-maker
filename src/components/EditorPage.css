@@ -655,6 +655,31 @@
     width: 60%;
 }
 
+.slot84 {
+    left: 20%;
+    top: 20%;
+    height: 25%;
+    width: 25%;
+}
+.slot85 {
+    left: 50%;
+    top: 20%;
+    height: 25%;
+    width: 25%;
+}
+.slot86 {
+    left: 20%;
+    top: 50%;
+    height: 25%;
+    width: 25%;
+}
+.slot87 {
+    left: 50%;
+    top: 50%;
+    height: 25%;
+    width: 25%;
+}
+
 
 /* drag preview */
 #drag-preview {
