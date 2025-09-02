@@ -584,11 +584,69 @@
 .slot73 {
     top: 52.5%;
     left: 36.6667%;
-    
     width: 58.3334%; 
     height: 42.5%;
 }
 
+
+
+.slot74 {
+    top: 5%;
+    left: 5%;
+    width: 26.6667%;
+    height: 26.6667%;
+}
+.slot75 {
+    top: 5%;
+    left: 36.6667%;
+    width: 26.6667%;
+    height: 26.6667%;
+}
+.slot76 {
+    top: 5%;
+    left: 68.3334%;
+    width: 26.6667%;
+    height: 26.6667%;
+}
+
+
+.slot77 {
+    left: 5%;
+    top: 36.6667%;
+    height: 26.6667%;
+    width: 26.6667%;
+}
+.slot78 {
+    left: 36.6667%;
+    top: 36.6667%;
+    height: 26.6667%;
+    width: 26.6667%;
+}
+.slot79 {
+    left: 68.3334%;
+    top: 36.6667%;
+    height: 26.6667%;
+    width: 26.6667%;
+}
+
+.slot80 {
+    left: 5%;
+    top: 68.3334%;
+    height: 26.6667%;
+    width: 26.6667%;
+}
+.slot81 {
+    left: 36.6667%;
+    top: 68.3334%;
+    height: 26.6667%;
+    width: 26.6667%;
+}
+.slot82 {
+    left: 68.3334%;
+    top: 68.3334%;
+    height: 26.6667%;
+    width: 26.6667%;
+}
 
 
 /* drag preview */
