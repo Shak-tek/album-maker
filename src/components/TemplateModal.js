@@ -13,7 +13,7 @@ export default function TemplateModal({ onSelect, onClose }) {
             onClickOutside={onClose}
             modal
         >
-            <Box pad="medium" className="modalTemplates" width="" gap="medium" style={{ maxWidth: '90vw', maxHeight: '90vh', overflow: 'auto' }}>
+            <Box pad="medium" className="modalTemplates" width="" gap="medium" style={{ maxWidth: '90vw', maxHeight: '90vh', overflow: 'auto', zIndex: '1000' }}>
                 <Box direction="row" justify="between" align="center">
                     <Text weight="bold">Templates</Text>
                     <Button label="x" className="modalClose" Text="white" onClick={onClose} />
