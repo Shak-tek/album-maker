@@ -61,37 +61,37 @@ export const pageTemplates = [
         id: 9,
         name: '4‑Up (Row of 4)',
         slots: [25, 26, 27, 28],
-        thumbnailUrl: 'https://popsa.com/webapp/assets/icons/Templates/ICON_TEMPLATE_13_LANDSCAPE.webp',
+        thumbnailUrl: '/ICON_TEMPLATE_13_LANDSCAPE.webp',
     },
     {
         id: 10,
         name: '4‑Up (Row of 4)',
         slots: [29, 30, 31, 32],
-        thumbnailUrl: 'https://popsa.com/webapp/assets/icons/Templates/ICON_TEMPLATE_14_LANDSCAPE.webp',
+        thumbnailUrl: '/ICON_TEMPLATE_14_LANDSCAPE.webp',
     },
     {
         id: 11,
         name: '3‑Up (Row of 3)',
         slots: [33, 34, 35],
-        thumbnailUrl: 'https://popsa.com/webapp/assets/icons/Templates/ICON_TEMPLATE_16_LANDSCAPE.webp',
+        thumbnailUrl: '/ICON_TEMPLATE_16_LANDSCAPE.webp',
     },
     {
         id: 12,
         name: '3‑Up (Row of 3)',
         slots: [36, 37, 38],
-        thumbnailUrl: 'https://popsa.com/webapp/assets/icons/Templates/ICON_TEMPLATE_15_LANDSCAPE.webp',
+        thumbnailUrl: '/ICON_TEMPLATE_15_LANDSCAPE.webp',
     },
     {
         id: 13,
         name: '6‑Up (Row of 6)',
         slots: [39, 40, 41, 42, 43, 44],
-        thumbnailUrl: 'https://popsa.com/webapp/assets/icons/Templates/ICON_TEMPLATE_17_LANDSCAPE.webp',
+        thumbnailUrl: '/ICON_TEMPLATE_17_LANDSCAPE.webp',
     }, 
     {
         id: 14,
         name: '6‑Up (Row of 6)',
         slots: [45, 46, 47, 48, 49, 50],
-        thumbnailUrl: 'https://popsa.com/webapp/assets/icons/Templates/ICON_TEMPLATE_21_LANDSCAPE.webp',
+        thumbnailUrl: '/ICON_TEMPLATE_21_LANDSCAPE.webp',
     }, 
     {
         id: 15,
@@ -133,7 +133,7 @@ export const pageTemplates = [
         id: 21,
         name: '9‑Up (Row of 9)',
         slots: [73, 74, 75, 76, 77, 78, 79, 80, 81], 
-        thumbnailUrl: 'https://popsa.com/webapp/assets/icons//Templates/ICON_TEMPLATE_28_LANDSCAPE.webp',
+        thumbnailUrl: '/ICON_TEMPLATE_29_LANDSCAPE.webp',
     },
     // …you can add more templates here as you please
 ];
