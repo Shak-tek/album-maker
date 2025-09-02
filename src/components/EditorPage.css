@@ -648,6 +648,13 @@
     width: 26.6667%;
 }
 
+.slot83 {
+    left: 20%;
+    top: 20%;
+    height: 60%;
+    width: 60%;
+}
+
 
 /* drag preview */
 #drag-preview {
