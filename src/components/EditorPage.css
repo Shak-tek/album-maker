@@ -540,6 +540,40 @@
 }
 
 
+.slot67 {
+    top: 5%;
+    left: 5%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+.slot68 {
+    top: 5%;
+    left: 36.6667%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+.slot69 {
+    top: 5%;
+    left: 68.3334%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+
+.slot70 {
+    top: 52.5%;
+    left: 5%;
+    width: 58.3334%; 
+    height: 42.5%;
+}
+
+.slot71 {
+    top: 52.5%;
+    left: 68.3334%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+
+
 
 /* drag preview */
 #drag-preview {
