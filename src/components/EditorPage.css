@@ -435,6 +435,32 @@
     width: 42.5%;
 }
 
+
+.slot52 {
+    left: 5%;
+    top: 5%;
+    width: 42.5%;
+    height: 22.5%;
+}
+.slot53 {
+    left: 52.5%;
+    top: 5%;
+    width: 42.5%;
+    height: 62.5%;
+}
+.slot54 {
+    left: 5%;
+    top: 32.5%;
+    width: 42.5%;
+    height: 62.5%;
+}
+.slot55 {
+    left: 52.5%;
+    top: 72.5%;
+    width: 42.5%;
+    height: 22.5%;
+}
+
 /* drag preview */
 #drag-preview {
     position: fixed;
