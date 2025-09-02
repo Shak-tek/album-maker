@@ -139,25 +139,25 @@ export const pageTemplates = [
         id: 22,
         name: '1‑Up (Row of 1)',
         slots: [82], 
-        thumbnailUrl: 'https://popsa.com/webapp/assets/icons//Templates/ICON_TEMPLATE_59_LANDSCAPE.webp',
+        thumbnailUrl: '/ICON_TEMPLATE_59_LANDSCAPE.webp',
     },
     {
         id: 23,
         name: '4‑Up (Row of 4)',
         slots: [83, 84, 85, 86], 
-        thumbnailUrl: 'https://popsa.com/webapp/assets/icons//Templates/ICON_TEMPLATE_60_LANDSCAPE.webp',
+        thumbnailUrl: '/ICON_TEMPLATE_60_LANDSCAPE.webp',
     },
     {
         id: 24,
         name: '2‑Up (Row of 2)',
         slots: [87, 88], 
-        thumbnailUrl: 'https://popsa.com/webapp/assets/icons//Templates/ICON_TEMPLATE_61_LANDSCAPE.webp',
+        thumbnailUrl: '/ICON_TEMPLATE_61_LANDSCAPE.webp',
     },
     {
         id: 25,
         name: '3-Up (Row of 3)',
         slots: [89, 90, 91], 
-        thumbnailUrl: 'https://popsa.com/webapp/assets/icons//Templates/ICON_TEMPLATE_62_LANDSCAPE.webp',
+        thumbnailUrl: '/ICON_TEMPLATE_62_LANDSCAPE.webp',
     },
     // …you can add more templates here as you please
 ];
