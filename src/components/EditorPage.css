@@ -525,6 +525,22 @@
     height: 42.5%;
 }
 
+.slot65 {
+    top: 5%;
+    left: 5%;
+    width: 58.3334%; 
+    height: 42.5%;
+}
+
+.slot66 {
+    top: 5%;
+    left: 36.6667%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+
+
+
 /* drag preview */
 #drag-preview {
     position: fixed;
