@@ -722,10 +722,23 @@
 .slot94 {
     left: 20%;
     top: 12.5%;
+    height: 35%;
+    width: 60%;
+}
+.slot95 {
+    left: 20%;
+    top: 52.5%;
+    height: 35%;
+    width: 60%;
+}
+
+.slot96 {
+    left: 20%;
+    top: 12.5%;
     height: 75%;
     width: 27.5%;
 }
-.slot95 {
+.slot97 {
     left: 52.5%;
     top: 12.5%;
     height: 75%;
