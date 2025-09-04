@@ -177,5 +177,17 @@ export const pageTemplates = [
         slots: [95, 96], 
         thumbnailUrl: 'https://popsa.com/webapp/assets/icons//Templates/ICON_TEMPLATE_68_LANDSCAPE.webp',
     },
+    {
+        id: 29,
+        name: '1-Up (Row of 1)',
+        slots: [97], 
+        thumbnailUrl: 'https://popsa.com/webapp/assets/icons//Templates/ICON_TEMPLATE_67_LANDSCAPE.webp',
+    },
+    {
+        id: 30,
+        name: '1-Up (Row of 1)',
+        slots: [98, 99], 
+        thumbnailUrl: 'https://popsa.com/webapp/assets/icons//Templates/ICON_TEMPLATE_69_LANDSCAPE.webp',
+    },
     // …you can add more templates here as you please
 ];

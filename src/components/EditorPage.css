@@ -747,6 +747,20 @@
 
 
 
+.slot99 {
+    left: 15%;
+    top: 33.75%;
+    height: 28%;
+    width: 20%;
+}
+
+.slot100 {
+    left: 40%;
+    top: 33.75%;
+    height: 28%;
+    width: 40%;
+}
+
 /* drag preview */
 #drag-preview {
     position: fixed;
