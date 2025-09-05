@@ -1,4 +1,4 @@
-// src/templates/pageTemplates.js
+// src/pageTemplates.js
 
 // Each template has an id, a human‑friendly name, and
 // a `slots` array of zero‑based indices into the 10 CSS slot positions.
@@ -163,25 +163,25 @@ export const pageTemplates = [
         id: 26,
         name: '1-Up (Row of 1)',
         slots: [92], 
-        thumbnailUrl: '/Templates/ICON_TEMPLATE_65_LANDSCAPE.webp',
+        thumbnailUrl: '/ICON_TEMPLATE_65_LANDSCAPE.webp',
     },
     {
         id: 27,
         name: '2-Up (Row of 2)',
         slots: [93, 94], 
-        thumbnailUrl: '/Templates/ICON_TEMPLATE_66_LANDSCAPE.webp',
+        thumbnailUrl: '/ICON_TEMPLATE_66_LANDSCAPE.webp',
     },
     {
         id: 28,
         name: '2-Up (Row of 2)',
         slots: [95, 96], 
-        thumbnailUrl: '/Templates/ICON_TEMPLATE_68_LANDSCAPE.webp',
+        thumbnailUrl: '/ICON_TEMPLATE_68_LANDSCAPE.webp',
     },
     {
         id: 29,
         name: '1-Up (Row of 1)',
         slots: [97], 
-        thumbnailUrl: '/Templates/ICON_TEMPLATE_67_LANDSCAPE.webp',
+        thumbnailUrl: '/ICON_TEMPLATE_67_LANDSCAPE.webp',
     },
     {
         id: 30,
