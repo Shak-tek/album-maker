@@ -33,10 +33,6 @@
     backface-visibility: hidden;
 }
 
-.photo-page.zoomed {
-    transform: scale(1.03);
-    /* subtle zoom without bleeding */
-}
 
 /* title overlay */
 .title-overlay {

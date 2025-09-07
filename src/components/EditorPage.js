@@ -33,23 +33,55 @@ const SLOT_MAP_BG = [
     { top: `${slotMargin}%`, left: `${slotMargin}%`, width: `${100 - 2 * slotMargin}%`, height: `${100 - 2 * slotMargin}%` }, // 9
 ];
 
-// 0..9 canonical slots (backgroundEnabled = false)
-const SLOT_MAP_NOBG = [
-    { top: "0%", left: "0%", width: "50%", height: "100%" }, // 0
-    { top: "0%", left: "50%", width: "50%", height: "50%" }, // 1
-    { top: "50%", left: "50%", width: "50%", height: "50%" }, // 2
-    { top: "0%", left: "0%", width: "50%", height: "100%" }, // 3
-    { top: "0%", left: "50%", width: "50%", height: "100%" }, // 4
-    { top: "0%", left: "0%", width: "50%", height: "50%" }, // 5
-    { top: "0%", left: "50%", width: "50%", height: "50%" }, // 6
-    { top: "50%", left: "0%", width: "50%", height: "50%" }, // 7
-    { top: "50%", left: "50%", width: "50%", height: "50%" }, // 8
-    { top: "0%", left: "0%", width: "100%", height: "100%" }, // 9
-];
-
+// use canonical only when background is ON
 function getSlotRect(slotIndex, backgroundEnabled) {
-    const map = backgroundEnabled ? SLOT_MAP_BG : SLOT_MAP_NOBG;
-    return map[slotIndex] ?? null;
+    if (!backgroundEnabled) return null;
+    return SLOT_MAP_BG[slotIndex] ?? null;
+}
+
+// ---------------------- Normalization helpers (for "remove background") ----------------------
+/**
+ * Measure each slot element in pixels relative to the page, then
+ * normalize to percentages that fill the union bounding box.
+ * Returns percent strings to drop straight into style.
+ */
+function computeNormalizedRects(slotEls) {
+    const firstEl = slotEls.find(Boolean);
+    if (!firstEl) return null;
+
+    const page = firstEl.closest(".photo-page");
+    if (!page) return null;
+
+    const pr = page.getBoundingClientRect();
+    const pw = Math.max(1e-6, pr.width);
+    const ph = Math.max(1e-6, pr.height);
+
+    const rects = slotEls.map((el) => {
+        if (!el) return null;
+        const r = el.getBoundingClientRect();
+        const left = ((r.left - pr.left) / pw) * 100;
+        const top = ((r.top - pr.top) / ph) * 100;
+        const width = (r.width / pw) * 100;
+        const height = (r.height / ph) * 100;
+        return { top, left, width, height, right: left + width, bottom: top + height };
+    });
+
+    if (!rects.length || rects.some((r) => r == null)) return null;
+
+    const minTop = Math.min(...rects.map((r) => r.top));
+    const minLeft = Math.min(...rects.map((r) => r.left));
+    const maxBottom = Math.max(...rects.map((r) => r.bottom));
+    const maxRight = Math.max(...rects.map((r) => r.right));
+
+    const spanX = Math.max(1e-6, maxRight - minLeft);
+    const spanY = Math.max(1e-6, maxBottom - minTop);
+
+    return rects.map((r) => ({
+        top: `${((r.top - minTop) / spanY) * 100}%`,
+        left: `${((r.left - minLeft) / spanX) * 100}%`,
+        width: `${(r.width / spanX) * 100}%`,
+        height: `${(r.height / spanY) * 100}%`,
+    }));
 }
 
 // ---------------------- Crop helpers ----------------------
@@ -118,7 +150,6 @@ function takeMoreImagesForPage({ allImages, pages, pageIdx, need }) {
     return chosen;
 }
 
-// ---------------------- MAIN COMPONENT ----------------------
 export default function EditorPage({
     images,
     onAddImages,
@@ -140,6 +171,10 @@ export default function EditorPage({
     const [showTitleModal, setShowTitleModal] = useState(false);
     const [backgroundEnabled, setBackgroundEnabled] = useState(true);
     const [imagesWarm, setImagesWarm] = useState(false);
+
+    // dynamic normalized rects when background is disabled
+    // shape: { [pageIdx]: Array<{top,left,width,height} | null> }
+    const [noBgRects, setNoBgRects] = useState({});
 
     const previewRef = useRef(null);
     const previewImgRef = useRef(null);
@@ -191,13 +226,13 @@ export default function EditorPage({
     useEffect(() => {
         if (pageSettings.length) return;
 
-        const remaining = images.slice(); // shallow copy
+        const remaining = images.slice();
         const pages = [];
 
         const pickTemplateId = (i, candidates) => {
             const byId = (id) => candidates.find((t) => t.id === id)?.id;
-            if (i === 0) return byId(3) ?? candidates[0].id; // prefer title/full-bleed if present
-            if (i < 2) return byId(1) ?? candidates[0].id;   // prefer 2-up if present
+            if (i === 0) return byId(3) ?? candidates[0].id; // prefer title/full-bleed
+            if (i < 2) return byId(1) ?? candidates[0].id;   // prefer 2-up
             return candidates[Math.floor(Math.random() * candidates.length)].id;
         };
 
@@ -284,12 +319,13 @@ export default function EditorPage({
         });
     }, [pageSettings]);
 
-    // -------------- DRAG & DROP --------------
+
+    // -------------- DRAG & DROP (image swap, preserved edits) --------------
     const getTouchCoords = (e) => {
         if (e.touches?.length) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
         if (e.changedTouches?.length) return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
         if (typeof e.clientX === "number" && typeof e.clientY === "number") return { x: e.clientX, y: e.clientY };
-        return lastTouchRef.current;
+        return lastTouchRef.current || { x: 0, y: 0 };
     };
 
     const longPressDuration = 300;
@@ -298,18 +334,23 @@ export default function EditorPage({
     const scheduleTouchDrag = (pi, si, e) => {
         cancelTouchDrag();
         const touch = e.touches?.[0];
-        if (touch) lastTouchRef.current = { x: touch.clientX, y: touch.clientY };
-        touchTimerRef.current = setTimeout(() => {
-            const fakeEvent = {
-                clientX: lastTouchRef.current.x,
-                clientY: lastTouchRef.current.y,
-                touches: [{ clientX: lastTouchRef.current.x, clientY: lastTouchRef.current.y }],
-                stopPropagation: () => { },
-                cancelable: true,
-                preventDefault: () => { },
-            };
-            startDrag(pi, si, fakeEvent);
-        }, longPressDuration);
+        if (touch) {
+            lastTouchRef.current = { x: touch.clientX, y: touch.clientY };
+
+            touchTimerRef.current = setTimeout(() => {
+                if (touchTimerRef.current) { // Check if still valid
+                    const fakeEvent = {
+                        clientX: lastTouchRef.current.x,
+                        clientY: lastTouchRef.current.y,
+                        touches: [{ clientX: lastTouchRef.current.x, clientY: lastTouchRef.current.y }],
+                        stopPropagation: () => { },
+                        cancelable: true,
+                        preventDefault: () => { },
+                    };
+                    startDrag(pi, si, fakeEvent);
+                }
+            }, longPressDuration);
+        }
     };
 
     const cancelTouchDrag = () => {
@@ -321,74 +362,144 @@ export default function EditorPage({
 
     const startDrag = (pageIdx, slotIdx, e) => {
         e.stopPropagation();
-        const url = pageSettings[pageIdx].assignedImages[slotIdx];
+
+        // Check if there's actually an image to drag
+        const url = pageSettings[pageIdx]?.assignedImages?.[slotIdx];
         if (!url) return;
+
         dragActiveRef.current = true;
         dragSrcRef.current = { page: pageIdx, slot: slotIdx };
-        previewImgRef.current.src = getSlotSrc(pageSettings[pageIdx], slotIdx);
+
+        // Set preview image
+        const previewSrc = getSlotSrc(pageSettings[pageIdx], slotIdx);
+        if (previewImgRef.current && previewSrc) {
+            previewImgRef.current.src = previewSrc;
+        }
+
         const { x, y } = getTouchCoords(e);
         lastTouchRef.current = { x, y };
-        previewRef.current.style.display = "block";
-        movePreview(e);
-        document.addEventListener("mousemove", movePreview);
-        document.addEventListener("mouseup", handleDrop);
+
+        // Show and position preview
+        if (previewRef.current) {
+            previewRef.current.style.display = "block";
+            previewRef.current.style.left = `${x - 25}px`; // Center the preview
+            previewRef.current.style.top = `${y - 25}px`;
+        }
+
+        // Add event listeners
+        document.addEventListener("mousemove", movePreview, { passive: false });
+        document.addEventListener("mouseup", handleDrop, { passive: false });
         document.addEventListener("touchmove", movePreview, { passive: false });
-        document.addEventListener("touchend", handleDrop);
+        document.addEventListener("touchend", handleDrop, { passive: false });
     };
 
     const movePreview = (e) => {
-        if (!dragActiveRef.current) return;
+        if (!dragActiveRef.current || !previewRef.current) return;
+
+        e.preventDefault(); // Prevent scrolling on touch devices
+
         const { x, y } = getTouchCoords(e);
         lastTouchRef.current = { x, y };
-        previewRef.current.style.left = `${x}px`;
-        previewRef.current.style.top = `${y}px`;
-        document.querySelectorAll(".photo-slot.highlight").forEach((el) => el.classList.remove("highlight"));
-        const over = document.elementFromPoint(x, y)?.closest(".photo-slot");
-        if (over) over.classList.add("highlight");
-        if (e.cancelable) e.preventDefault();
+
+        // Update preview position
+        previewRef.current.style.left = `${x - 25}px`;
+        previewRef.current.style.top = `${y - 25}px`;
+
+        // Clear previous highlights
+        document.querySelectorAll(".photo-slot.highlight").forEach((el) => {
+            el.classList.remove("highlight");
+        });
+
+        // Find element under cursor/touch
+        const elementBelow = document.elementFromPoint(x, y);
+        const targetSlot = elementBelow?.closest(".photo-slot");
+
+        if (targetSlot && targetSlot !== e.target?.closest?.(".photo-slot")) {
+            targetSlot.classList.add("highlight");
+        }
     };
 
     const handleDrop = (e) => {
         if (!dragActiveRef.current) return;
+
         const { x, y } = getTouchCoords(e);
         lastTouchRef.current = { x, y };
-        const over = document.elementFromPoint(x, y)?.closest(".photo-slot");
-        if (over) {
-            const tgtPage = Number(over.dataset.pageIndex);
-            const tgtSlot = Number(over.dataset.slotIndex);
+
+        // Find the drop target
+        const elementBelow = document.elementFromPoint(x, y);
+        const targetSlot = elementBelow?.closest(".photo-slot");
+
+        if (targetSlot) {
+            const tgtPage = parseInt(targetSlot.dataset.pageIndex, 10);
+            const tgtSlot = parseInt(targetSlot.dataset.slotIndex, 10);
             const { page: srcPage, slot: srcSlot } = dragSrcRef.current;
-            if (srcPage !== null && (srcPage !== tgtPage || srcSlot !== tgtSlot)) {
+
+            // Only swap if it's a different slot and both indices are valid
+            if (
+                srcPage !== null &&
+                srcSlot !== null &&
+                !isNaN(tgtPage) &&
+                !isNaN(tgtSlot) &&
+                (srcPage !== tgtPage || srcSlot !== tgtSlot)
+            ) {
                 setPageSettings((prev) => {
                     const next = prev.map((ps) => ({
                         ...ps,
-                        assignedImages: [...ps.assignedImages],
-                        edits: ensureEditsArray(ps, Math.max(ps.assignedImages.length, ps.edits?.length || 0)),
+                        assignedImages: [...(ps.assignedImages || [])],
+                        edits: ensureEditsArray(ps, Math.max(ps.assignedImages?.length || 0, ps.edits?.length || 0)),
                     }));
-                    // swap images
-                    const tmp = next[srcPage].assignedImages[srcSlot];
-                    next[srcPage].assignedImages[srcSlot] = next[tgtPage].assignedImages[tgtSlot];
-                    next[tgtPage].assignedImages[tgtSlot] = tmp;
-                    // swap edits
-                    const eTmp = next[srcPage].edits?.[srcSlot] ?? null;
-                    if (!next[srcPage].edits) next[srcPage].edits = [];
-                    if (!next[tgtPage].edits) next[tgtPage].edits = [];
-                    next[srcPage].edits[srcSlot] = next[tgtPage].edits?.[tgtSlot] ?? null;
-                    next[tgtPage].edits[tgtSlot] = eTmp;
+
+                    // Ensure arrays are long enough
+                    const srcPage_data = next[srcPage];
+                    const tgtPage_data = next[tgtPage];
+
+                    if (!srcPage_data || !tgtPage_data) return prev;
+
+                    // Swap images
+                    const tempImage = srcPage_data.assignedImages[srcSlot];
+                    srcPage_data.assignedImages[srcSlot] = tgtPage_data.assignedImages[tgtSlot];
+                    tgtPage_data.assignedImages[tgtSlot] = tempImage;
+
+                    // Swap edits (crops should follow their images)
+                    const tempEdit = srcPage_data.edits?.[srcSlot] || null;
+                    if (!srcPage_data.edits) srcPage_data.edits = [];
+                    if (!tgtPage_data.edits) tgtPage_data.edits = [];
+
+                    srcPage_data.edits[srcSlot] = tgtPage_data.edits?.[tgtSlot] || null;
+                    tgtPage_data.edits[tgtSlot] = tempEdit;
+
                     return next;
                 });
             }
         }
+
         endDrag();
     };
 
     const endDrag = () => {
+        if (!dragActiveRef.current) return;
+
         dragActiveRef.current = false;
-        previewRef.current.style.display = "none";
-        document.querySelectorAll(".photo-slot.highlight").forEach((el) => el.classList.remove("highlight"));
+        dragSrcRef.current = { page: null, slot: null };
+
+        // Hide preview
+        if (previewRef.current) {
+            previewRef.current.style.display = "none";
+        }
+
+        // Clear highlights
+        document.querySelectorAll(".photo-slot.highlight").forEach((el) => {
+            el.classList.remove("highlight");
+        });
+
+        // Remove event listeners
         document.removeEventListener("mousemove", movePreview);
         document.removeEventListener("mouseup", handleDrop);
         document.removeEventListener("touchmove", movePreview);
         document.removeEventListener("touchend", handleDrop);
+
+        // Cancel any pending touch drag
+        cancelTouchDrag();
     };
 
     // ---------------- TEMPLATE & THEME ----------------
@@ -403,7 +514,7 @@ export default function EditorPage({
             const next = prev.map((p) => ({ ...p, assignedImages: [...(p.assignedImages || [])] }));
             const page = next[pi];
 
-            // compute available images for this page = total - used elsewhere
+            // available images for this page = total - used elsewhere
             const totalImages = images.filter(Boolean).length;
             const usedElsewhere = next.reduce((acc, p, idx) => {
                 if (idx === pi) return acc;
@@ -411,7 +522,6 @@ export default function EditorPage({
             }, 0);
             const availableForThisPage = Math.max(0, totalImages - usedElsewhere);
 
-            // requested template & fallback if needed
             const requested = pageTemplates.find((t) => t.id === tid);
             let newSlots = Math.max(1, requested?.slots?.length ?? 1);
 
@@ -445,7 +555,7 @@ export default function EditorPage({
                 // Shrink: truncate
                 page.assignedImages = page.assignedImages.slice(0, newSlots);
             } else if (currSlots < newSlots) {
-                // Grow: backfill with unused images (guaranteed to exist after fallback)
+                // Grow: backfill with unused images
                 const need = newSlots - currSlots;
                 const additions = takeMoreImagesForPage({
                     allImages: images,
@@ -458,6 +568,9 @@ export default function EditorPage({
 
             return next;
         });
+
+        // After changing templates, recompute no-bg rects (next paint)
+        requestAnimationFrame(() => requestAnimationFrame(() => recomputeNoBgRects()));
         setShowTemplateModal(false);
     };
 
@@ -519,9 +632,7 @@ export default function EditorPage({
 
         const prev = ps.edits?.[slotIdx]?.params;
         setCropState(
-            prev
-                ? { crop: prev.crop, zoom: prev.zoom, rotation: prev.rotation || 0 }
-                : { crop: { x: 0, y: 0 }, zoom: 1, rotation: 0 }
+            prev ? { crop: prev.crop, zoom: prev.zoom, rotation: prev.rotation || 0 } : { crop: { x: 0, y: 0 }, zoom: 1, rotation: 0 }
         );
         setCroppedAreaPixels(prev?.croppedAreaPixels ?? null);
         setCropTarget({ pageIdx: pi, slotIdx, aspect });
@@ -568,6 +679,49 @@ export default function EditorPage({
         });
     };
 
+    // ---------------- NORMALIZATION (remove background) ----------------
+    const recomputeNoBgRects = () => {
+        const next = {};
+        pageSettings.forEach((ps, pi) => {
+            const els = (slotRefs.current?.[pi] || []).filter(Boolean);
+            if (!els.length) return;
+            const rects = computeNormalizedRects(els);
+            if (rects) next[pi] = rects;
+        });
+        setNoBgRects(next);
+    };
+
+    // Recompute whenever bg turns OFF or layout/images are ready
+    useEffect(() => {
+        if (!imagesWarm || !pageSettings.length) return;
+        if (!backgroundEnabled) {
+            // Wait two frames for layout to settle, then measure
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => recomputeNoBgRects());
+            });
+        } else {
+            setNoBgRects({});
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [imagesWarm, pageSettings, backgroundEnabled]);
+
+    // Recompute after template changes that alter slot geometry
+    useEffect(() => {
+        if (!backgroundEnabled) {
+            requestAnimationFrame(() => requestAnimationFrame(() => recomputeNoBgRects()));
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [pageSettings.map(p => p.templateId).join(",")]);
+
+    // Keep in sync on resize while bg is OFF
+    useEffect(() => {
+        if (backgroundEnabled) return;
+        const onResize = () => recomputeNoBgRects();
+        window.addEventListener("resize", onResize);
+        return () => window.removeEventListener("resize", onResize);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [backgroundEnabled, pageSettings]);
+
     // ---------------- RENDER ----------------
     return (
         <>
@@ -600,7 +754,6 @@ export default function EditorPage({
                                 const tmpl = pageTemplates.find((t) => t.id === ps.templateId);
                                 if (!tmpl) return null;
 
-                                // Background color always applied (independent of geometry toggle)
                                 const bgColor = ps.theme.color || "transparent";
 
                                 return (
@@ -619,8 +772,17 @@ export default function EditorPage({
 
                                         <div className={`photo-page ${!backgroundEnabled ? "zoomed" : ""}`}>
                                             {tmpl?.slots?.map((slotPosIndex, slotIdx) => {
-                                                const inlinePos = getSlotRect(slotPosIndex, backgroundEnabled); // null for >9
+                                                // When bg is ON: canonical inline for 0..9 (others via CSS).
+                                                // When bg is OFF: use measured normalized rects (percent strings).
+                                                const inlinePos = backgroundEnabled
+                                                    ? (getSlotRect(slotPosIndex, true) || null)
+                                                    : (noBgRects?.[pi]?.[slotIdx] || null);
+
                                                 const imgSrc = getSlotSrc(ps, slotIdx);
+
+                                                // Subtle staggered transition when removing bg
+                                                const transitionDelay = !backgroundEnabled ? `${slotIdx * 40}ms` : "0ms";
+
                                                 return (
                                                     <div
                                                         key={`${slotPosIndex}-${slotIdx}`}
@@ -632,10 +794,17 @@ export default function EditorPage({
                                                             slotRefs.current[pi][slotIdx] = el || null;
                                                         }}
                                                         style={{
-                                                            ...(inlinePos || {}), // first 10 via inline; others via CSS .slotN
+                                                            ...(inlinePos || {}),
                                                             position: "absolute",
                                                             overflow: "hidden",
                                                             borderRadius: "4px",
+                                                            // hide until normalized rect is ready (prevents top-left shrink)
+                                                            visibility: (!backgroundEnabled && !inlinePos) ? "hidden" : "visible",
+                                                            // animate geometry & opacity to make the change feel nicer
+                                                            transition:
+                                                                "top 200ms ease, left 200ms ease, width 200ms ease, height 200ms ease, opacity 200ms ease, transform 200ms ease",
+                                                            transitionDelay,
+                                                            willChange: "top, left, width, height, opacity, transform",
                                                         }}
                                                         onMouseDown={(e) => startDrag(pi, slotIdx, e)}
                                                         onTouchStart={(e) => scheduleTouchDrag(pi, slotIdx, e)}
@@ -653,7 +822,8 @@ export default function EditorPage({
                                                                 style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                                                             />
                                                         )}
-                                                        {/* EDIT BUTTON overlay */}
+
+                                                        {/* EDIT BUTTON overlay (doesn't trigger drag) */}
                                                         <button
                                                             className="slot-edit-btn"
                                                             onMouseDown={(e) => e.stopPropagation()}
@@ -665,6 +835,7 @@ export default function EditorPage({
                                                         >
                                                             <Edit size="small" />
                                                         </button>
+
                                                         {/* RESET BUTTON appears if cropped */}
                                                         {ps.edits?.[slotIdx]?.previewDataUrl && (
                                                             <button
@@ -682,6 +853,7 @@ export default function EditorPage({
                                                     </div>
                                                 );
                                             })}
+
                                             {pi === 0 && (
                                                 <div className="title-overlay">
                                                     {title && <h1>{title}</h1>}
@@ -713,11 +885,12 @@ export default function EditorPage({
                                     maxWidth: "400px",
                                     paddingTop: `${paddingPercent}%`,
                                     backgroundColor: ps.theme.color || "transparent",
-                                    overflow: "hidden",        // keep rounded clip in export
+                                    overflow: "hidden",
                                     borderRadius: "12px",
                                 }}
                             >
                                 {tmpl.slots.map((slotPosIndex, slotIdx) => {
+                                    // Export with original geometry (background visuals preserved)
                                     const inlinePos = getSlotRect(slotPosIndex, true); // inline for 0..9, otherwise CSS
                                     return (
                                         <Box
@@ -768,7 +941,7 @@ export default function EditorPage({
             {showTemplateModal && (
                 <TemplateModal
                     templates={(() => {
-                        // Filter to only show templates that fit the available images for this page
+                        // Only show templates that fit the available images for this page
                         const total = images.filter(Boolean).length;
                         const usedElsewhere = pageSettings.reduce((acc, p, idx) => {
                             if (idx === templateModalPage) return acc;
@@ -817,8 +990,7 @@ export default function EditorPage({
                         <Box background="black" style={{ position: "relative", flex: 1, height: "60vh" }}>
                             {(() => {
                                 const { pageIdx, slotIdx } = cropTarget;
-                                const src =
-                                    pageIdx != null && slotIdx != null ? pageSettings[pageIdx]?.assignedImages?.[slotIdx] : null;
+                                const src = pageIdx != null && slotIdx != null ? pageSettings[pageIdx]?.assignedImages?.[slotIdx] : null;
                                 if (!src) return null;
                                 return (
                                     <Cropper
