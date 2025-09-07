@@ -10,46 +10,40 @@
     gap: 40px 2px;
     align-items: start;
 }
+
 @media (max-width: 767px) {
     .editor-page .container {
-    
-    grid-template-columns: repeat(1, 1fr);
+        grid-template-columns: repeat(1, 1fr);
     }
 }
-/*
-@media (max-width: 600px) {
-    .container {
-        display: block;
-    }
-}
-
-.row {
-    display: flex;
-    width: 100%;
-    max-width: 1020px;
-}*/
 
 /* photo pages */
 .photo-page {
     position: relative;
     width: 100%;
-    /*max-width: 500px;*/
     height: 0;
     padding-top: 75%;
     overflow: hidden;
+    /* clips slot content */
     touch-action: pan-y;
     transition: transform 0.3s ease;
+    border-radius: inherit;
+    /* inherit wrapper radius so clip matches */
+    will-change: transform;
+    backface-visibility: hidden;
 }
 
 .photo-page.zoomed {
-    transform: scale(1.05);
+    transform: scale(1.03);
+    /* subtle zoom without bleeding */
 }
 
+/* title overlay */
 .title-overlay {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    inset: 0;
+    display: grid;
+    place-items: center;
     text-align: center;
     color: #fff;
     text-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
@@ -65,13 +59,19 @@
     font-size: 1.2em;
 }
 
-/* your slots */
+/* slots */
 .photo-slot {
     position: absolute;
     border-radius: 4px;
     overflow: hidden;
+    /* clips the image within the slot */
     box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
     border: 4px solid transparent;
+    cursor: grab;
+}
+
+.photo-slot:active {
+    cursor: grabbing;
 }
 
 .photo-slot img {
@@ -80,17 +80,17 @@
     object-fit: cover;
     user-select: none;
     pointer-events: none;
+    display: block;
+    /* avoid sub-pixel gaps */
 }
 
 /* your exact slot positions from the snippet */
-
 .slot1 {
     top: 5%;
     left: 5%;
     width: 42.5%;
     height: 90%;
 }
-
 
 .slot2 {
     top: 5%;
@@ -99,14 +99,12 @@
     height: 42.5%;
 }
 
-
 .slot3 {
     top: 52.5%;
     left: 52.5%;
     width: 42.5%;
     height: 42.5%;
 }
-
 
 .slot4 {
     top: 5%;
@@ -115,14 +113,12 @@
     height: 90%;
 }
 
-
 .slot5 {
     top: 5%;
     left: 52.5%;
     width: 42.5%;
     height: 90%;
 }
-
 
 .slot6 {
     top: 5%;
@@ -131,14 +127,12 @@
     height: 42.5%;
 }
 
-
 .slot7 {
     top: 5%;
     left: 52.5%;
     width: 42.5%;
     height: 42.5%;
 }
-
 
 .slot8 {
     top: 52.5%;
@@ -147,14 +141,12 @@
     height: 42.5%;
 }
 
-
 .slot9 {
     top: 52.5%;
     left: 52.5%;
     width: 42.5%;
     height: 42.5%;
 }
-
 
 .slot10 {
     top: 5%;
@@ -169,6 +161,7 @@
     width: 90%;
     height: 42.5%;
 }
+
 .slot13 {
     top: 52.5%;
     left: 5%;
@@ -176,23 +169,20 @@
     height: 42.5%;
 }
 
-
-
-
-
-
 .slot14 {
     top: 5%;
     left: 5%;
     width: 42.5%;
     height: 42.5%;
 }
+
 .slot15 {
     top: 52.5%;
     left: 5%;
     width: 42.5%;
     height: 42.5%;
 }
+
 .slot16 {
     top: 5%;
     left: 52.5%;
@@ -200,20 +190,20 @@
     height: 90%;
 }
 
-
-
 .slot17 {
     top: 5%;
     left: 5%;
     width: 42.5%;
     height: 42.5%;
 }
+
 .slot18 {
     top: 5%;
     left: 52.5%;
     width: 42.5%;
     height: 42.5%;
 }
+
 .slot19 {
     top: 52.5%;
     left: 5%;
@@ -221,20 +211,20 @@
     height: 42.5%;
 }
 
-
-
 .slot20 {
     top: 5%;
     left: 5%;
     width: 90%;
     height: 42.5%;
 }
+
 .slot21 {
     top: 52.5%;
     left: 5%;
     width: 42.5%;
     height: 42.5%;
 }
+
 .slot22 {
     top: 52.5%;
     left: 52.5%;
@@ -242,19 +232,20 @@
     height: 42.5%;
 }
 
-
 .slot23 {
     top: 5%;
     left: 5%;
     width: 60%;
     height: 90%;
 }
+
 .slot24 {
     top: 5%;
     left: 70%;
     width: 25%;
     height: 42.5%;
 }
+
 .slot25 {
     top: 52.5%;
     left: 70%;
@@ -268,6 +259,7 @@
     width: 22.5%;
     height: 42.5%;
 }
+
 .slot27 {
     top: 5%;
     left: 32.5%;
@@ -281,6 +273,7 @@
     width: 62.5%;
     height: 42.5%;
 }
+
 .slot29 {
     top: 52.5%;
     left: 72.5%;
@@ -288,13 +281,13 @@
     height: 42.5%;
 }
 
-
 .slot30 {
     top: 5%;
     left: 5%;
     width: 62.5%;
     height: 42.5%;
 }
+
 .slot31 {
     top: 5%;
     left: 72.5%;
@@ -308,6 +301,7 @@
     width: 22.5%;
     height: 42.5%;
 }
+
 .slot33 {
     top: 52.5%;
     left: 32.5%;
@@ -315,19 +309,20 @@
     height: 42.5%;
 }
 
-
 .slot34 {
     top: 5%;
     left: 5%;
     width: 26.6667%;
     height: 90%;
 }
+
 .slot35 {
     top: 5%;
     left: 36.6667%;
     width: 26.6667%;
     height: 90%;
 }
+
 .slot36 {
     top: 5%;
     left: 68.3334%;
@@ -335,20 +330,20 @@
     height: 90%;
 }
 
-
-
 .slot37 {
     left: 5%;
     top: 5%;
     height: 26.6667%;
     width: 90%;
 }
+
 .slot38 {
     left: 5%;
     top: 36.6667%;
     height: 26.6667%;
     width: 90%;
 }
+
 .slot39 {
     left: 5%;
     top: 68.3334%;
@@ -356,20 +351,20 @@
     width: 90%;
 }
 
-
-
 .slot40 {
     top: 5%;
     left: 5%;
     width: 26.6667%;
     height: 42.5%;
 }
+
 .slot41 {
     top: 5%;
     left: 36.6667%;
     width: 26.6667%;
     height: 42.5%;
 }
+
 .slot42 {
     top: 5%;
     left: 68.3334%;
@@ -377,19 +372,20 @@
     height: 42.5%;
 }
 
-
 .slot43 {
     top: 52.5%;
     left: 5%;
     width: 26.6667%;
     height: 42.5%;
 }
+
 .slot44 {
     top: 52.5%;
     left: 36.6667%;
     width: 26.6667%;
     height: 42.5%;
 }
+
 .slot45 {
     top: 52.5%;
     left: 68.3334%;
@@ -397,37 +393,41 @@
     height: 42.5%;
 }
 
-
 .slot46 {
     left: 5%;
     top: 5%;
     height: 26.6667%;
     width: 42.5%;
 }
+
 .slot47 {
     left: 52.5%;
     top: 5%;
     height: 26.6667%;
     width: 42.5%;
 }
+
 .slot48 {
     left: 5%;
     top: 36.6667%;
     height: 26.6667%;
     width: 42.5%;
 }
+
 .slot49 {
     left: 52.5%;
     top: 36.6667%;
     height: 26.6667%;
     width: 42.5%;
 }
+
 .slot50 {
     left: 5%;
     top: 68.3334%;
     height: 26.6667%;
     width: 42.5%;
 }
+
 .slot51 {
     left: 52.5%;
     top: 68.3334%;
@@ -435,25 +435,27 @@
     width: 42.5%;
 }
 
-
 .slot52 {
     left: 5%;
     top: 5%;
     width: 42.5%;
     height: 22.5%;
 }
+
 .slot53 {
     left: 52.5%;
     top: 5%;
     width: 42.5%;
     height: 62.5%;
 }
+
 .slot54 {
     left: 5%;
     top: 32.5%;
     width: 42.5%;
     height: 62.5%;
 }
+
 .slot55 {
     left: 52.5%;
     top: 72.5%;
@@ -461,20 +463,20 @@
     height: 22.5%;
 }
 
-
-
 .slot56 {
     left: 5%;
     top: 5%;
     width: 42.5%;
     height: 62.5%;
 }
+
 .slot57 {
     left: 52.5%;
     top: 5%;
     width: 42.5%;
     height: 22.5%;
 }
+
 .slot58 {
     left: 5%;
     top: 72.5%;
@@ -482,15 +484,12 @@
     height: 22.5%;
 }
 
-
 .slot59 {
     left: 52.5%;
     top: 32.5%;
     width: 42.5%;
     height: 62.5%;
 }
-
-
 
 .slot60 {
     top: 5%;
@@ -502,7 +501,7 @@
 .slot61 {
     top: 5%;
     left: 36.6667%;
-    width: 58.3334%; 
+    width: 58.3334%;
     height: 42.5%;
 }
 
@@ -512,12 +511,14 @@
     width: 26.6667%;
     height: 42.5%;
 }
+
 .slot63 {
     top: 52.5%;
     left: 36.6667%;
     width: 26.6667%;
     height: 42.5%;
 }
+
 .slot64 {
     top: 52.5%;
     left: 68.3334%;
@@ -528,7 +529,7 @@
 .slot65 {
     top: 5%;
     left: 5%;
-    width: 58.3334%; 
+    width: 58.3334%;
     height: 42.5%;
 }
 
@@ -539,19 +540,20 @@
     height: 42.5%;
 }
 
-
 .slot67 {
     top: 5%;
     left: 5%;
     width: 26.6667%;
     height: 42.5%;
 }
+
 .slot68 {
     top: 5%;
     left: 36.6667%;
     width: 26.6667%;
     height: 42.5%;
 }
+
 .slot69 {
     top: 5%;
     left: 68.3334%;
@@ -562,7 +564,7 @@
 .slot70 {
     top: 52.5%;
     left: 5%;
-    width: 58.3334%; 
+    width: 58.3334%;
     height: 42.5%;
 }
 
@@ -575,20 +577,17 @@
 
 .slot72 {
     top: 52.5%;
-     left: 5%;
+    left: 5%;
     width: 26.6667%;
-    
     height: 42.5%;
 }
 
 .slot73 {
     top: 52.5%;
     left: 36.6667%;
-    width: 58.3334%; 
+    width: 58.3334%;
     height: 42.5%;
 }
-
-
 
 .slot74 {
     top: 5%;
@@ -596,12 +595,14 @@
     width: 26.6667%;
     height: 26.6667%;
 }
+
 .slot75 {
     top: 5%;
     left: 36.6667%;
     width: 26.6667%;
     height: 26.6667%;
 }
+
 .slot76 {
     top: 5%;
     left: 68.3334%;
@@ -609,19 +610,20 @@
     height: 26.6667%;
 }
 
-
 .slot77 {
     left: 5%;
     top: 36.6667%;
     height: 26.6667%;
     width: 26.6667%;
 }
+
 .slot78 {
     left: 36.6667%;
     top: 36.6667%;
     height: 26.6667%;
     width: 26.6667%;
 }
+
 .slot79 {
     left: 68.3334%;
     top: 36.6667%;
@@ -635,12 +637,14 @@
     height: 26.6667%;
     width: 26.6667%;
 }
+
 .slot81 {
     left: 36.6667%;
     top: 68.3334%;
     height: 26.6667%;
     width: 26.6667%;
 }
+
 .slot82 {
     left: 68.3334%;
     top: 68.3334%;
@@ -661,18 +665,21 @@
     height: 25%;
     width: 25%;
 }
+
 .slot85 {
     left: 50%;
     top: 20%;
     height: 25%;
     width: 25%;
 }
+
 .slot86 {
     left: 20%;
     top: 50%;
     height: 25%;
     width: 25%;
 }
+
 .slot87 {
     left: 50%;
     top: 50%;
@@ -686,6 +693,7 @@
     height: 32.5%;
     width: 32.5%;
 }
+
 .slot89 {
     left: 52.5%;
     top: 33.75%;
@@ -699,12 +707,14 @@
     height: 28%;
     width: 20%;
 }
+
 .slot91 {
     left: 40%;
     top: 33.75%;
     height: 28%;
     width: 20%;
 }
+
 .slot92 {
     left: 65%;
     top: 33.75%;
@@ -725,6 +735,7 @@
     height: 35%;
     width: 55%;
 }
+
 .slot95 {
     left: 25%;
     top: 52.5%;
@@ -738,14 +749,13 @@
     height: 75%;
     width: 32.5%;
 }
+
 .slot97 {
     left: 52.5%;
     top: 12.5%;
     height: 75%;
     width: 32.5%;
 }
-
-
 
 .slot99 {
     left: 15%;
@@ -802,9 +812,16 @@
 
 /* wrap each page + toolbar together */
 .page-wrapper {
+    position: relative;
+    /* needed for clipping context */
+    overflow: hidden;
+    /* <-- clips the scaled .photo-page */
+    border-radius: 12px;
+    /* nice rounded corners */
     display: block;
 }
 
+/* toolbar */
 .page-wrapper .toolbar {
     position: relative;
     background: #f8f8f8;
@@ -812,7 +829,6 @@
     display: flex;
     align-items: center;
     padding: 10px;
-
 }
 
 .page-wrapper .toolbar .btn-ico svg {
@@ -821,18 +837,17 @@
 }
 
 @media (min-width: 768px) {
-
     .page-wrapper:nth-child(even) .toolbar {
         justify-content: flex-end;
-
     }
 }
 
-/* page wrapper when skeleton loading */
+/* skeleton loading */
 .skeleton-page-wrapper {
     background: #f7f7f7;
     margin-bottom: 1rem;
-    border-radius: 4px;
+    border-radius: 12px;
+    /* match page radius */
 }
 
 /* individual slot placeholders */
@@ -849,7 +864,6 @@
     bottom: 30px;
     left: 50%;
     transform: translateX(-50%);
-    
     border-radius: 8px !important;
     background: rgba(255, 255, 255, .9) !important;
     box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px !important;
@@ -872,7 +886,6 @@
     }
 }
 
-
 .btn-setting {
     display: inline-flex;
     flex-flow: column nowrap;
@@ -884,7 +897,6 @@
     color: #585858 !important;
     text-align: center;
     padding: 5px !important;
-
 }
 
 .btn-setting>div {
@@ -903,7 +915,6 @@
     height: 24px !important;
     margin: 0 0 10px !important;
 }
-
 
 .dynamicColors {
     gap: 8px !important;
@@ -926,7 +937,8 @@
 .btnLayoutWrap .btnLayout>div {
     background-color: #efefef;
 }
-.btnLayoutWrap .btnLayout > span {
+
+.btnLayoutWrap .btnLayout>span {
     display: block;
     margin-top: 8px;
     font-size: 11px !important;
@@ -934,19 +946,20 @@
     letter-spacing: .5px;
     text-align: center;
 }
+
 .modalClose {
     color: #000 !important;
     padding: 0 !important;
     margin: 0 !important;
     font-weight: 700;
-
 }
+
 @media (max-width: 549px) {
     .btnLayoutWrap .btnLayout {
         width: calc(50% - 15px) !important;
     }
 }
-/* Sheikh saab button change kar dein*/
+
 /* --- Image cropper: per-slot overlay buttons --- */
 .slot-edit-btn,
 .slot-reset-btn {
@@ -1012,15 +1025,6 @@
     .slot-reset-btn {
         opacity: 1;
     }
-}
-
-/* optional: show grab cursor for draggable slots (keeps your DnD UX familiar) */
-.photo-slot {
-    cursor: grab;
-}
-
-.photo-slot:active {
-    cursor: grabbing;
 }
 
 .modalTemplatesWrap {

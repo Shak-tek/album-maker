@@ -1,4 +1,4 @@
-// src/components/EditorPage.js (dynamic templates + DOM-aspect cropper)
+// src/components/EditorPage.js
 import "./EditorPage.css";
 import React, { useState, useEffect, useRef } from "react";
 import ColorThief from "color-thief-browser";
@@ -47,7 +47,6 @@ const SLOT_MAP_NOBG = [
     { top: "0%", left: "0%", width: "100%", height: "100%" }, // 9
 ];
 
-// For slot indices > 9 we return null to rely on CSS .slotN positioning
 function getSlotRect(slotIndex, backgroundEnabled) {
     const map = backgroundEnabled ? SLOT_MAP_BG : SLOT_MAP_NOBG;
     return map[slotIndex] ?? null;
@@ -140,7 +139,6 @@ export default function EditorPage({
     const [themeModalPage, setThemeModalPage] = useState(null);
     const [showTitleModal, setShowTitleModal] = useState(false);
     const [backgroundEnabled, setBackgroundEnabled] = useState(true);
-
     const [imagesWarm, setImagesWarm] = useState(false);
 
     const previewRef = useRef(null);
@@ -192,20 +190,40 @@ export default function EditorPage({
     // initialize per-page assignments whenever `images` changes
     useEffect(() => {
         if (pageSettings.length) return;
-        const remaining = images.slice();
-        const initial = remaining.map((_, i) => ({
-            templateId: i === 0 ? 3 : i < 2 ? 1 : pageTemplates[Math.floor(Math.random() * pageTemplates.length)].id,
-            theme: { mode: "dynamic", color: null },
-        }));
 
-        const withAssignments = initial.map((ps) => {
-            const tmpl = pageTemplates.find((t) => t.id === ps.templateId);
-            const slotsCount = tmpl?.slots?.length ?? 1;
+        const remaining = images.slice(); // shallow copy
+        const pages = [];
+
+        const pickTemplateId = (i, candidates) => {
+            const byId = (id) => candidates.find((t) => t.id === id)?.id;
+            if (i === 0) return byId(3) ?? candidates[0].id; // prefer title/full-bleed if present
+            if (i < 2) return byId(1) ?? candidates[0].id;   // prefer 2-up if present
+            return candidates[Math.floor(Math.random() * candidates.length)].id;
+        };
+
+        let i = 0;
+        while (remaining.length > 0) {
+            const candidates = pageTemplates
+                .map((t) => ({ ...t, _slots: Math.max(1, t.slots?.length ?? 1) }))
+                .filter((t) => t._slots <= remaining.length);
+
+            if (!candidates.length) break;
+
+            const templateId = pickTemplateId(i, candidates);
+            const tmpl = candidates.find((t) => t.id === templateId) || candidates[0];
+            const slotsCount = Math.max(1, tmpl.slots?.length ?? 1);
             const assigned = remaining.splice(0, slotsCount);
-            return { ...ps, assignedImages: assigned, edits: new Array(slotsCount).fill(null) };
-        });
 
-        setPageSettings(withAssignments);
+            pages.push({
+                templateId: tmpl.id,
+                theme: { mode: "dynamic", color: null },
+                assignedImages: assigned,
+                edits: new Array(slotsCount).fill(null),
+            });
+            i += 1;
+        }
+
+        setPageSettings(pages);
         setImagesWarm(false);
     }, [images, pageSettings.length]);
 
@@ -350,7 +368,7 @@ export default function EditorPage({
                     const tmp = next[srcPage].assignedImages[srcSlot];
                     next[srcPage].assignedImages[srcSlot] = next[tgtPage].assignedImages[tgtSlot];
                     next[tgtPage].assignedImages[tgtSlot] = tmp;
-                    // swap edits (preserve per-slot crops with the image)
+                    // swap edits
                     const eTmp = next[srcPage].edits?.[srcSlot] ?? null;
                     if (!next[srcPage].edits) next[srcPage].edits = [];
                     if (!next[tgtPage].edits) next[tgtPage].edits = [];
@@ -384,10 +402,40 @@ export default function EditorPage({
         setPageSettings((prev) => {
             const next = prev.map((p) => ({ ...p, assignedImages: [...(p.assignedImages || [])] }));
             const page = next[pi];
-            page.templateId = tid;
 
-            const tmpl = pageTemplates.find((t) => t.id === tid);
-            const newSlots = Math.max(1, tmpl?.slots?.length ?? 1);
+            // compute available images for this page = total - used elsewhere
+            const totalImages = images.filter(Boolean).length;
+            const usedElsewhere = next.reduce((acc, p, idx) => {
+                if (idx === pi) return acc;
+                return acc + (p.assignedImages?.filter(Boolean).length ?? 0);
+            }, 0);
+            const availableForThisPage = Math.max(0, totalImages - usedElsewhere);
+
+            // requested template & fallback if needed
+            const requested = pageTemplates.find((t) => t.id === tid);
+            let newSlots = Math.max(1, requested?.slots?.length ?? 1);
+
+            if (newSlots > availableForThisPage) {
+                const fallback = pageTemplates
+                    .map((t) => ({ ...t, _slots: Math.max(1, t.slots?.length ?? 1) }))
+                    .filter((t) => t._slots <= availableForThisPage)
+                    .sort((a, b) => b._slots - a._slots)[0];
+
+                if (fallback) {
+                    tid = fallback.id;
+                    newSlots = fallback._slots;
+                } else {
+                    const oneUp = pageTemplates
+                        .map((t) => ({ ...t, _slots: Math.max(1, t.slots?.length ?? 1) }))
+                        .find((t) => t._slots === 1);
+                    if (oneUp) {
+                        tid = oneUp.id;
+                        newSlots = 1;
+                    }
+                }
+            }
+
+            page.templateId = tid;
             const currSlots = page.assignedImages.length;
 
             // Resize edits to new slot count
@@ -397,7 +445,7 @@ export default function EditorPage({
                 // Shrink: truncate
                 page.assignedImages = page.assignedImages.slice(0, newSlots);
             } else if (currSlots < newSlots) {
-                // Grow: backfill with unused images; then pad with nulls if still short
+                // Grow: backfill with unused images (guaranteed to exist after fallback)
                 const need = newSlots - currSlots;
                 const additions = takeMoreImagesForPage({
                     allImages: images,
@@ -405,8 +453,7 @@ export default function EditorPage({
                     pageIdx: pi,
                     need,
                 });
-                page.assignedImages = [...page.assignedImages, ...additions];
-                while (page.assignedImages.length < newSlots) page.assignedImages.push(null);
+                page.assignedImages = [...page.assignedImages, ...additions].slice(0, newSlots);
             }
 
             return next;
@@ -550,11 +597,12 @@ export default function EditorPage({
                     <div className="page-container">
                         <div className="container">
                             {pageSettings.map((ps, pi) => {
-                                if (!ps.assignedImages?.length && !pageTemplates.find(t => t.id === ps.templateId)?.slots?.length) {
-                                    return null;
-                                }
                                 const tmpl = pageTemplates.find((t) => t.id === ps.templateId);
-                                const bgColor = backgroundEnabled ? ps.theme.color || "transparent" : "transparent";
+                                if (!tmpl) return null;
+
+                                // Background color always applied (independent of geometry toggle)
+                                const bgColor = ps.theme.color || "transparent";
+
                                 return (
                                     <div key={pi} className="page-wrapper" style={{ backgroundColor: bgColor }}>
                                         <Box className="toolbar" direction="row" gap="small" align="center">
@@ -584,7 +632,7 @@ export default function EditorPage({
                                                             slotRefs.current[pi][slotIdx] = el || null;
                                                         }}
                                                         style={{
-                                                            ...(inlinePos || {}), // use inline geometry for first 10 only; otherwise rely on CSS .slotN
+                                                            ...(inlinePos || {}), // first 10 via inline; others via CSS .slotN
                                                             position: "absolute",
                                                             overflow: "hidden",
                                                             borderRadius: "4px",
@@ -602,10 +650,10 @@ export default function EditorPage({
                                                             <img
                                                                 src={imgSrc}
                                                                 alt=""
-                                                                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                                                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                                                             />
                                                         )}
-                                                        {/* EDIT BUTTON overlay (doesn't trigger drag) */}
+                                                        {/* EDIT BUTTON overlay */}
                                                         <button
                                                             className="slot-edit-btn"
                                                             onMouseDown={(e) => e.stopPropagation()}
@@ -662,9 +710,11 @@ export default function EditorPage({
                                 style={{
                                     position: "relative",
                                     width: "100%",
-                                    maxWidth: "500px",
+                                    maxWidth: "400px",
                                     paddingTop: `${paddingPercent}%`,
-                                    backgroundColor: backgroundEnabled ? ps.theme.color || "transparent" : "transparent",
+                                    backgroundColor: ps.theme.color || "transparent",
+                                    overflow: "hidden",        // keep rounded clip in export
+                                    borderRadius: "12px",
                                 }}
                             >
                                 {tmpl.slots.map((slotPosIndex, slotIdx) => {
@@ -684,7 +734,7 @@ export default function EditorPage({
                                                 src={getSlotSrc(ps, slotIdx)}
                                                 alt=""
                                                 crossOrigin="anonymous"
-                                                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                                             />
                                         </Box>
                                     );
@@ -717,7 +767,16 @@ export default function EditorPage({
             {/* Modals */}
             {showTemplateModal && (
                 <TemplateModal
-                    templates={pageTemplates}
+                    templates={(() => {
+                        // Filter to only show templates that fit the available images for this page
+                        const total = images.filter(Boolean).length;
+                        const usedElsewhere = pageSettings.reduce((acc, p, idx) => {
+                            if (idx === templateModalPage) return acc;
+                            return acc + (p.assignedImages?.filter(Boolean).length ?? 0);
+                        }, 0);
+                        const available = Math.max(0, total - usedElsewhere);
+                        return pageTemplates.filter((t) => (t.slots?.length ?? 1) <= available);
+                    })()}
                     onSelect={(id) => pickTemplate(templateModalPage, id)}
                     onClose={() => setShowTemplateModal(false)}
                 />
