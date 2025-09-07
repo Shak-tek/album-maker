@@ -1,4 +1,4 @@
-// src/templates/pageTemplates.js
+// src/pageTemplates.js
 
 // Each template has an id, a human‑friendly name, and
 // a `slots` array of zero‑based indices into the 10 CSS slot positions.
@@ -163,31 +163,38 @@ export const pageTemplates = [
         id: 26,
         name: '1-Up (Row of 1)',
         slots: [92], 
-        thumbnailUrl: 'https://popsa.com/webapp/assets/icons//Templates/ICON_TEMPLATE_65_LANDSCAPE.webp',
+        thumbnailUrl: '/ICON_TEMPLATE_65_LANDSCAPE.webp',
     },
     {
         id: 27,
         name: '2-Up (Row of 2)',
         slots: [93, 94], 
-        thumbnailUrl: 'https://popsa.com/webapp/assets/icons//Templates/ICON_TEMPLATE_66_LANDSCAPE.webp',
+        thumbnailUrl: '/ICON_TEMPLATE_66_LANDSCAPE.webp',
     },
     {
         id: 28,
         name: '2-Up (Row of 2)',
         slots: [95, 96], 
-        thumbnailUrl: 'https://popsa.com/webapp/assets/icons//Templates/ICON_TEMPLATE_68_LANDSCAPE.webp',
+        thumbnailUrl: '/ICON_TEMPLATE_68_LANDSCAPE.webp',
     },
     {
         id: 29,
         name: '1-Up (Row of 1)',
         slots: [97], 
-        thumbnailUrl: 'https://popsa.com/webapp/assets/icons//Templates/ICON_TEMPLATE_67_LANDSCAPE.webp',
+        thumbnailUrl: '/ICON_TEMPLATE_67_LANDSCAPE.webp',
     },
     {
         id: 30,
-        name: '1-Up (Row of 1)',
+        name: '2-Up (Row of 2)',
         slots: [98, 99], 
-        thumbnailUrl: 'https://popsa.com/webapp/assets/icons//Templates/ICON_TEMPLATE_69_LANDSCAPE.webp',
+        thumbnailUrl: '/ICON_TEMPLATE_69_LANDSCAPE.webp',
+    },
+
+    {
+        id: 31,
+        name: '2-Up (Row of 2)',
+        slots: [100, 101], 
+        thumbnailUrl: 'https://popsa.com/webapp/assets/icons//Templates/ICON_TEMPLATE_70_LANDSCAPE.webp',
     },
     // …you can add more templates here as you please
 ];
