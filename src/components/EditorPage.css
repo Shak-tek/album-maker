@@ -1012,3 +1012,15 @@
 .modalTemplatesWrap {
     overflow: hidden;
 }
+
+.photo-slot.empty {
+    outline: 2px dashed rgba(0, 0, 0, 0.2);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+}
+
+.slot-placeholder {
+    font-size: 1.5rem;
+    opacity: 0.5;
+}
