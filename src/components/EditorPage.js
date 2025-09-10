@@ -2,7 +2,7 @@
 import "./EditorPage.css";
 import React, { useState, useEffect, useRef } from "react";
 import ColorThief from "color-thief-browser";
-import { Box, Button, Layer, Text } from "grommet";
+import { Box, Button, Layer, Text, Spinner, Meter } from "grommet";
 import { jsPDF } from "jspdf";
 import { toJpeg } from "html-to-image";
 import { Template as TemplateIcon, Brush, Edit, Add } from "grommet-icons"; // NEW: Add
@@ -12,6 +12,13 @@ import ThemeModal from "./ThemeModal";
 import SettingsBar from "./SettingsBar";
 import { pageTemplates } from "../templates/pageTemplates";
 import TitleModal from "./TitleModal";
+
+// base ImageKit URL for rendering uploaded images
+const IK_URL_ENDPOINT = process.env.REACT_APP_IMAGEKIT_URL_ENDPOINT || "";
+
+// helper to build a resized ImageKit URL with cache-busting
+const getResizedUrl = (key, width = 1200) =>
+    `${IK_URL_ENDPOINT}/${encodeURI(key)}?tr=w-${width},fo-face&v=${Date.now()}`;
 
 // ---------------------- SLOT GEOMETRY (kept only for 0..9) ----------------------
 const slotMargin = 5;
@@ -159,6 +166,9 @@ export default function EditorPage(props) {
     const [showTitleModal, setShowTitleModal] = useState(false);
     const [backgroundEnabled, setBackgroundEnabled] = useState(true);
     const [imagesWarm, setImagesWarm] = useState(false);
+    // upload progress state for Add Photos
+    const [uploading, setUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
     // NEW: pending target for an upload into a specific slot
     const [pendingUploadTarget, setPendingUploadTarget] = useState(null); // { pageIdx, slotIdx } | null
     const prevImages = usePrevious(images);
@@ -998,22 +1008,49 @@ export default function EditorPage(props) {
                 backgroundEnabled={backgroundEnabled}
                 setBackgroundEnabled={setBackgroundEnabled}
                 fileInputRef={fileInputRef}
-                onAddImages={(incoming) => {
-                    // Coerce to a safe array *always*
-                    const urls = Array.isArray(incoming)
+                onAddImages={async (incoming) => {
+                    const files = Array.isArray(incoming)
                         ? incoming.filter(Boolean)
                         : incoming
                         ? [incoming]
                         : [];
+                    if (!files.length) return;
 
-                    if (!urls.length) {
-                        // Ignore calls without URLs (e.g. placeholder click just opened the dialog)
-                        return;
+                    const uploaded = [];
+                    setUploading(true);
+                    try {
+                        for (const file of files) {
+                            const key = `${sessionId}/${Date.now()}_${file.name}`;
+                            setUploadProgress(0);
+                            const managed = s3.upload({
+                                Key: key,
+                                Body: file,
+                                ContentType: file.type,
+                            });
+                            managed.on("httpUploadProgress", (evt) => {
+                                if (evt.total) {
+                                    setUploadProgress(
+                                        Math.round((evt.loaded / evt.total) * 100)
+                                    );
+                                }
+                            });
+                            try {
+                                await managed.promise();
+                                uploaded.push(getResizedUrl(key, 1200));
+                            } catch (err) {
+                                console.error("S3 upload error", err);
+                            }
+                        }
+                    } finally {
+                        setUploading(false);
+                        setUploadProgress(0);
                     }
+
+                    if (!uploaded.length) return;
 
                     // Inform parent so global image list stays in sync
                     if (typeof onAddImagesProp === "function") {
-                        onAddImagesProp(urls);
+                        onAddImagesProp(uploaded);
                     }
 
                     // If a specific slot triggered the upload, defer pageSettings
@@ -1028,8 +1065,8 @@ export default function EditorPage(props) {
                             next.push({
                                 templateId: 3,
                                 theme: { mode: "dynamic", color: null },
-                                assignedImages: [...urls],
-                                edits: new Array(urls.length).fill(null),
+                                assignedImages: [...uploaded],
+                                edits: new Array(uploaded.length).fill(null),
                             });
                         } else {
                             const existing = new Set(
@@ -1037,7 +1074,7 @@ export default function EditorPage(props) {
                                     ? next[0].assignedImages
                                     : []
                             );
-                            const unique = urls.filter((u) => !existing.has(u));
+                            const unique = uploaded.filter((u) => !existing.has(u));
                             next[0].assignedImages = [
                                 ...(Array.isArray(next[0].assignedImages)
                                     ? next[0].assignedImages
@@ -1069,7 +1106,10 @@ export default function EditorPage(props) {
                         <Box background="black" style={{ position: "relative", flex: 1, height: "60vh" }}>
                             {(() => {
                                 const { pageIdx, slotIdx } = cropTarget;
-                                const src = pageIdx != null && slotIdx != null ? pageSettings[pageIdx]?.assignedImages?.[slotIdx] : null;
+                                const src =
+                                    pageIdx != null && slotIdx != null
+                                        ? pageSettings[pageIdx]?.assignedImages?.[slotIdx]
+                                        : null;
                                 if (!src) return null;
                                 return (
                                     <Cropper
@@ -1124,6 +1164,27 @@ export default function EditorPage(props) {
                                 <Button primary label="Save crop" onClick={saveCrop} disabled={!croppedAreaPixels} />
                             </Box>
                         </Box>
+                    </Box>
+                </Layer>
+            )}
+
+            {uploading && (
+                <Layer plain>
+                    <Box
+                        fill
+                        align="center"
+                        justify="center"
+                        background={{ color: "white", opacity: "strong" }}
+                    >
+                        <Spinner />
+                        <Box width="medium" pad={{ horizontal: "medium", top: "small" }}>
+                            <Meter
+                                values={[{ value: uploadProgress, color: "accent" }]}
+                                max={100}
+                                thickness="small"
+                            />
+                        </Box>
+                        <Text margin={{ top: "small" }}>{uploadProgress}%</Text>
                     </Box>
                 </Layer>
             )}

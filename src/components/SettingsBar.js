@@ -72,13 +72,11 @@ const SavingIcon = () => (
 
   const handleFiles = (e) => {
     const files = Array.from(e.target.files || []);
-    if (files.length) {
-      const urls = files.map(f => URL.createObjectURL(f));
-      if (typeof onAddImages === 'function') {
-        onAddImages(urls);
-      }
-      e.target.value = '';
+    if (files.length && typeof onAddImages === 'function') {
+      onAddImages(files);
     }
+    // Always reset the input so the same file can be selected again
+    e.target.value = '';
   };
 
   return (
