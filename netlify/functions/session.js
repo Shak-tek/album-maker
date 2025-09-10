@@ -24,7 +24,9 @@ exports.handler = async (event) => {
         `INSERT INTO sessions (user_id, session_id, settings)
          VALUES ($1, $2, $3)
          ON CONFLICT (user_id)
-         DO UPDATE SET session_id = EXCLUDED.session_id, settings = EXCLUDED.settings, updated_at = NOW()`,
+         DO UPDATE SET session_id = EXCLUDED.session_id,
+                       settings = COALESCE(sessions.settings, '{}'::jsonb) || EXCLUDED.settings,
+                       updated_at = NOW()`,
         [userId, sessionId, settings || {}]
       );
       return { statusCode: 200, body: JSON.stringify({ ok: true }) };
