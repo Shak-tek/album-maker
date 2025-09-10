@@ -158,7 +158,25 @@ export default function EditorPage(props) {
         setSubtitle,
     } = props;
 
-    const [pageSettings, setPageSettings] = useState([]);
+    // --- Synchronous restore from localStorage to prevent a "random" first render ---
+    const _initialFromStorage = (() => {
+        try {
+            const raw = localStorage.getItem("pageSettings");
+            if (!raw) return null;
+            const parsed = JSON.parse(raw);
+            if (!Array.isArray(parsed)) return null;
+            // normalize edits array shape
+            return parsed.map((ps) => ({
+                ...ps,
+                edits: Array.isArray(ps.edits) ? ps.edits : [],
+            }));
+        } catch {
+            return null;
+        }
+    })();
+    const [pageSettings, setPageSettings] = useState(_initialFromStorage || []);
+    // Remember whether we actually restored something so we don't auto-generate
+    const [restoredFromStorage] = useState(Boolean(_initialFromStorage));
     const [showTemplateModal, setShowTemplateModal] = useState(false);
     const [templateModalPage, setTemplateModalPage] = useState(null);
     const [showThemeModal, setShowThemeModal] = useState(false);
@@ -205,29 +223,34 @@ export default function EditorPage(props) {
         return edit?.previewDataUrl || ps.assignedImages[slotIdx];
     };
 
-    // ----------------- RESTORE / INIT -----------------
-    useEffect(() => {
-        const stored = localStorage.getItem("pageSettings");
-        if (stored) {
-            try {
-                const parsed = JSON.parse(stored);
-                if (Array.isArray(parsed)) {
-                    const normalized = parsed.map((ps) => ({
-                        ...ps,
-                        edits: Array.isArray(ps.edits) ? ps.edits : [],
-                    }));
-                    setPageSettings(normalized);
-                    setImagesWarm(false);
-                }
-            } catch (err) {
-                console.error(err);
-            }
-        }
-    }, []);
-
+      // ----------------- OPTIONAL: try restoring from server (Netlify) if nothing in localStorage -----------------
+          useEffect(() => {
+                if (restoredFromStorage || pageSettings.length) return;
+                if (!user || !sessionId) return;
+                let cancelled = false;
+                (async () => {
+                      try {
+                            const res = await fetch(`/.netlify/functions/session?sessionId=${encodeURIComponent(sessionId)}&userId=${encodeURIComponent(user.id)}`);
+                            if (!res.ok) return;
+                            const data = await res.json();
+                            const remote = data?.settings?.pageSettings;
+                            if (Array.isArray(remote) && !cancelled) {
+                                  setPageSettings(
+                                        remote.map((ps) => ({ ...ps, edits: Array.isArray(ps.edits) ? ps.edits : [] }))
+                                      );
+                                  setImagesWarm(false);
+                                }
+                          } catch {
+                                // ignore; fall back to local init below
+                                  }
+                    })();
+                return () => { cancelled = true; };
+              }, [restoredFromStorage, pageSettings.length, user, sessionId]);
     // initialize per-page assignments whenever `images` changes
     useEffect(() => {
-        if (pageSettings.length) return;
+        // Only auto-generate if we truly have nothing restored (no local, no remote)
+           if (pageSettings.length) return;
+          if (restoredFromStorage) return;
 
         const remaining = images.slice();
         const pages = [];
@@ -236,7 +259,7 @@ export default function EditorPage(props) {
             const byId = (id) => candidates.find((t) => t.id === id)?.id;
             if (i === 0) return byId(3) ?? candidates[0].id; // prefer title/full-bleed
             if (i < 2) return byId(1) ?? candidates[0].id;   // prefer 2-up
-            return candidates[Math.floor(Math.random() * candidates.length)].id;
+            return candidates[i % candidates.length].id;
         };
 
         let i = 0;
@@ -263,7 +286,7 @@ export default function EditorPage(props) {
 
         setPageSettings(pages);
         setImagesWarm(false);
-    }, [images, pageSettings.length]);
+    }, [images, pageSettings.length, restoredFromStorage]);
 
     // persist to localStorage & DB
     useEffect(() => {
@@ -1012,8 +1035,8 @@ export default function EditorPage(props) {
                     const files = Array.isArray(incoming)
                         ? incoming.filter(Boolean)
                         : incoming
-                        ? [incoming]
-                        : [];
+                            ? [incoming]
+                            : [];
                     if (!files.length) return;
 
                     const uploaded = [];
