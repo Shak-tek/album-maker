@@ -12,6 +12,7 @@ import ThemeModal from "./ThemeModal";
 import SettingsBar from "./SettingsBar";
 import { pageTemplates } from "../templates/pageTemplates";
 import TitleModal from "./TitleModal";
+import TextEditor from "./TextEditor";
 
 // base ImageKit URL for rendering uploaded images
 const IK_URL_ENDPOINT = process.env.REACT_APP_IMAGEKIT_URL_ENDPOINT || "";
@@ -169,6 +170,7 @@ export default function EditorPage(props) {
             return parsed.map((ps) => ({
                 ...ps,
                 edits: Array.isArray(ps.edits) ? ps.edits : [],
+                texts: Array.isArray(ps.texts) ? ps.texts : [],
             }));
         } catch {
             return null;
@@ -236,7 +238,11 @@ export default function EditorPage(props) {
                             const remote = data?.settings?.pageSettings;
                             if (Array.isArray(remote) && !cancelled) {
                                   setPageSettings(
-                                        remote.map((ps) => ({ ...ps, edits: Array.isArray(ps.edits) ? ps.edits : [] }))
+                                        remote.map((ps) => ({
+                                            ...ps,
+                                            edits: Array.isArray(ps.edits) ? ps.edits : [],
+                                            texts: Array.isArray(ps.texts) ? ps.texts : [],
+                                        }))
                                       );
                                   setImagesWarm(false);
                                 }
@@ -280,6 +286,7 @@ export default function EditorPage(props) {
                 theme: { mode: "dynamic", color: null, image: null },
                 assignedImages: assigned,
                 edits: new Array(slotsCount).fill(null),
+                texts: tmpl.textSlots ? new Array(tmpl.textSlots.length).fill("") : [],
             });
             i += 1;
         }
@@ -586,6 +593,10 @@ export default function EditorPage(props) {
 
             page.templateId = tid;
 
+            const newTextSlots = requested?.textSlots?.length ?? 0;
+            page.texts = (page.texts || []).slice(0, newTextSlots);
+            while (page.texts.length < newTextSlots) page.texts.push("");
+
             // resize edits to at least newSlots
             page.edits = ensureEditsArray(page, newSlots).slice(0, newSlots);
 
@@ -780,6 +791,9 @@ export default function EditorPage(props) {
                                             {tmpl?.slots?.map((_, slotIdx) => (
                                                 <div key={slotIdx} className="skeleton-photo-slot" />
                                             ))}
+                                            {tmpl?.textSlots?.map((_, slotIdx) => (
+                                                <div key={`text-${slotIdx}`} className="skeleton-photo-slot" />
+                                            ))}
                                         </Box>
                                     </div>
                                 );
@@ -933,6 +947,40 @@ export default function EditorPage(props) {
                                                 );
                                             })}
 
+                                            {tmpl?.textSlots?.map((slotPosIndex, textIdx) => {
+                                                const inlinePos = backgroundEnabled
+                                                    ? (getSlotRect(slotPosIndex, true) || null)
+                                                    : (noBgRects?.[pi]?.[tmpl.slots.length + textIdx] || null);
+                                                const content = ps.texts?.[textIdx] || "";
+                                                return (
+                                                    <div
+                                                        key={`text-${slotPosIndex}-${textIdx}`}
+                                                        className={`text-slot slot${slotPosIndex + 1}`}
+                                                        ref={(el) => {
+                                                            if (!slotRefs.current[pi]) slotRefs.current[pi] = [];
+                                                            slotRefs.current[pi][tmpl.slots.length + textIdx] = el || null;
+                                                        }}
+                                                        style={{
+                                                            ...(inlinePos || {}),
+                                                            position: "absolute",
+                                                        }}
+                                                    >
+                                                        <TextEditor
+                                                            value={content}
+                                                            onChange={(html) =>
+                                                                setPageSettings((prev) => {
+                                                                    const next = [...prev];
+                                                                    const texts = [...(next[pi].texts || [])];
+                                                                    texts[textIdx] = html;
+                                                                    next[pi] = { ...next[pi], texts };
+                                                                    return next;
+                                                                })
+                                                            }
+                                                        />
+                                                    </div>
+                                                );
+                                            })}
+
                                             {pi === 0 && (
                                                 <div className="title-overlay">
                                                     {title && <h1>{title}</h1>}
@@ -995,6 +1043,20 @@ export default function EditorPage(props) {
                                                 style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                                             />
                                         </Box>
+                                    );
+                                })}
+                                {tmpl.textSlots?.map((slotPosIndex, textIdx) => {
+                                    const inlinePos = getSlotRect(slotPosIndex, true);
+                                    return (
+                                        <Box
+                                            key={`text-${slotPosIndex}-${textIdx}`}
+                                            className={`text-slot slot${slotPosIndex + 1}`}
+                                            style={{
+                                                position: "absolute",
+                                                ...(inlinePos || {}),
+                                            }}
+                                            dangerouslySetInnerHTML={{ __html: ps.texts?.[textIdx] || "" }}
+                                        />
                                     );
                                 })}
                                 {pi === 0 && (
