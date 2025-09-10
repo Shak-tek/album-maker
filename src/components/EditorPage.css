@@ -1038,3 +1038,8 @@
     font-size: 1.5rem;
     opacity: 0.5;
 }
+
+.photo-slot.empty-slot.highlight {
+    outline: 2px dashed #fff;
+    outline-offset: -2px;
+}

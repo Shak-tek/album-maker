@@ -5,7 +5,7 @@ import ColorThief from "color-thief-browser";
 import { Box, Button, Layer, Text } from "grommet";
 import { jsPDF } from "jspdf";
 import { toJpeg } from "html-to-image";
-import { Template as TemplateIcon, Brush, Edit } from "grommet-icons";
+import { Template as TemplateIcon, Brush, Edit, Add } from "grommet-icons"; // NEW: Add
 import Cropper from "react-easy-crop";
 import TemplateModal from "./TemplateModal";
 import ThemeModal from "./ThemeModal";
@@ -140,7 +140,8 @@ function takeMoreImagesForPage({ allImages, pages, pageIdx, need }) {
     });
 
     const chosen = [];
-    for (const url of allImages) {
+    // ✅ guard: treat falsy as empty array
+    for (const url of (allImages || [])) {
         if (chosen.length >= need) break;
         if (url && !used.has(url)) {
             used.add(url);
@@ -150,19 +151,29 @@ function takeMoreImagesForPage({ allImages, pages, pageIdx, need }) {
     return chosen;
 }
 
-export default function EditorPage({
-    images,
-    onAddImages,
-    albumSize,
-    s3,
-    sessionId,
-    user,
-    identityId,
-    title,
-    subtitle,
-    setTitle,
-    setSubtitle,
-}) {
+
+// NEW: track a slot awaiting an upload and a snapshot of prior images
+const usePrevious = (val) => {
+    const ref = useRef(val);
+    useEffect(() => { ref.current = val; }, [val]);
+    return ref.current;
+};
+
+export default function EditorPage(props) {
+    const {
+        images = [],
+        onAddImages,
+        albumSize,
+        s3,
+        sessionId,
+        user,
+        identityId,
+        title,
+        subtitle,
+        setTitle,
+        setSubtitle,
+    } = props;
+
     const [pageSettings, setPageSettings] = useState([]);
     const [showTemplateModal, setShowTemplateModal] = useState(false);
     const [templateModalPage, setTemplateModalPage] = useState(null);
@@ -171,6 +182,9 @@ export default function EditorPage({
     const [showTitleModal, setShowTitleModal] = useState(false);
     const [backgroundEnabled, setBackgroundEnabled] = useState(true);
     const [imagesWarm, setImagesWarm] = useState(false);
+    // NEW: pending target for an upload into a specific slot
+    const [pendingUploadTarget, setPendingUploadTarget] = useState(null); // { pageIdx, slotIdx } | null
+    const prevImages = usePrevious(images);
 
     // dynamic normalized rects when background is disabled
     // shape: { [pageIdx]: Array<{top,left,width,height} | null> }
@@ -502,6 +516,45 @@ export default function EditorPage({
         cancelTouchDrag();
     };
 
+    // NEW: helper – find newest image URL that is not used anywhere yet
+    const findNewestUnusedImage = (allImages, pages) => {
+        const used = new Set();
+        pages.forEach((p) => (p.assignedImages || []).forEach((u) => u && used.add(u)));
+        for (let i = allImages.length - 1; i >= 0; i -= 1) {
+            const url = allImages[i];
+            if (url && !used.has(url)) return url;
+        }
+        return null;
+    };
+
+    // NEW: when images prop grows and we have a pending target, drop newest unused into that slot
+    useEffect(() => {
+        if (!pendingUploadTarget) return;
+        const grew = (prevImages?.length || 0) < (images?.length || 0);
+        if (!grew) return;
+
+        const newest = findNewestUnusedImage(images || [], pageSettings);
+        if (!newest) return;
+
+        const { pageIdx, slotIdx } = pendingUploadTarget;
+        setPageSettings((prev) => {
+            const next = prev.map((p) => ({ ...p, assignedImages: [...(p.assignedImages || [])] }));
+            if (!next[pageIdx]) return prev;
+            next[pageIdx].assignedImages[slotIdx] = newest;
+            // ensure edits length
+            next[pageIdx].edits = ensureEditsArray(next[pageIdx], next[pageIdx].assignedImages.length);
+            return next;
+        });
+        setPendingUploadTarget(null);
+    }, [images, pendingUploadTarget, pageSettings, prevImages]);
+
+    // NEW: click handler for "+" placeholder
+    const handleUploadToSlot = (pageIdx, slotIdx) => {
+        setPendingUploadTarget({ pageIdx, slotIdx });
+        // Reuse existing app flow (S3 + ImageKit) via parent’s handler
+        if (typeof onAddImages === "function") onAddImages();
+    };
+
     // ---------------- TEMPLATE & THEME ----------------
     const openTemplateModal = (pi) => {
         if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
@@ -509,61 +562,38 @@ export default function EditorPage({
         setShowTemplateModal(true);
     };
 
+    // CHANGED: allow larger templates and fill extras with null placeholders
     const pickTemplate = (pi, tid) => {
         setPageSettings((prev) => {
             const next = prev.map((p) => ({ ...p, assignedImages: [...(p.assignedImages || [])] }));
             const page = next[pi];
-
-            // available images for this page = total - used elsewhere
-            const totalImages = images.filter(Boolean).length;
-            const usedElsewhere = next.reduce((acc, p, idx) => {
-                if (idx === pi) return acc;
-                return acc + (p.assignedImages?.filter(Boolean).length ?? 0);
-            }, 0);
-            const availableForThisPage = Math.max(0, totalImages - usedElsewhere);
-
             const requested = pageTemplates.find((t) => t.id === tid);
-            let newSlots = Math.max(1, requested?.slots?.length ?? 1);
-
-            if (newSlots > availableForThisPage) {
-                const fallback = pageTemplates
-                    .map((t) => ({ ...t, _slots: Math.max(1, t.slots?.length ?? 1) }))
-                    .filter((t) => t._slots <= availableForThisPage)
-                    .sort((a, b) => b._slots - a._slots)[0];
-
-                if (fallback) {
-                    tid = fallback.id;
-                    newSlots = fallback._slots;
-                } else {
-                    const oneUp = pageTemplates
-                        .map((t) => ({ ...t, _slots: Math.max(1, t.slots?.length ?? 1) }))
-                        .find((t) => t._slots === 1);
-                    if (oneUp) {
-                        tid = oneUp.id;
-                        newSlots = 1;
-                    }
-                }
-            }
+            const newSlots = Math.max(1, requested?.slots?.length ?? 1);
 
             page.templateId = tid;
-            const currSlots = page.assignedImages.length;
 
-            // Resize edits to new slot count
+            // resize edits to at least newSlots
             page.edits = ensureEditsArray(page, newSlots).slice(0, newSlots);
 
-            if (currSlots > newSlots) {
-                // Shrink: truncate
+            const curr = page.assignedImages.length;
+
+            if (curr > newSlots) {
+                // shrink
                 page.assignedImages = page.assignedImages.slice(0, newSlots);
-            } else if (currSlots < newSlots) {
-                // Grow: backfill with unused images
-                const need = newSlots - currSlots;
+            } else if (curr < newSlots) {
+                // grow: try to take unused images first…
+                const need = newSlots - curr;
                 const additions = takeMoreImagesForPage({
                     allImages: images,
                     pages: next,
                     pageIdx: pi,
                     need,
                 });
-                page.assignedImages = [...page.assignedImages, ...additions].slice(0, newSlots);
+
+                // …then pad remaining slots with null (placeholders)
+                const padded = [...page.assignedImages, ...additions];
+                while (padded.length < newSlots) padded.push(null);
+                page.assignedImages = padded.slice(0, newSlots);
             }
 
             return next;
@@ -753,7 +783,6 @@ export default function EditorPage({
                             {pageSettings.map((ps, pi) => {
                                 const tmpl = pageTemplates.find((t) => t.id === ps.templateId);
                                 if (!tmpl) return null;
-
                                 const bgColor = ps.theme.color || "transparent";
 
                                 return (
@@ -772,21 +801,19 @@ export default function EditorPage({
 
                                         <div className={`photo-page ${!backgroundEnabled ? "zoomed" : ""}`}>
                                             {tmpl?.slots?.map((slotPosIndex, slotIdx) => {
-                                                // When bg is ON: canonical inline for 0..9 (others via CSS).
-                                                // When bg is OFF: use measured normalized rects (percent strings).
                                                 const inlinePos = backgroundEnabled
                                                     ? (getSlotRect(slotPosIndex, true) || null)
                                                     : (noBgRects?.[pi]?.[slotIdx] || null);
 
                                                 const imgSrc = getSlotSrc(ps, slotIdx);
-
-                                                // Subtle staggered transition when removing bg
                                                 const transitionDelay = !backgroundEnabled ? `${slotIdx * 40}ms` : "0ms";
+
+                                                const isEmpty = !imgSrc;
 
                                                 return (
                                                     <div
                                                         key={`${slotPosIndex}-${slotIdx}`}
-                                                        className={`photo-slot slot${slotPosIndex + 1}`}
+                                                        className={`photo-slot slot${slotPosIndex + 1} ${isEmpty ? "empty-slot" : ""}`}
                                                         data-page-index={pi}
                                                         data-slot-index={slotIdx}
                                                         ref={(el) => {
@@ -798,20 +825,25 @@ export default function EditorPage({
                                                             position: "absolute",
                                                             overflow: "hidden",
                                                             borderRadius: "4px",
-                                                            // hide until normalized rect is ready (prevents top-left shrink)
                                                             visibility: (!backgroundEnabled && !inlinePos) ? "hidden" : "visible",
-                                                            // animate geometry & opacity to make the change feel nicer
                                                             transition:
                                                                 "top 200ms ease, left 200ms ease, width 200ms ease, height 200ms ease, opacity 200ms ease, transform 200ms ease",
                                                             transitionDelay,
                                                             willChange: "top, left, width, height, opacity, transform",
+                                                            // NEW: give empty slots a black background
+                                                            background: isEmpty ? "#000" : undefined,
+                                                            display: "flex",
+                                                            alignItems: "center",
+                                                            justifyContent: "center",
                                                         }}
-                                                        onMouseDown={(e) => startDrag(pi, slotIdx, e)}
-                                                        onTouchStart={(e) => scheduleTouchDrag(pi, slotIdx, e)}
+                                                        onMouseDown={(e) => {
+                                                            if (!isEmpty) startDrag(pi, slotIdx, e);
+                                                        }}
+                                                        onTouchStart={(e) => {
+                                                            if (!isEmpty) scheduleTouchDrag(pi, slotIdx, e);
+                                                        }}
                                                         onTouchMove={(e) => {
-                                                            if (!dragActiveRef.current) {
-                                                                cancelTouchDrag();
-                                                            }
+                                                            if (!dragActiveRef.current) cancelTouchDrag();
                                                         }}
                                                         onTouchEnd={cancelTouchDrag}
                                                     >
@@ -823,21 +855,49 @@ export default function EditorPage({
                                                             />
                                                         )}
 
-                                                        {/* EDIT BUTTON overlay (doesn't trigger drag) */}
-                                                        <button
-                                                            className="slot-edit-btn"
-                                                            onMouseDown={(e) => e.stopPropagation()}
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                openCropper(pi, slotIdx);
-                                                            }}
-                                                            title="Edit crop"
-                                                        >
-                                                            <Edit size="small" />
-                                                        </button>
+                                                        {/* NEW: Placeholder "+" button for empty slots */}
+                                                        {isEmpty && (
+                                                            <button
+                                                                className="slot-add-btn"
+                                                                title="Add photo"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleUploadToSlot(pi, slotIdx);
+                                                                }}
+                                                                style={{
+                                                                    display: "inline-flex",
+                                                                    alignItems: "center",
+                                                                    justifyContent: "center",
+                                                                    width: 48,
+                                                                    height: 48,
+                                                                    borderRadius: "50%",
+                                                                    border: "none",
+                                                                    background: "rgba(255,255,255,0.9)",
+                                                                    cursor: "pointer",
+                                                                    boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
+                                                                }}
+                                                            >
+                                                                <Add />
+                                                            </button>
+                                                        )}
 
-                                                        {/* RESET BUTTON appears if cropped */}
-                                                        {ps.edits?.[slotIdx]?.previewDataUrl && (
+                                                        {/* EDIT BUTTON (hide when empty) */}
+                                                        {!isEmpty && (
+                                                            <button
+                                                                className="slot-edit-btn"
+                                                                onMouseDown={(e) => e.stopPropagation()}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    openCropper(pi, slotIdx);
+                                                                }}
+                                                                title="Edit crop"
+                                                            >
+                                                                <Edit size="small" />
+                                                            </button>
+                                                        )}
+
+                                                        {/* RESET BUTTON appears if cropped (hide when empty) */}
+                                                        {!isEmpty && ps.edits?.[slotIdx]?.previewDataUrl && (
                                                             <button
                                                                 className="slot-reset-btn"
                                                                 onMouseDown={(e) => e.stopPropagation()}
@@ -940,16 +1000,8 @@ export default function EditorPage({
             {/* Modals */}
             {showTemplateModal && (
                 <TemplateModal
-                    templates={(() => {
-                        // Only show templates that fit the available images for this page
-                        const total = images.filter(Boolean).length;
-                        const usedElsewhere = pageSettings.reduce((acc, p, idx) => {
-                            if (idx === templateModalPage) return acc;
-                            return acc + (p.assignedImages?.filter(Boolean).length ?? 0);
-                        }, 0);
-                        const available = Math.max(0, total - usedElsewhere);
-                        return pageTemplates.filter((t) => (t.slots?.length ?? 1) <= available);
-                    })()}
+                    // CHANGED: show ALL templates; we’ll create placeholders if needed
+                    templates={pageTemplates}
                     onSelect={(id) => pickTemplate(templateModalPage, id)}
                     onClose={() => setShowTemplateModal(false)}
                 />
@@ -973,11 +1025,43 @@ export default function EditorPage({
             <SettingsBar
                 backgroundEnabled={backgroundEnabled}
                 setBackgroundEnabled={setBackgroundEnabled}
-                onAddImages={onAddImages}
+                onAddImages={(incoming) => {
+                    //  Coerce to a safe array *always*
+                    const urls = Array.isArray(incoming)
+                        ? incoming.filter(Boolean)
+                        : (incoming ? [incoming] : []);
+
+                    if (!urls.length) {
+                        // S3/ImageKit flow may call without args – just ignore here
+                        // (Your ImageUploader will later feed URLs via its onContinue)
+                        return;
+                    }
+
+                    setPageSettings((prev) => {
+                        const next = [...prev];
+                        // Append to first page or create the first page
+                        if (next.length === 0) {
+                            next.push({
+                                templateId: 3,
+                                theme: { mode: "dynamic", color: null },
+                                assignedImages: [...urls],
+                                edits: new Array(urls.length).fill(null),
+                            });
+                        } else {
+                            next[0].assignedImages = [
+                                ...(Array.isArray(next[0].assignedImages) ? next[0].assignedImages : []),
+                                ...urls,
+                            ];
+                            next[0].edits = ensureEditsArray(next[0], next[0].assignedImages.length);
+                        }
+                        return next;
+                    });
+                }}
                 onOpenThemeModal={() => openThemeModal(null)}
                 onSave={handleSave}
                 onEditTitle={() => setShowTitleModal(true)}
             />
+
 
             {/* CROPPER MODAL */}
             {cropOpen && (

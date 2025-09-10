@@ -18,6 +18,15 @@ const IK_URL_ENDPOINT = process.env.REACT_APP_IMAGEKIT_URL_ENDPOINT || "";
 const getResizedUrl = (key, width = 300) =>
     `${IK_URL_ENDPOINT}/${encodeURI(key)}?tr=w-${width},fo-face&v=${Date.now()}`;
 
+const getFinalUrls = (ups) => {
+    const list = Array.isArray(ups) ? ups : [];
+    const out = list
+        .filter(u => u && u.status === "uploaded" && u.key)
+        // use ImageKit for full-size editor images (e.g. 1200 px wide)
+        .map(u => getResizedUrl(u.key, 1200))
+        .filter(Boolean);
+    return out.length ? out : []; // always an array
+};
 export default function ImageUploader({ sessionId, onContinue }) {
     const [uploads, setUploads] = useState([]);
     const [step, setStep] = useState(1);
@@ -121,7 +130,7 @@ export default function ImageUploader({ sessionId, onContinue }) {
         <div className="StyledGrommet-sc-19lkkz7-0 daORNg section-upload page-height-section">
             <Box className="page-header" background="gray">
                 <Box className="page-container" >
-                    <Box gap="large" style={{ maxWidth: '400px', width:'100%' }}>
+                    <Box gap="large" style={{ maxWidth: '400px', width: '100%' }}>
                         <Heading level={2}>
                             Upload Photo
                         </Heading>
@@ -136,9 +145,9 @@ export default function ImageUploader({ sessionId, onContinue }) {
                 <Box className="page-height-content-holder page-container">
                     {!shouldHideHeader && (
                         <Box className="upload-header" margin={{ bottom: "xxlarge" }}>
-                            <div class="img-holder">
-                                <img src="./ICON_DESKTOP.webp" class="hide-mobile" alt="" width="80" height="80" />
-                                <img src="./ICON_MOBILE.png" class="hide-desktop" alt="" width="80" height="80" />
+                            <div className="img-holder">
+                                <img src="./ICON_DESKTOP.webp" className="hide-mobile" alt="" width="80" height="80" />
+                                <img src="./ICON_MOBILE.png" className="hide-desktop" alt="" width="80" height="80" />
                             </div>
                             <Heading level={3}>Select 20 photos to start</Heading>
                             <Paragraph>You can change them later. The more photos you add, the better it looks.</Paragraph>
@@ -163,7 +172,10 @@ export default function ImageUploader({ sessionId, onContinue }) {
                                     allDone={readyToContinue}
                                     onBack={() => setStep(1)}
                                     onContinue={() => {
-                                        if (readyToContinue) onContinue(uploads);
+                                        if (!readyToContinue) return;
+                                        const urls = getFinalUrls(uploads);
+                                        // Always pass an array, even if empty
+                                        onContinue && onContinue(Array.isArray(urls) ? urls : []);
                                     }}
                                     fileInputRef={fileInputRef}
                                     // retry a failed thumbnail by regenerating the preview URL
@@ -175,7 +187,7 @@ export default function ImageUploader({ sessionId, onContinue }) {
                                     }}
                                 />
                             )}
-                        </Box> 
+                        </Box>
                     </Box>
                 </Box>
             </Box>
