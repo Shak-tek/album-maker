@@ -80,6 +80,34 @@
     /* avoid sub-pixel gaps */
 }
 
+.text-slot {
+    position: absolute;
+    border-radius: 4px;
+    overflow: hidden;
+    padding: 8px;
+    box-sizing: border-box;
+    background: #ffffff;
+    border: 1px solid #ccc;
+}
+
+.text-editor-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.text-editor-toolbar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 4px;
+}
+
+.text-editor-content {
+    flex: 1;
+    outline: none;
+    overflow: auto;
+}
+
 /* your exact slot positions from the snippet */
 .slot1 {
     top: 5%;
