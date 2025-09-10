@@ -10,11 +10,12 @@ export default function SettingsBar({
   setBorderEnabled,
   backgroundEnabled,
   setBackgroundEnabled,
-    onAddImages,
-    onOpenThemeModal,
-    onSave,
-    onEditTitle,
-  }) {
+  onAddImages,
+  onOpenThemeModal,
+  onSave,
+  onEditTitle,
+  fileInputRef,
+}) {
 const BackgroundIcon = () => (
   <svg
     viewBox="0 0 256 256"
@@ -66,13 +67,16 @@ const SavingIcon = () => (
 
 
 
-  const fileRef = useRef();
+  const internalRef = useRef();
+  const fileRef = fileInputRef || internalRef;
 
   const handleFiles = (e) => {
     const files = Array.from(e.target.files || []);
     if (files.length) {
       const urls = files.map(f => URL.createObjectURL(f));
-      onAddImages(urls);
+      if (typeof onAddImages === 'function') {
+        onAddImages(urls);
+      }
       e.target.value = '';
     }
   };

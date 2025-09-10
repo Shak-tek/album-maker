@@ -507,8 +507,11 @@ export default function App() {
           ) : view === "editor" ? (
             <EditorPage
               images={loadedImages}
-              onAddImages={(urls) =>
-                setLoadedImages((prev) => [...prev, ...urls])
+              onAddImages={(urls = []) =>
+                setLoadedImages((prev) => [
+                  ...prev,
+                  ...(Array.isArray(urls) ? urls : [urls]),
+                ])
               }
               albumSize={albumSize}
               s3={s3}

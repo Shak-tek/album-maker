@@ -129,29 +129,6 @@ function ensureEditsArray(ps, n) {
     return arr;
 }
 
-// pick unused images for new slots
-function takeMoreImagesForPage({ allImages, pages, pageIdx, need }) {
-    const used = new Set();
-    pages.forEach((p, i) => {
-        if (!Array.isArray(p.assignedImages)) return;
-        p.assignedImages.forEach((u) => {
-            if (u && i !== pageIdx) used.add(u);
-        });
-    });
-
-    const chosen = [];
-    // ✅ guard: treat falsy as empty array
-    for (const url of (allImages || [])) {
-        if (chosen.length >= need) break;
-        if (url && !used.has(url)) {
-            used.add(url);
-            chosen.push(url);
-        }
-    }
-    return chosen;
-}
-
-
 // NEW: track a slot awaiting an upload and a snapshot of prior images
 const usePrevious = (val) => {
     const ref = useRef(val);
@@ -162,7 +139,7 @@ const usePrevious = (val) => {
 export default function EditorPage(props) {
     const {
         images = [],
-        onAddImages,
+        onAddImages: onAddImagesProp,
         albumSize,
         s3,
         sessionId,
@@ -195,6 +172,8 @@ export default function EditorPage(props) {
     const dragActiveRef = useRef(false);
     const dragSrcRef = useRef({ page: null, slot: null });
     const touchTimerRef = useRef(null);
+    // reference to hidden file input in SettingsBar so we can trigger it from placeholders
+    const fileInputRef = useRef(null);
 
     // page containers (for PDF)
     const refs = useRef([]);
@@ -551,8 +530,10 @@ export default function EditorPage(props) {
     // NEW: click handler for "+" placeholder
     const handleUploadToSlot = (pageIdx, slotIdx) => {
         setPendingUploadTarget({ pageIdx, slotIdx });
-        // Reuse existing app flow (S3 + ImageKit) via parent’s handler
-        if (typeof onAddImages === "function") onAddImages();
+        // trigger the hidden file input from SettingsBar
+        if (fileInputRef.current) {
+            fileInputRef.current.click();
+        }
     };
 
     // ---------------- TEMPLATE & THEME ----------------
@@ -581,17 +562,8 @@ export default function EditorPage(props) {
                 // shrink
                 page.assignedImages = page.assignedImages.slice(0, newSlots);
             } else if (curr < newSlots) {
-                // grow: try to take unused images first…
-                const need = newSlots - curr;
-                const additions = takeMoreImagesForPage({
-                    allImages: images,
-                    pages: next,
-                    pageIdx: pi,
-                    need,
-                });
-
-                // …then pad remaining slots with null (placeholders)
-                const padded = [...page.assignedImages, ...additions];
+                // grow: pad remaining slots with null placeholders
+                const padded = [...page.assignedImages];
                 while (padded.length < newSlots) padded.push(null);
                 page.assignedImages = padded.slice(0, newSlots);
             }
@@ -1025,16 +997,23 @@ export default function EditorPage(props) {
             <SettingsBar
                 backgroundEnabled={backgroundEnabled}
                 setBackgroundEnabled={setBackgroundEnabled}
+                fileInputRef={fileInputRef}
                 onAddImages={(incoming) => {
-                    //  Coerce to a safe array *always*
+                    // Coerce to a safe array *always*
                     const urls = Array.isArray(incoming)
                         ? incoming.filter(Boolean)
-                        : (incoming ? [incoming] : []);
+                        : incoming
+                        ? [incoming]
+                        : [];
 
                     if (!urls.length) {
-                        // S3/ImageKit flow may call without args – just ignore here
-                        // (Your ImageUploader will later feed URLs via its onContinue)
+                        // Ignore calls without URLs (e.g. placeholder click just opened the dialog)
                         return;
+                    }
+
+                    // Inform parent so global image list stays in sync
+                    if (typeof onAddImagesProp === "function") {
+                        onAddImagesProp(urls);
                     }
 
                     setPageSettings((prev) => {
@@ -1048,11 +1027,22 @@ export default function EditorPage(props) {
                                 edits: new Array(urls.length).fill(null),
                             });
                         } else {
+                            const existing = new Set(
+                                Array.isArray(next[0].assignedImages)
+                                    ? next[0].assignedImages
+                                    : []
+                            );
+                            const unique = urls.filter((u) => !existing.has(u));
                             next[0].assignedImages = [
-                                ...(Array.isArray(next[0].assignedImages) ? next[0].assignedImages : []),
-                                ...urls,
+                                ...(Array.isArray(next[0].assignedImages)
+                                    ? next[0].assignedImages
+                                    : []),
+                                ...unique,
                             ];
-                            next[0].edits = ensureEditsArray(next[0], next[0].assignedImages.length);
+                            next[0].edits = ensureEditsArray(
+                                next[0],
+                                next[0].assignedImages.length
+                            );
                         }
                         return next;
                     });
