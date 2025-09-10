@@ -487,10 +487,13 @@ export default function App() {
           ) : view === "upload" ? (
             <ImageUploader
               sessionId={sessionId}
-              onContinue={(finishedUploads) => {
-                const keys = finishedUploads.map((u) => u.key);
-                const urls = keys.map((k) => getResizedUrl(k, 1000));
-                setLoadedImages(urls);
+              onContinue={(urls = []) => {
+                const list = Array.isArray(urls)
+                  ? urls.filter(Boolean)
+                  : urls
+                  ? [urls]
+                  : [];
+                setLoadedImages(list);
                 setView("title");
               }}
             />
