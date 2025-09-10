@@ -1016,6 +1016,11 @@ export default function EditorPage(props) {
                         onAddImagesProp(urls);
                     }
 
+                    // If a specific slot triggered the upload, defer pageSettings
+                    // mutation to the pendingUploadTarget effect. Otherwise append
+                    // new images to the first page (creating it if needed).
+                    if (pendingUploadTarget) return;
+
                     setPageSettings((prev) => {
                         const next = [...prev];
                         // Append to first page or create the first page
