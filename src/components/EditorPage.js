@@ -277,7 +277,7 @@ export default function EditorPage(props) {
 
             pages.push({
                 templateId: tmpl.id,
-                theme: { mode: "dynamic", color: null },
+                theme: { mode: "dynamic", color: null, image: null },
                 assignedImages: assigned,
                 edits: new Array(slotsCount).fill(null),
             });
@@ -318,7 +318,7 @@ export default function EditorPage(props) {
                     setPageSettings((prev) => {
                         if (prev[idx].theme.color === rgb) return prev;
                         const next = [...prev];
-                        next[idx] = { ...next[idx], theme: { mode: "dynamic", color: rgb } };
+                        next[idx] = { ...next[idx], theme: { mode: "dynamic", color: rgb, image: null } };
                         return next;
                     });
                 };
@@ -615,11 +615,18 @@ export default function EditorPage(props) {
         setShowThemeModal(true);
     };
 
-    const pickTheme = (pi, { mode, color }) => {
+    const pickTheme = (pi, { mode, color, image }) => {
         setPageSettings((prev) =>
             prev.map((s, i) => {
                 if (pi === null || pi === undefined || pi === -1 || i === pi) {
-                    return { ...s, theme: { mode, color: mode === "dynamic" ? null : color } };
+                    return {
+                        ...s,
+                        theme: {
+                            mode,
+                            color: mode === "dynamic" ? null : color,
+                            image: mode === "image" ? image : null,
+                        },
+                    };
                 }
                 return s;
             })
@@ -789,9 +796,16 @@ export default function EditorPage(props) {
                                 const tmpl = pageTemplates.find((t) => t.id === ps.templateId);
                                 if (!tmpl) return null;
                                 const bgColor = ps.theme.color || "transparent";
+                                const wrapperStyle = ps.theme.image
+                                    ? {
+                                          backgroundImage: `url(${ps.theme.image})`,
+                                          backgroundSize: "cover",
+                                          backgroundPosition: "center",
+                                      }
+                                    : { backgroundColor: bgColor };
 
                                 return (
-                                    <div key={pi} className="page-wrapper" style={{ backgroundColor: bgColor }}>
+                                    <div key={pi} className="page-wrapper" style={wrapperStyle}>
                                         <Box className="toolbar" direction="row" gap="small" align="center">
                                             {pi !== 0 && (
                                                 <Button
@@ -949,7 +963,13 @@ export default function EditorPage(props) {
                                     width: "100%",
                                     maxWidth: "400px",
                                     paddingTop: `${paddingPercent}%`,
-                                    backgroundColor: ps.theme.color || "transparent",
+                                    ...(ps.theme.image
+                                        ? {
+                                              backgroundImage: `url(${ps.theme.image})`,
+                                              backgroundSize: "cover",
+                                              backgroundPosition: "center",
+                                          }
+                                        : { backgroundColor: ps.theme.color || "transparent" }),
                                     overflow: "hidden",
                                     borderRadius: "12px",
                                 }}
@@ -1012,7 +1032,13 @@ export default function EditorPage(props) {
                 />
             )}
             {showThemeModal && (
-                <ThemeModal pageIdx={themeModalPage} onSelect={pickTheme} onClose={() => setShowThemeModal(false)} />
+                <ThemeModal
+                    pageIdx={themeModalPage}
+                    onSelect={pickTheme}
+                    onClose={() => setShowThemeModal(false)}
+                    s3={s3}
+                    sessionId={sessionId}
+                />
             )}
             {showTitleModal && (
                 <TitleModal
@@ -1087,7 +1113,7 @@ export default function EditorPage(props) {
                         if (next.length === 0) {
                             next.push({
                                 templateId: 3,
-                                theme: { mode: "dynamic", color: null },
+                                theme: { mode: "dynamic", color: null, image: null },
                                 assignedImages: [...uploaded],
                                 edits: new Array(uploaded.length).fill(null),
                             });
