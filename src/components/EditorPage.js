@@ -225,38 +225,46 @@ export default function EditorPage(props) {
         return edit?.previewDataUrl || ps.assignedImages[slotIdx];
     };
 
-      // ----------------- OPTIONAL: try restoring from server (Netlify) if nothing in localStorage -----------------
-          useEffect(() => {
-                if (restoredFromStorage || pageSettings.length) return;
-                if (!user || !sessionId) return;
-                let cancelled = false;
-                (async () => {
-                      try {
-                            const res = await fetch(`/.netlify/functions/session?sessionId=${encodeURIComponent(sessionId)}&userId=${encodeURIComponent(user.id)}`);
-                            if (!res.ok) return;
-                            const data = await res.json();
-                            const remote = data?.settings?.pageSettings;
-                            if (Array.isArray(remote) && !cancelled) {
-                                  setPageSettings(
-                                        remote.map((ps) => ({
-                                            ...ps,
-                                            edits: Array.isArray(ps.edits) ? ps.edits : [],
-                                            texts: Array.isArray(ps.texts) ? ps.texts : [],
-                                        }))
-                                      );
-                                  setImagesWarm(false);
-                                }
-                          } catch {
-                                // ignore; fall back to local init below
-                                  }
-                    })();
-                return () => { cancelled = true; };
-              }, [restoredFromStorage, pageSettings.length, user, sessionId]);
+    // force LTR + text style
+    const [textSettings, setTextSettings] = useState({
+        fontFamily: 'Inter, system-ui, Helvetica, Arial, sans-serif',
+        fontSize: 18,
+        color: '#000000',
+    });
+
+
+    // ----------------- OPTIONAL: try restoring from server (Netlify) if nothing in localStorage -----------------
+    useEffect(() => {
+        if (restoredFromStorage || pageSettings.length) return;
+        if (!user || !sessionId) return;
+        let cancelled = false;
+        (async () => {
+            try {
+                const res = await fetch(`/.netlify/functions/session?sessionId=${encodeURIComponent(sessionId)}&userId=${encodeURIComponent(user.id)}`);
+                if (!res.ok) return;
+                const data = await res.json();
+                const remote = data?.settings?.pageSettings;
+                if (Array.isArray(remote) && !cancelled) {
+                    setPageSettings(
+                        remote.map((ps) => ({
+                            ...ps,
+                            edits: Array.isArray(ps.edits) ? ps.edits : [],
+                            texts: Array.isArray(ps.texts) ? ps.texts : [],
+                        }))
+                    );
+                    setImagesWarm(false);
+                }
+            } catch {
+                // ignore; fall back to local init below
+            }
+        })();
+        return () => { cancelled = true; };
+    }, [restoredFromStorage, pageSettings.length, user, sessionId]);
     // initialize per-page assignments whenever `images` changes
     useEffect(() => {
         // Only auto-generate if we truly have nothing restored (no local, no remote)
-           if (pageSettings.length) return;
-          if (restoredFromStorage) return;
+        if (pageSettings.length) return;
+        if (restoredFromStorage) return;
 
         const remaining = images.slice();
         const pages = [];
@@ -812,10 +820,10 @@ export default function EditorPage(props) {
                                 const bgColor = ps.theme.color || "transparent";
                                 const wrapperStyle = ps.theme.image
                                     ? {
-                                          backgroundImage: `url(${ps.theme.image})`,
-                                          backgroundSize: "cover",
-                                          backgroundPosition: "center",
-                                      }
+                                        backgroundImage: `url(${ps.theme.image})`,
+                                        backgroundSize: "cover",
+                                        backgroundPosition: "center",
+                                    }
                                     : { backgroundColor: bgColor };
 
                                 return (
@@ -960,6 +968,7 @@ export default function EditorPage(props) {
                                                             if (!slotRefs.current[pi]) slotRefs.current[pi] = [];
                                                             slotRefs.current[pi][tmpl.slots.length + textIdx] = el || null;
                                                         }}
+                                                        dir="ltr"
                                                         style={{
                                                             ...(inlinePos || {}),
                                                             position: "absolute",
@@ -982,9 +991,17 @@ export default function EditorPage(props) {
                                             })}
 
                                             {pi === 0 && (
-                                                <div className="title-overlay">
-                                                    {title && <h1>{title}</h1>}
-                                                    {subtitle && <h2>{subtitle}</h2>}
+                                                <div
+                                                    className="title-overlay"
+                                                    dir="ltr"
+                                                    style={{
+                                                        fontFamily: textSettings.fontFamily,
+                                                        color: textSettings.color,
+                                                        textAlign: "left",
+                                                    }}
+                                                >
+                                                    {title && <h1 style={{ margin: 0 }}>{title}</h1>}
+                                                    {subtitle && <h2 style={{ margin: 0, opacity: 0.9 }}>{subtitle}</h2>}
                                                 </div>
                                             )}
                                         </div>
@@ -1013,10 +1030,10 @@ export default function EditorPage(props) {
                                     paddingTop: `${paddingPercent}%`,
                                     ...(ps.theme.image
                                         ? {
-                                              backgroundImage: `url(${ps.theme.image})`,
-                                              backgroundSize: "cover",
-                                              backgroundPosition: "center",
-                                          }
+                                            backgroundImage: `url(${ps.theme.image})`,
+                                            backgroundSize: "cover",
+                                            backgroundPosition: "center",
+                                        }
                                         : { backgroundColor: ps.theme.color || "transparent" }),
                                     overflow: "hidden",
                                     borderRadius: "12px",
@@ -1048,13 +1065,15 @@ export default function EditorPage(props) {
                                 {tmpl.textSlots?.map((slotPosIndex, textIdx) => {
                                     const inlinePos = getSlotRect(slotPosIndex, true);
                                     return (
-                                        <Box
-                                            key={`text-${slotPosIndex}-${textIdx}`}
-                                            className={`text-slot slot${slotPosIndex + 1}`}
+                                        +     <div
+                                            key={`text-${slotPosIndex}-${textIdx}`
+                                            }
+                                            className={`text-slot   slot${slotPosIndex + 1}`}
                                             style={{
                                                 position: "absolute",
                                                 ...(inlinePos || {}),
                                             }}
+                                            // IMPORTANT: no children at all on this element
                                             dangerouslySetInnerHTML={{ __html: ps.texts?.[textIdx] || "" }}
                                         />
                                     );
@@ -1118,7 +1137,12 @@ export default function EditorPage(props) {
             <SettingsBar
                 backgroundEnabled={backgroundEnabled}
                 setBackgroundEnabled={setBackgroundEnabled}
-                fileInputRef={fileInputRef}
+                fileInputRef={fileInputRef}            // you already have this in your version
+                onOpenThemeModal={() => openThemeModal(null)}
+                onSave={handleSave}
+                onEditTitle={() => setShowTitleModal(true)}
+                textSettings={textSettings}            // NEW
+                onChangeTextSettings={setTextSettings}
                 onAddImages={async (incoming) => {
                     const files = Array.isArray(incoming)
                         ? incoming.filter(Boolean)
@@ -1200,9 +1224,6 @@ export default function EditorPage(props) {
                         return next;
                     });
                 }}
-                onOpenThemeModal={() => openThemeModal(null)}
-                onSave={handleSave}
-                onEditTitle={() => setShowTitleModal(true)}
             />
 
 
