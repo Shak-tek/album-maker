@@ -1,29 +1,24 @@
 // src/components/TextEditor.jsx
 import React, { useEffect, useRef, useState, useCallback } from "react";
+import { Box } from "grommet";
 
-const FONT_SIZES = ["12px", "14px", "16px", "20px", "24px", "32px"];
-const FONT_FAMILIES = [
-  "inherit",
-  "Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif",
-  "Georgia, 'Times New Roman', Times, serif",
-  "'Courier New', Courier, monospace",
-];
+
+// Remove hidden bidi control characters that can flip order
+const stripBidi = (s) =>
+  s.replace(/[\u200E\u200F\u061C\u202A-\u202E\u2066-\u2069]/g, "");
 
 export default function TextEditor({
   value = "",
   onChange,
-  defaultDir = "ltr", // force left-to-right by default
 }) {
   const ref = useRef(null);
-  const [dir, setDir] = useState(defaultDir);  // "ltr" | "rtl"
   const [focusCaret, setFocusCaret] = useState(false);
 
-  // Keep DOM in sync with external value without fighting typing
+  // keep DOM in sync with external value
   useEffect(() => {
     if (!ref.current) return;
-    const next = value || "";
+    const next = stripBidi(value || "");
     if (ref.current.innerHTML !== next) {
-      // preserve scroll/caret best-effort
       const sel = document.getSelection();
       const wasFocused = document.activeElement === ref.current;
       ref.current.innerHTML = next;
@@ -34,7 +29,6 @@ export default function TextEditor({
   useEffect(() => {
     if (!focusCaret) return;
     setFocusCaret(false);
-    // place caret at end after external updates while focused
     const el = ref.current;
     if (!el) return;
     const range = document.createRange();
@@ -46,115 +40,42 @@ export default function TextEditor({
   }, [focusCaret]);
 
   const emit = useCallback(() => {
-    onChange?.(ref.current?.innerHTML || "");
+    onChange?.(stripBidi(ref.current?.innerHTML || ""));
   }, [onChange]);
 
-  // Simple wrappers for inline styles (font-size/family) using insertHTML
-  const wrapSelectionWithSpan = useCallback((styleString) => {
-    const sel = window.getSelection();
-    if (!sel || sel.rangeCount === 0) return;
-    const range = sel.getRangeAt(0);
-    if (range.collapsed) return; // only act when there's a selection
-    const frag = range.cloneContents();
-    const div = document.createElement("div");
-    div.appendChild(frag);
-    const html = div.innerHTML || range.toString();
-    const wrapped = `<span style="${styleString}">${html}</span>`;
-    document.execCommand("insertHTML", false, wrapped);
+  // sanitized plain-text paste
+  const onPaste = useCallback((e) => {
+    e.preventDefault();
+    const t = stripBidi((e.clipboardData || window.clipboardData).getData("text") || "");
+    document.execCommand("insertText", false, t);
     emit();
-    ref.current?.focus();
   }, [emit]);
-
-  const cmd = useCallback((command, value = null) => {
-    document.execCommand(command, false, value);
-    emit();
-    ref.current?.focus();
-  }, [emit]);
-
-  const setFontSize = (px) => wrapSelectionWithSpan(`font-size:${px}`);
-  const setFontFamily = (family) => wrapSelectionWithSpan(`font-family:${family}`);
 
   return (
-    <div className="text-editor">
-      {/* Toolbar */}
-      <div className="te-toolbar" role="toolbar" aria-label="text editor toolbar">
-        {/* Font family */}
-        <select
-          className="te-select"
-          title="Font family"
-          onChange={(e) => setFontFamily(e.target.value)}
-          defaultValue="inherit"
-        >
-          {FONT_FAMILIES.map((f, i) => (
-            <option key={i} value={f}>{f.split(",")[0].replace(/['"]/g, "")}</option>
-          ))}
-        </select>
-
-        {/* Font size */}
-        <select
-          className="te-select"
-          title="Font size"
-          onChange={(e) => setFontSize(e.target.value)}
-          defaultValue=""
-        >
-          <option value="" disabled>Size</option>
-          {FONT_SIZES.map((s) => (
-            <option key={s} value={s}>{s}</option>
-          ))}
-        </select>
-
-        <button type="button" className="te-btn" title="Bold" onClick={() => cmd("bold")}><b>B</b></button>
-        <button type="button" className="te-btn" title="Italic" onClick={() => cmd("italic")}><i>I</i></button>
-        <button type="button" className="te-btn" title="Underline" onClick={() => cmd("underline")}><u>U</u></button>
-
-        <span className="te-sep" />
-
-        <button type="button" className="te-btn" title="Align left" onClick={() => cmd("justifyLeft")}>⟸</button>
-        <button type="button" className="te-btn" title="Align center" onClick={() => cmd("justifyCenter")}>↔</button>
-        <button type="button" className="te-btn" title="Align right" onClick={() => cmd("justifyRight")}>⟹</button>
-
-        <span className="te-sep" />
-
-        {/* Direction toggle */}
-        <button
-          type="button"
-          className={`te-btn ${dir === "ltr" ? "te-active" : ""}`}
-          title="Left-to-right"
-          onClick={() => setDir("ltr")}
-        >
-          LTR
-        </button>
-        <button
-          type="button"
-          className={`te-btn ${dir === "rtl" ? "te-active" : ""}`}
-          title="Right-to-left"
-          onClick={() => setDir("rtl")}
-        >
-          RTL
-        </button>
-
-        <span className="te-sep" />
-
-        <button type="button" className="te-btn" title="Clear formatting"
-          onClick={() => { cmd("removeFormat"); cmd("unlink"); }}>
-          Clear
-        </button>
-      </div>
-
-      {/* Editable surface */}
-      <div
-        ref={ref}
-        className="te-content"
-        contentEditable
-        dir={dir} // ← force direction (fixes accidental RTL)
-        // IMPORTANT: no children when using dangerouslySetInnerHTML
-        dangerouslySetInnerHTML={{ __html: value || "" }}
-        onInput={emit}
-        // Keep the caret inside on click
-        onMouseDown={(e) => e.stopPropagation()}
-        onClick={(e) => e.stopPropagation()}
-        spellCheck={true}
-      />
-    </div>
+    <Box className="text-editor" gap="xsmall">
+      {/* Editable surface: LTR locked */}
+      <Box
+        round="xsmall"
+        border={{ color: "light-4" }}
+        background="white"
+        pad="small"
+        style={{ minHeight: 140, maxHeight: 320, overflowY: "auto" }}
+      >
+        <div
+          ref={ref}
+          contentEditable
+          className="te-content"
+          // hard-lock LTR writing order
+          dir="ltr"
+          style={{ outline: "none", direction: "ltr", unicodeBidi: "isolate" }}
+          dangerouslySetInnerHTML={{ __html: stripBidi(value || "") }}
+          onInput={emit}
+          onPaste={onPaste}
+          onMouseDown={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
+          spellCheck
+        />
+      </Box>
+    </Box>
   );
 }
