@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>admin dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 antialiased text-gray-800">
+<!-- slide-in menu -->
+<div id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-white shadow-xl transform -translate-x-full transition-transform duration-300 z-50">
+  <div class="p-6 border-b flex justify-between items-center">
+    <span class="text-lg text-indigo-600">menu</span>
+    <button id="closeMenu" class="text-gray-600 hover:text-indigo-600">&times;</button>
+  </div>
+  <nav class="p-4 space-y-3">
+    <a href="dashboard.html" class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-700">dashboard</a>
+    <a href="funnel.html" class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-700">order funnel</a>
+  </nav>
+</div>
+
+<!-- overlay -->
+<div id="overlay" class="fixed inset-0 bg-black/40 hidden z-40"></div>
+
+<!-- header -->
+<div class="p-6">
+
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <button id="openMenu" class="p-2 rounded-md hover:bg-indigo-100 text-gray-600 hover:text-indigo-700">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+  </svg>
+</button>
+    <div class="text-3xl text-indigo-700">dashboard</div>
+    <div class="flex items-center gap-2">
+      <div class="inline-flex rounded-xl border bg-white shadow-sm overflow-hidden">
+        <button data-range="today" class="px-3 py-2 text-sm text-gray-600 hover:bg-indigo-50">today</button>
+        <button data-range="week" class="px-3 py-2 text-sm text-gray-600 hover:bg-indigo-50 bg-indigo-100 text-indigo-700">week</button>
+        <button data-range="month" class="px-3 py-2 text-sm text-gray-600 hover:bg-indigo-50">month</button>
+      </div>
+      <div class="flex items-center gap-2">
+        <input id="dateFrom" type="date" class="border rounded-md p-2 shadow-sm focus:ring-2 focus:ring-indigo-400"/>
+        <span class="text-sm text-gray-500">to</span>
+        <input id="dateTo" type="date" class="border rounded-md p-2 shadow-sm focus:ring-2 focus:ring-indigo-400"/>
+        <button id="applyDates" class="px-3 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 transition">apply</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- kpi cards -->
+<div class="px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+  <div class="p-4 rounded-2xl shadow-md bg-gradient-to-tr from-sky-500 to-blue-500 text-white">
+    <div class="text-sm">paid orders</div>
+    <div id="kpiPaidOrders" class="mt-1 text-3xl">0</div>
+    <div id="kpiPaidDelta" class="mt-2 text-xs opacity-90">-</div>
+  </div>
+  <div class="p-4 rounded-2xl shadow-md bg-gradient-to-tr from-violet-500 to-purple-500 text-white">
+    <div class="text-sm">revenue</div>
+    <div id="kpiRevenue" class="mt-1 text-3xl">0</div>
+    <div id="kpiRevDelta" class="mt-2 text-xs opacity-90">-</div>
+  </div>
+  <div class="p-4 rounded-2xl shadow-md bg-gradient-to-tr from-amber-500 to-orange-500 text-white">
+    <div class="text-sm">awaiting print</div>
+    <div id="kpiToPrint" class="mt-1 text-3xl">0</div>
+    <div class="mt-2 text-xs opacity-90">in production queue</div>
+  </div>
+  <div class="p-4 rounded-2xl shadow-md bg-gradient-to-tr from-fuchsia-500 to-pink-500 text-white">
+    <div class="text-sm">abandoned orders</div>
+    <div id="kpiAbandoned" class="mt-1 text-3xl">0</div>
+    <div id="kpiAbandonedValue" class="mt-2 text-xs opacity-90">- value at risk</div>
+  </div>
+  <div class="p-4 rounded-2xl shadow-md bg-gradient-to-tr from-emerald-500 to-teal-500 text-white">
+    <div class="text-sm">new signups</div>
+    <div id="kpiSignups" class="mt-1 text-3xl">0</div>
+    <div class="mt-2 text-xs opacity-90">fresh user growth</div>
+  </div>
+  <div class="p-4 rounded-2xl shadow-md bg-gradient-to-tr from-gray-700 to-gray-600 text-white">
+    <div class="text-sm">active promotions</div>
+    <div id="kpiPromos" class="mt-1 text-3xl">0</div>
+    <div class="mt-2 text-xs opacity-90">running vouchers</div>
+  </div>
+</div>
+
+<!-- pipeline + revenue row -->
+<div class="px-6 mt-6 grid grid-cols-1 xl:grid-cols-2 gap-6">
+  <!-- production pipeline -->
+  <div class="bg-white rounded-2xl shadow-md p-6">
+    <div class="text-lg text-gray-700">order pipeline</div>
+    <div class="text-sm text-gray-500 mb-4">printing → packing → out for delivery → delivered</div>
+
+    <div class="space-y-2">
+      <div class="flex items-center justify-between text-sm text-gray-600">
+        <span>printing</span><span id="plPrintingCount">0</span>
+      </div>
+      <div class="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
+        <div id="plPrinting" class="h-full bg-gradient-to-r from-blue-400 to-blue-600 rounded-full" style="width:0%"></div>
+      </div>
+
+      <div class="flex items-center justify-between text-sm text-gray-600 mt-3">
+        <span>packing</span><span id="plPackingCount">0</span>
+      </div>
+      <div class="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
+        <div id="plPacking" class="h-full bg-gradient-to-r from-amber-400 to-orange-500 rounded-full" style="width:0%"></div>
+      </div>
+
+      <div class="flex items-center justify-between text-sm text-gray-600 mt-3">
+        <span>out for delivery</span><span id="plOutCount">0</span>
+      </div>
+      <div class="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
+        <div id="plOut" class="h-full bg-gradient-to-r from-fuchsia-400 to-pink-500 rounded-full" style="width:0%"></div>
+      </div>
+
+      <div class="flex items-center justify-between text-sm text-gray-600 mt-3">
+        <span>delivered</span><span id="plDeliveredCount">0</span>
+      </div>
+      <div class="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
+        <div id="plDelivered" class="h-full bg-gradient-to-r from-emerald-400 to-green-500 rounded-full" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="mt-4 flex flex-wrap gap-2 text-xs text-gray-500">
+      <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-50 text-blue-600">load today</span>
+      <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-50 text-amber-600">bottlenecks auto-detected soon</span>
+    </div>
+  </div>
+
+  <!-- revenue trend -->
+  <div class="bg-white rounded-2xl shadow-md p-6">
+    <div class="flex items-center justify-between">
+      <div class="text-lg text-gray-700">revenue trend</div>
+      <div class="text-sm text-gray-500">last 7 days</div>
+    </div>
+    <div class="mt-2 grid grid-cols-1 md:grid-cols-5 gap-4">
+      <div class="md:col-span-4">
+        <!-- simple svg chart -->
+        <svg id="revChart" viewBox="0 0 320 140" class="w-full h-40">
+          <rect x="0" y="0" width="320" height="140" fill="url(#bg)"/>
+          <defs>
+            <linearGradient id="area" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#6366f1" stop-opacity="0.35"/>
+              <stop offset="100%" stop-color="#6366f1" stop-opacity="0.05"/>
+            </linearGradient>
+            <linearGradient id="bg" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#ffffff"/>
+              <stop offset="100%" stop-color="#fafafa"/>
+            </linearGradient>
+          </defs>
+          <path id="revArea" d="" fill="url(#area)"></path>
+          <path id="revLine" d="" stroke="#6366f1" stroke-width="2" fill="none"></path>
+          <!-- paid orders bars -->
+          <g id="ordersBars"></g>
+        </svg>
+      </div>
+      <div class="md:col-span-1 text-sm">
+        <div id="revSummary" class="text-gray-700">-</div>
+        <div class="mt-2 text-gray-500">bars show paid orders count per day</div>
+        <div class="mt-4">
+          <div class="text-xs text-gray-500">target</div>
+          <div id="revTarget" class="text-xl text-emerald-600">-</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- abandoned + alerts + insights -->
+<div class="px-6 mt-6 grid grid-cols-1 2xl:grid-cols-3 gap-6">
+  <!-- abandoned orders -->
+  <div class="bg-white rounded-2xl shadow-md p-6">
+    <div class="text-lg text-gray-700">abandoned orders snapshot</div>
+    <div class="text-sm text-gray-500 mb-4">quick actions to recover revenue</div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="p-4 rounded-xl bg-gradient-to-tr from-pink-500 to-rose-400 text-white">
+        <div class="text-sm">count</div>
+        <div id="abCount" class="text-2xl mt-1">0</div>
+      </div>
+      <div class="p-4 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-400 text-white">
+        <div class="text-sm">value at risk</div>
+        <div id="abValue" class="text-2xl mt-1">0</div>
+      </div>
+      <div class="p-4 rounded-xl bg-gradient-to-tr from-indigo-500 to-blue-500 text-white">
+        <div class="text-sm">avg cart</div>
+        <div id="abAvg" class="text-2xl mt-1">0</div>
+      </div>
+    </div>
+
+    <div class="mt-4 flex flex-wrap gap-2">
+      <button class="px-3 py-2 rounded-md bg-pink-600 text-white hover:bg-pink-700">send voucher</button>
+      <button class="px-3 py-2 rounded-md bg-amber-600 text-white hover:bg-amber-700">send reminder email</button>
+      <button class="px-3 py-2 rounded-md bg-sky-600 text-white hover:bg-sky-700">send whatsapp</button>
+    </div>
+  </div>
+
+  <!-- alerts/actions -->
+  <div class="bg-white rounded-2xl shadow-md p-6">
+    <div class="text-lg text-gray-700">alerts and actions</div>
+    <div class="text-sm text-gray-500 mb-3">things to do now</div>
+    <div id="alertsList" class="space-y-2">
+      <!-- injected -->
+    </div>
+  </div>
+
+  <!-- customer insights -->
+  <div class="bg-white rounded-2xl shadow-md p-6">
+    <div class="text-lg text-gray-700">customer insights</div>
+    <div class="text-sm text-gray-500 mb-4">where users come from and what they create</div>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="p-4 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 text-white">
+        <div class="text-sm">top referrals</div>
+        <ul id="insReferrals" class="mt-2 text-sm space-y-1"></ul>
+      </div>
+      <div class="p-4 rounded-xl bg-gradient-to-tr from-teal-500 to-emerald-500 text-white">
+        <div class="text-sm">top occasions</div>
+        <ul id="insOccasions" class="mt-2 text-sm space-y-1"></ul>
+      </div>
+      <div class="p-4 rounded-xl bg-gradient-to-tr from-sky-500 to-blue-500 text-white">
+        <div class="text-sm">device split</div>
+        <ul id="insDevices" class="mt-2 text-sm space-y-1"></ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- footer spacer -->
+<div class="h-10"></div>
+
+<script>
+  // sample datasets for toggles
+  const datasets = {
+    today: {
+      paidOrders: 18, revenue: 98000, revTarget: 120000, paidDelta: '+8.4% vs yesterday',
+      toPrint: 14, packing: 9, out: 6, delivered: 51, totalPipeline: 80,
+      abandoned: { count: 6, value: 28000, avg: 4667 },
+      signups: 22, promos: 2,
+      revSeries: [12, 16, 9, 18, 22, 27, 24], // k revenue (thousands)
+      ordersSeries: [9, 12, 6, 15, 19, 21, 17],  // paid orders
+      alerts: [
+        { label: '12 albums ready for printing', tone: 'blue' },
+        { label: '7 labels need printing', tone: 'amber' },
+        { label: '3 orders delayed in packing', tone: 'rose' }
+      ],
+      insights: {
+        referrals: [['facebook', 38], ['instagram', 27], ['direct', 19]],
+        occasions: [['birthday', 34], ['wedding', 22], ['baby shower', 14]],
+        devices: [['mobile', 72], ['desktop', 22], ['tablet', 6]]
+      }
+    },
+    week: {
+      paidOrders: 141, revenue: 842000, revTarget: 900000, paidDelta: '+5.2% vs last week',
+      toPrint: 32, packing: 21, out: 14, delivered: 111, totalPipeline: 178,
+      abandoned: { count: 18, value: 92000, avg: 5111 },
+      signups: 128, promos: 3,
+      revSeries: [92, 110, 96, 124, 142, 160, 118],
+      ordersSeries: [19, 22, 20, 26, 29, 31, 24],
+      alerts: [
+        { label: '8 albums hitting 48h print SLA', tone: 'amber' },
+        { label: 'payment gateway error spike resolved', tone: 'emerald' },
+        { label: 'carrier delay in sindh region', tone: 'rose' }
+      ],
+      insights: {
+        referrals: [['facebook', 35], ['instagram', 29], ['direct', 18]],
+        occasions: [['birthday', 31], ['wedding', 25], ['travel', 12]],
+        devices: [['mobile', 69], ['desktop', 24], ['tablet', 7]]
+      }
+    },
+    month: {
+      paidOrders: 592, revenue: 3536000, revTarget: 3800000, paidDelta: '+3.1% vs last month',
+      toPrint: 77, packing: 46, out: 33, delivered: 503, totalPipeline: 659,
+      abandoned: { count: 71, value: 371000, avg: 5225 },
+      signups: 512, promos: 4,
+      revSeries: [120, 136, 142, 148, 160, 170, 176],
+      ordersSeries: [21, 26, 28, 30, 33, 36, 38],
+      alerts: [
+        { label: 'paper stock low: reorder today', tone: 'amber' },
+        { label: 'new template pack available', tone: 'indigo' },
+        { label: 'high abandon on checkout step', tone: 'rose' }
+      ],
+      insights: {
+        referrals: [['facebook', 33], ['instagram', 26], ['google ads', 21]],
+        occasions: [['birthday', 29], ['wedding', 27], ['anniversary', 15]],
+        devices: [['mobile', 68], ['desktop', 25], ['tablet', 7]]
+      }
+    }
+  };
+
+  // simple formatters
+  const nf = (n) => new Intl.NumberFormat().format(n);
+  const money = (n) => 'PKR ' + nf(n);
+
+  // populate dashboard
+  function populate(range='week') {
+    const d = datasets[range];
+
+    // kpis
+    document.getElementById('kpiPaidOrders').textContent = nf(d.paidOrders);
+    document.getElementById('kpiPaidDelta').textContent = d.paidDelta;
+    document.getElementById('kpiRevenue').textContent = money(d.revenue);
+    document.getElementById('kpiRevDelta').textContent = 'target ' + money(d.revTarget);
+    document.getElementById('kpiToPrint').textContent = nf(d.toPrint);
+    document.getElementById('kpiAbandoned').textContent = nf(d.abandoned.count);
+    document.getElementById('kpiAbandonedValue').textContent = money(d.abandoned.value);
+    document.getElementById('kpiSignups').textContent = nf(d.signups);
+    document.getElementById('kpiPromos').textContent = nf(d.promos);
+
+    // pipeline bars
+    const maxPipe = Math.max(d.toPrint, d.packing, d.out, d.delivered, 1);
+    const setBar = (id, countId, val) => {
+      document.getElementById(id).style.width = (val / maxPipe * 100) + '%';
+      document.getElementById(countId).textContent = nf(val);
+    };
+    setBar('plPrinting', 'plPrintingCount', d.toPrint);
+    setBar('plPacking', 'plPackingCount', d.packing);
+    setBar('plOut', 'plOutCount', d.out);
+    setBar('plDelivered', 'plDeliveredCount', d.delivered);
+
+    // revenue chart (simple svg)
+    drawRevenue(d.revSeries, d.ordersSeries, d.revTarget);
+
+    // abandoned widget
+    document.getElementById('abCount').textContent = nf(d.abandoned.count);
+    document.getElementById('abValue').textContent = money(d.abandoned.value);
+    document.getElementById('abAvg').textContent = money(d.abandoned.avg);
+
+    // alerts
+    const alertsEl = document.getElementById('alertsList');
+    alertsEl.innerHTML = '';
+    d.alerts.forEach(a => {
+      const tone = a.tone;
+      const bg = {
+        blue: 'bg-blue-50 text-blue-700 border-blue-100',
+        amber: 'bg-amber-50 text-amber-700 border-amber-100',
+        rose: 'bg-rose-50 text-rose-700 border-rose-100',
+        emerald: 'bg-emerald-50 text-emerald-700 border-emerald-100',
+        indigo: 'bg-indigo-50 text-indigo-700 border-indigo-100'
+      }[tone] || 'bg-gray-50 text-gray-700 border-gray-100';
+
+      const row = document.createElement('div');
+      row.className = `p-3 rounded-xl border ${bg}`;
+      row.textContent = a.label;
+      alertsEl.appendChild(row);
+    });
+
+    // insights
+    const setList = (id, arr) => {
+      const el = document.getElementById(id);
+      el.innerHTML = '';
+      arr.forEach(([k, v]) => {
+        const li = document.createElement('li');
+        li.className = 'flex items-center justify-between';
+        li.innerHTML = `<span>${k}</span><span>${v}%</span>`;
+        el.appendChild(li);
+      });
+    };
+    setList('insReferrals', d.insights.referrals);
+    setList('insOccasions', d.insights.occasions);
+    setList('insDevices', d.insights.devices);
+  }
+
+  // draw revenue line + bars
+  function drawRevenue(revSeries, ordersSeries, target) {
+    const w = 320, h = 140, pad = 10;
+    const maxRev = Math.max(...revSeries, 1);
+    const maxOrders = Math.max(...ordersSeries, 1);
+
+    const xStep = (w - pad*2) / (revSeries.length - 1);
+    const yRev = (v) => h - pad - (v / maxRev) * (h - pad*2);
+    const y0 = h - 20;
+
+    // line path
+    let dLine = '';
+    revSeries.forEach((v, i) => {
+      const x = pad + i * xStep;
+      const y = yRev(v);
+      dLine += (i === 0 ? `M ${x} ${y}` : ` L ${x} ${y}`);
+    });
+
+    // area path
+    let dArea = dLine + ` L ${pad + (revSeries.length-1)*xStep} ${y0} L ${pad} ${y0} Z`;
+
+    document.getElementById('revLine').setAttribute('d', dLine);
+    document.getElementById('revArea').setAttribute('d', dArea);
+
+    // bars for orders
+    const bars = document.getElementById('ordersBars');
+    bars.innerHTML = '';
+    ordersSeries.forEach((v, i) => {
+      const bw = 10;
+      const x = pad + i * xStep - bw/2;
+      const hBar = (v / maxOrders) * 40; // 40px max
+      const y = y0 - hBar;
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('x', x);
+      rect.setAttribute('y', y);
+      rect.setAttribute('width', bw);
+      rect.setAttribute('height', hBar);
+      rect.setAttribute('rx', 3);
+      rect.setAttribute('fill', '#22c55e');
+      rect.setAttribute('opacity', '0.9');
+      bars.appendChild(rect);
+    });
+
+    // summary numbers
+    const sum = revSeries.reduce((a,b)=>a+b,0);
+    document.getElementById('revSummary').textContent = 'total ' + money(sum*1000);
+    document.getElementById('revTarget').textContent = money(target);
+  }
+
+  // toggle handlers
+  document.querySelectorAll('button[data-range]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('button[data-range]').forEach(b => b.classList.remove('bg-indigo-100','text-indigo-700'));
+      btn.classList.add('bg-indigo-100','text-indigo-700');
+      populate(btn.getAttribute('data-range'));
+    });
+  });
+
+  // date filter placeholder
+  document.getElementById('applyDates').addEventListener('click', () => {
+    // fetch your api with dateFrom/dateTo, then call populate with the appropriate range or custom data
+    // this demo keeps the existing dataset
+  });
+
+  // initial load
+  populate('week');
+</script>
+
+</body>
+<script>
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  const openBtn = document.getElementById('openMenu');
+  const closeBtn = document.getElementById('closeMenu');
+
+  openBtn.addEventListener('click', () => {
+    sidebar.classList.remove('-translate-x-full');
+    overlay.classList.remove('hidden');
+  });
+  closeBtn.addEventListener('click', () => {
+    sidebar.classList.add('-translate-x-full');
+    overlay.classList.add('hidden');
+  });
+  overlay.addEventListener('click', () => {
+    sidebar.classList.add('-translate-x-full');
+    overlay.classList.add('hidden');
+  });
+</script>
+
+</html>

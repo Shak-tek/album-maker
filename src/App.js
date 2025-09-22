@@ -19,6 +19,8 @@ import ProductDetailPage from "./components/ProductDetailPage";
 import AlbumsPage from "./AlbumsPage";
 import LoginPage from "./LoginPage";
 import ProfilePage from "./ProfilePage";
+import AdminPanel from "./admin/AdminPanel";
+import AdminLogin from "./admin/AdminLogin";
 
 // theme
 /*
@@ -199,7 +201,7 @@ const IK_URL_ENDPOINT = process.env.REACT_APP_IMAGEKIT_URL_ENDPOINT || "";
 const getResizedUrl = (key, width = 1000) =>
   `${IK_URL_ENDPOINT}/${encodeURI(key)}?tr=w-${width},fo-face`;
 
-export default function App() {
+function MainApp() {
   const [sessionId, setSessionId] = useState(null);
   const [view, setView] = useState("login");
   const [user, setUser] = useState(null);
@@ -532,3 +534,95 @@ export default function App() {
     </Grommet>
   );
 }
+
+const ADMIN_SESSION_KEY = "flipsnip_admin_session_v1";
+
+const loadAdminSession = () => {
+  if (typeof window === "undefined") {
+    return null;
+  }
+  try {
+    const raw = window.localStorage.getItem(ADMIN_SESSION_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === "object" && parsed.id) {
+      return parsed;
+    }
+  } catch (err) {
+    // ignore malformed storage payloads
+  }
+  return null;
+};
+
+const storeAdminSession = (admin) => {
+  if (typeof window === "undefined") {
+    return;
+  }
+  try {
+    window.localStorage.setItem(
+      ADMIN_SESSION_KEY,
+      JSON.stringify(admin)
+    );
+  } catch (err) {
+    // storage might be unavailable (private mode)
+  }
+};
+
+const clearAdminSession = () => {
+  if (typeof window === "undefined") {
+    return;
+  }
+  try {
+    window.localStorage.removeItem(ADMIN_SESSION_KEY);
+  } catch (err) {
+    // ignore
+  }
+};
+
+function AdminRoot() {
+  const [admin, setAdmin] = useState(() => loadAdminSession());
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const syncSession = (event) => {
+      if (event.key && event.key !== ADMIN_SESSION_KEY) return;
+      setAdmin(loadAdminSession());
+    };
+    window.addEventListener("storage", syncSession);
+    return () => window.removeEventListener("storage", syncSession);
+  }, []);
+
+  const handleSignedIn = (adminUser) => {
+    storeAdminSession(adminUser);
+    setAdmin(adminUser);
+    if (
+      typeof window !== "undefined" &&
+      window.location.pathname !== "/admin"
+    ) {
+      window.history.replaceState({}, "", "/admin");
+    }
+  };
+
+  const handleSignOut = () => {
+    clearAdminSession();
+    setAdmin(null);
+  };
+
+  if (!admin) {
+    return <AdminLogin onSuccess={handleSignedIn} />;
+  }
+
+  return <AdminPanel admin={admin} onSignOut={handleSignOut} />;
+}
+export default function App() {
+  const isAdminRoute =
+    typeof window !== "undefined" &&
+    window.location.pathname.startsWith("/admin");
+
+  if (isAdminRoute) {
+    return <AdminRoot />;
+  }
+
+  return <MainApp />;
+}
+

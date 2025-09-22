@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>orders</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 antialiased text-gray-800">
+
+<!-- slide-in menu -->
+<div id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-white shadow-xl transform -translate-x-full transition-transform duration-300 z-50">
+  <div class="p-6 border-b flex justify-between items-center">
+    <span class="text-lg text-indigo-600">menu</span>
+    <button id="closeMenu" class="text-gray-600 hover:text-indigo-600" aria-label="close menu">&times;</button>
+  </div>
+  <nav class="p-4 space-y-3">
+    <a href="dashboard.html" class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-700">dashboard</a>
+    <a href="funnel.html" class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-700">order funnel</a>
+    <a href="orders.html" class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-700">orders</a>
+    <a href="labels.html" class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-700">print labels</a>
+  </nav>
+</div>
+
+<!-- overlay -->
+<div id="overlay" class="fixed inset-0 bg-black/40 hidden z-40"></div>
+
+<!-- page header -->
+<div class="p-6 flex items-center gap-4">
+  <button id="openMenu" class="p-2 rounded-md hover:bg-indigo-100 text-gray-600 hover:text-indigo-700" aria-label="open menu">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+    </svg>
+  </button>
+  <div class="text-2xl text-indigo-700">orders</div>
+</div>
+
+<!-- summary and filters -->
+<div class="px-6">
+  <div class="bg-white rounded-2xl shadow-md p-4">
+    <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+      <!-- filters -->
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+        <div class="col-span-2">
+          <label class="text-xs text-gray-500" for="filterSearch">search</label>
+          <input id="filterSearch" type="text" placeholder="order id, name, email, phone" class="w-full mt-1 border rounded-md p-2 shadow-sm focus:ring-2 focus:ring-indigo-400"/>
+        </div>
+        <div>
+          <label class="text-xs text-gray-500" for="filterStatus">status</label>
+          <select id="filterStatus" class="w-full mt-1 border rounded-md p-2 shadow-sm focus:ring-2 focus:ring-indigo-400">
+            <option value="">all</option>
+            <option value="in_printing">in printing</option>
+            <option value="ready_for_packing">Ready for Packing</option>
+            <option value="ready_for_delivery">Ready for Delivery</option>
+            <option value="delivered">delivered</option>
+            <option value="cancelled">cancelled</option>
+            <option value="abandoned">abandoned</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs text-gray-500" for="filterSize">album size</label>
+          <select id="filterSize" class="w-full mt-1 border rounded-md p-2 shadow-sm focus:ring-2 focus:ring-indigo-400">
+            <option value="">all</option>
+            <option value="small">small</option>
+            <option value="medium">medium</option>
+            <option value="large">large</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs text-gray-500" for="filterCity">city</label>
+          <input id="filterCity" type="text" placeholder="city" class="w-full mt-1 border rounded-md p-2 shadow-sm focus:ring-2 focus:ring-indigo-400"/>
+        </div>
+        <div>
+          <label class="text-xs text-gray-500" for="filterFrom">from</label>
+          <input id="filterFrom" type="date" class="w-full mt-1 border rounded-md p-2 shadow-sm focus:ring-2 focus:ring-indigo-400"/>
+        </div>
+        <div>
+          <label class="text-xs text-gray-500" for="filterTo">to</label>
+          <input id="filterTo" type="date" class="w-full mt-1 border rounded-md p-2 shadow-sm focus:ring-2 focus:ring-indigo-400"/>
+        </div>
+        <div class="md:col-span-2 flex items-end gap-2">
+          <button id="applyFilters" class="px-3 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700">apply</button>
+          <button id="resetFilters" class="px-3 py-2 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200">reset</button>
+        </div>
+      </div>
+
+      <!-- quick actions -->
+      <div class="flex flex-wrap gap-2">
+        <button class="px-3 py-2 rounded-md bg-emerald-600 text-white hover:bg-emerald-700" disabled>export csv</button>
+        <button class="px-3 py-2 rounded-md bg-amber-600 text-white hover:bg-amber-700" disabled>print labels (Ready for packing)</button>
+        <button class="px-3 py-2 rounded-md bg-pink-600 text-white hover:bg-pink-700" disabled>send vouchers (abandoned)</button>
+      </div>
+    </div>
+
+    <!-- mini kpis -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-8 gap-3 mt-4">
+      <div class="p-3 rounded-xl text-white bg-gradient-to-tr from-sky-500 to-blue-500">
+        <div class="text-xs">new orders (7d)</div>
+        <div id="kpiNewOrders" class="text-2xl mt-1">0</div>
+      </div>
+      <div class="p-3 rounded-xl text-white bg-gradient-to-tr from-emerald-500 to-teal-500">
+        <div class="text-xs">ready for printing</div>
+        <div id="kpiPrinting" class="text-2xl mt-1">0</div>
+      </div>
+      <div class="p-3 rounded-xl text-white bg-gradient-to-tr from-purple-500 to-indigo-500">
+        <div class="text-xs">delivered</div>
+        <div id="kpiDelivered" class="text-2xl mt-1">0</div>
+      </div>
+      <div class="p-3 rounded-xl text-white bg-gradient-to-tr from-rose-500 to-pink-400">
+        <div class="text-xs">abandoned</div>
+        <div id="kpiAbandoned" class="text-2xl mt-1">0</div>
+      </div>
+      <div class="p-3 rounded-xl text-white bg-gradient-to-tr from-violet-500 to-purple-500">
+        <div class="text-xs">revenue</div>
+        <div id="kpiRevenue" class="text-2xl mt-1">PKR 0</div>
+      </div>
+      <div class="p-3 rounded-xl text-white bg-gradient-to-tr from-gray-700 to-gray-600">
+        <div class="text-xs">avg order value</div>
+        <div id="kpiAov" class="text-2xl mt-1">PKR 0</div>
+      </div>
+      <div class="p-3 rounded-xl text-white bg-gradient-to-tr from-blue-500 to-indigo-500">
+        <div class="text-xs">total orders</div>
+        <div id="kpiTotal" class="text-2xl mt-1">0</div>
+      </div>
+      <div class="p-3 rounded-xl text-white bg-gradient-to-tr from-amber-500 to-orange-500">
+        <div class="text-xs">pending fulfilment</div>
+        <div id="kpiPending" class="text-2xl mt-1">0</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- tabs -->
+<div class="px-6 mt-6">
+  <div class="bg-white rounded-2xl shadow-md p-4 flex items-center gap-2">
+    <button id="tabCompleted" class="px-4 py-2 rounded-md bg-indigo-600 text-white">completed</button>
+    <button id="tabAbandoned" class="px-4 py-2 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200">abandoned</button>
+  </div>
+</div>
+
+<!-- orders grid -->
+<div class="px-6 mt-3">
+  <div class="bg-white p-6 rounded-2xl shadow-md">
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm text-left border-separate border-spacing-y-2">
+        <thead class="bg-indigo-100 text-indigo-700">
+          <tr>
+            <th class="p-2"><input type="checkbox" aria-label="select all" disabled/></th>
+            <th class="p-2">order id</th>
+            <th class="p-2">full name</th>
+            <th class="p-2">email</th>
+            <th class="p-2">phone</th>
+            <th class="p-2">city</th>
+            <th class="p-2">amount paid</th>
+            <th class="p-2">album size</th>
+            <th class="p-2">order date</th>
+            <th class="p-2">images</th>
+            <th class="p-2">pages</th>
+            <th class="p-2">status</th>
+            <th class="p-2">actions</th>
+          </tr>
+        </thead>
+        <tbody id="ordersBody">
+          <tr>
+            <td class="p-4 text-center text-gray-500" colspan="13">loading orders...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- bulk actions + pagination -->
+    <div class="mt-4 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+      <div class="flex items-center gap-2">
+        <select class="border rounded-md p-2 shadow-sm" disabled>
+          <option>bulk action</option>
+        </select>
+        <button class="px-3 py-2 rounded-md bg-gray-800 text-white" disabled>apply</button>
+      </div>
+      <div class="flex items-center gap-2 text-sm text-gray-500">
+        data updates as you scroll ? paging coming soon
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- timeline modal -->
+<div id="timelineModal" class="fixed inset-0 z-50 hidden items-center justify-center">
+  <div class="absolute inset-0 bg-black/40"></div>
+  <div class="relative bg-white w-[90%] max-w-md rounded-2xl p-6 shadow-2xl">
+    <div class="flex items-center justify-between mb-4 border-b pb-2">
+      <div class="text-lg text-indigo-600">order timeline</div>
+      <button id="closeTimeline" class="p-1 rounded hover:bg-gray-100" aria-label="close">&times;</button>
+    </div>
+    <div class="space-y-2 text-sm">
+      <div class="flex justify-between"><span>start date</span><span id="tlStart">-</span></div>
+      <div class="flex justify-between"><span>completed date</span><span id="tlCompleted">-</span></div>
+      <div class="flex justify-between"><span>payment date</span><span id="tlPayment">-</span></div>
+    </div>
+    <div class="mt-6 flex justify-end">
+      <button id="okTimeline" class="px-4 py-2 rounded-md bg-indigo-600 text-white">ok</button>
+    </div>
+  </div>
+</div>
+
+<!-- details modal -->
+<div id="detailsModal" class="fixed inset-0 z-50 hidden items-center justify-center">
+  <div class="absolute inset-0 bg-black/40"></div>
+  <div class="relative bg-white w-[90%] max-w-md rounded-2xl p-6 shadow-2xl">
+    <div class="flex items-center justify-between mb-4 border-b pb-2">
+      <div class="text-lg text-pink-600">order details</div>
+      <button id="closeDetails" class="p-1 rounded hover:bg-gray-100" aria-label="close">&times;</button>
+    </div>
+    <div class="space-y-2 text-sm">
+      <div class="flex justify-between"><span>device info</span><span id="dtDevice">-</span></div>
+      <div class="flex justify-between"><span>referral source</span><span id="dtReferral">-</span></div>
+      <div class="flex justify-between"><span>occasion</span><span id="dtOccasion">-</span></div>
+      <div class="flex justify-between"><span>occasion date</span><span id="dtOdate">-</span></div>
+      <div class="flex justify-between"><span>person name</span><span id="dtPerson">-</span></div>
+      <div class="flex justify-between"><span>relationship</span><span id="dtRelationship">-</span></div>
+    </div>
+    <div class="mt-6 flex justify-end">
+      <button id="okDetails" class="px-4 py-2 rounded-md bg-pink-600 text-white">ok</button>
+    </div>
+  </div>
+</div>
+
+<!-- tailwind color guard -->
+<div class="hidden bg-indigo-100 text-indigo-700 hover:bg-indigo-200 bg-yellow-100 text-yellow-700 hover:bg-yellow-200 bg-green-100 text-green-700 hover:bg-green-200"></div>
+<!-- payment log modal -->
+<div id="paymentModal" class="fixed inset-0 z-50 hidden items-center justify-center">
+  <div class="absolute inset-0 bg-black/40"></div>
+  <div class="relative bg-white w-[90%] max-w-md rounded-2xl p-6 shadow-2xl">
+    <div class="flex items-center justify-between mb-4 border-b pb-2">
+      <div class="text-lg text-indigo-600">payment log</div>
+      <button id="closePayment" class="p-1 rounded hover:bg-gray-100" aria-label="close">&times;</button>
+    </div>
+    <div class="space-y-2 text-sm">
+      <div class="flex items-center justify-between border-b pb-2">
+        <span>transaction id</span>
+        <span id="pmTrans" class="text-gray-700">-</span>
+      </div>
+      <div class="flex items-center justify-between border-b pb-2">
+        <span>method</span>
+        <span id="pmMethod" class="text-gray-700">-</span>
+      </div>
+      <div class="flex items-center justify-between border-b pb-2">
+        <span>amount</span>
+        <span id="pmAmount" class="text-gray-700">-</span>
+      </div>
+      <div class="flex items-center justify-between border-b pb-2">
+        <span>date</span>
+        <span id="pmDate" class="text-gray-700">-</span>
+      </div>
+      <div class="flex items-center justify-between">
+        <span>status</span>
+        <span id="pmStatus" class="text-gray-700">-</span>
+      </div>
+    </div>
+    <div class="mt-6 flex justify-end">
+      <button id="okPayment" class="px-4 py-2 rounded-md bg-indigo-600 text-white">ok</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  document.getElementById('openMenu').addEventListener('click', () => {
+    sidebar.classList.remove('-translate-x-full');
+    overlay.classList.remove('hidden');
+  });
+  document.getElementById('closeMenu').addEventListener('click', () => {
+    sidebar.classList.add('-translate-x-full');
+    overlay.classList.add('hidden');
+  });
+  overlay.addEventListener('click', () => {
+    sidebar.classList.add('-translate-x-full');
+    overlay.classList.add('hidden');
+  });
+
+  const timelineModal = document.getElementById('timelineModal');
+  const tlStart = document.getElementById('tlStart');
+  const tlCompleted = document.getElementById('tlCompleted');
+  const tlPayment = document.getElementById('tlPayment');
+
+  const detailsModal = document.getElementById('detailsModal');
+  const dtDevice = document.getElementById('dtDevice');
+  const dtReferral = document.getElementById('dtReferral');
+  const dtOccasion = document.getElementById('dtOccasion');
+  const dtOdate = document.getElementById('dtOdate');
+  const dtPerson = document.getElementById('dtPerson');
+  const dtRelationship = document.getElementById('dtRelationship');
+
+  const paymentModal = document.getElementById('paymentModal');
+  const pmTrans = document.getElementById('pmTrans');
+  const pmMethod = document.getElementById('pmMethod');
+  const pmAmount = document.getElementById('pmAmount');
+  const pmDate = document.getElementById('pmDate');
+  const pmStatus = document.getElementById('pmStatus');
+
+  const ordersBody = document.getElementById('ordersBody');
+  const tabCompleted = document.getElementById('tabCompleted');
+  const tabAbandoned = document.getElementById('tabAbandoned');
+
+  const filters = {
+    search: '',
+    status: '',
+    size: '',
+    city: '',
+    from: '',
+    to: ''
+  };
+
+  const state = {
+    orders: [],
+    view: 'completed'
+  };
+
+  const filterInputs = {
+    search: document.getElementById('filterSearch'),
+    status: document.getElementById('filterStatus'),
+    size: document.getElementById('filterSize'),
+    city: document.getElementById('filterCity'),
+    from: document.getElementById('filterFrom'),
+    to: document.getElementById('filterTo')
+  };
+
+  const kpi = {
+    newOrders: document.getElementById('kpiNewOrders'),
+    printing: document.getElementById('kpiPrinting'),
+    delivered: document.getElementById('kpiDelivered'),
+    abandoned: document.getElementById('kpiAbandoned'),
+    revenue: document.getElementById('kpiRevenue'),
+    aov: document.getElementById('kpiAov'),
+    total: document.getElementById('kpiTotal'),
+    pending: document.getElementById('kpiPending')
+  };
+
+  const toDate = (value) => {
+    if (!value) return null;
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date;
+  };
+
+  const formatDate = (value) => {
+    const date = toDate(value);
+    return date ? date.toLocaleDateString('en-CA') : '-';
+  };
+
+  const formatCurrency = (amount, currency = 'PKR') => {
+    const value = Number(amount) || 0;
+    return `${currency.toUpperCase()} ${value.toLocaleString('en-US', { minimumFractionDigits: 0 })}`;
+  };
+
+  const statusStyles = (status) => {
+    const key = (status || '').toLowerCase();
+    if (key === 'in_printing' || key === 'in printing') return { label: 'in printing', className: 'text-emerald-600' };
+    if (key === 'ready_for_packing' || key === 'ready for packing') return { label: 'Ready for Packing', className: 'text-amber-600' };
+    if (key === 'ready_for_delivery' || key === 'ready for delivery') return { label: 'Ready for Delivery', className: 'text-blue-600' };
+    if (key === 'delivered') return { label: 'delivered', className: 'text-indigo-600' };
+    if (key === 'abandoned') return { label: 'abandoned', className: 'text-rose-600' };
+    if (key === 'cancelled') return { label: 'cancelled', className: 'text-gray-500' };
+    return { label: status || '-', className: 'text-gray-600' };
+  };
+
+  const renderEmpty = (message) => {
+    ordersBody.innerHTML = '';
+    const row = document.createElement('tr');
+    const cell = document.createElement('td');
+    cell.colSpan = 13;
+    cell.className = 'p-4 text-center text-gray-500';
+    cell.textContent = message;
+    row.appendChild(cell);
+    ordersBody.appendChild(row);
+  };
+
+  const withinRange = (orderDate, from, to) => {
+    const date = toDate(orderDate);
+    if (!date) return true;
+    if (from) {
+      const start = toDate(from);
+      if (start && date < start) return false;
+    }
+    if (to) {
+      const end = toDate(to);
+      if (end && date > end) return false;
+    }
+    return true;
+  };
+
+  const applyFilters = (order) => {
+    const search = filters.search.trim().toLowerCase();
+    if (search) {
+      const haystack = [
+        order.orderNumber,
+        order.userName,
+        order.userEmail,
+        order.userPhone
+      ].map((value) => (value || '').toString().toLowerCase());
+      const match = haystack.some((value) => value.includes(search));
+      if (!match) return false;
+    }
+
+    if (filters.status) {
+      const key = (order.status || '').toLowerCase().replace(/\s+/g, '_');
+      if (key !== filters.status) return false;
+    }
+
+    if (filters.size) {
+      const size = (order.albumSize || '').toLowerCase();
+      if (size !== filters.size) return false;
+    }
+
+    if (filters.city) {
+      const city = (order.city || '').toLowerCase();
+      if (!city.includes(filters.city)) return false;
+    }
+
+    if (!withinRange(order.orderDate, filters.from, filters.to)) {
+      return false;
+    }
+
+    return true;
+  };
+
+  const viewFilter = (order) => {
+    const key = (order.status || '').toLowerCase();
+    if (state.view === 'abandoned') {
+      return key === 'abandoned';
+    }
+    return key !== 'abandoned';
+  };
+
+  const buttonStyles = {
+    indigo: 'px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700 hover:bg-indigo-200',
+    yellow: 'px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 hover:bg-yellow-200',
+    green: 'px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 hover:bg-green-200'
+  };
+
+  const buildActionButton = (label, tone) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = label;
+    button.className = buttonStyles[tone] || buttonStyles.indigo;
+    button.disabled = true;
+    return button;
+  };
+
+  const paymentCellAppend = (cell, button) => {
+    const wrapper = document.createElement('span');
+    wrapper.className = 'inline-flex items-center gap-1';
+    wrapper.appendChild(button);
+    cell.appendChild(document.createTextNode(' '));
+    cell.appendChild(wrapper);
+  };
+
+  const renderOrders = () => {
+    const filtered = state.orders.filter(applyFilters).filter(viewFilter);
+    if (!filtered.length) {
+      renderEmpty('no orders match the current filters');
+      return;
+    }
+
+    ordersBody.innerHTML = '';
+
+    filtered.forEach((order) => {
+      const row = document.createElement('tr');
+      row.className = 'bg-gray-50 hover:bg-gray-100 transition';
+
+      const selectCell = document.createElement('td');
+      selectCell.className = 'p-2';
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.disabled = true;
+      selectCell.appendChild(checkbox);
+      row.appendChild(selectCell);
+
+      const addCell = (text, className = 'p-2') => {
+        const cell = document.createElement('td');
+        cell.className = className;
+        cell.textContent = text;
+        row.appendChild(cell);
+      };
+
+      addCell(order.orderNumber || '-');
+      addCell(order.userName || '-');
+      addCell(order.userEmail || '-');
+      addCell(order.userPhone || '-');
+      addCell(order.city || '-');
+
+      const amountCell = document.createElement('td');
+      amountCell.className = 'p-2';
+      amountCell.textContent = formatCurrency(order.amountPaid, order.currency);
+      if (order.paymentTransactionId || order.paymentMethod || order.paymentDate) {
+        const paymentBtn = document.createElement('button');
+        paymentBtn.type = 'button';
+        paymentBtn.textContent = 'log';
+        paymentBtn.className = 'px-2 py-1 text-xs rounded-md bg-indigo-100 text-indigo-600 hover:bg-indigo-200';
+        paymentBtn.setAttribute('data-payment-log', 'true');
+        paymentBtn.setAttribute('data-trans', order.paymentTransactionId || '-');
+        paymentBtn.setAttribute('data-method', order.paymentMethod || '-');
+        paymentBtn.setAttribute('data-amount', Number(order.amountPaid || 0));
+        paymentBtn.setAttribute('data-date', formatDate(order.paymentDate));
+        paymentBtn.setAttribute('data-status', order.paymentStatus || '-');
+        paymentCellAppend(amountCell, paymentBtn);
+      }
+      row.appendChild(amountCell);
+
+      addCell((order.albumSize || '-').toString().toLowerCase());
+
+      const dateCell = document.createElement('td');
+      dateCell.className = 'p-2 flex items-center gap-2';
+      const orderDate = document.createElement('span');
+      orderDate.textContent = formatDate(order.orderDate);
+      dateCell.appendChild(orderDate);
+      if (order.productionStartedAt || order.productionCompletedAt || order.paymentDate) {
+        const timelineBtn = document.createElement('button');
+        timelineBtn.type = 'button';
+        timelineBtn.className = 'p-1 rounded hover:bg-indigo-100';
+        timelineBtn.setAttribute('aria-label', 'view timeline');
+        timelineBtn.setAttribute('data-start', formatDate(order.productionStartedAt));
+        timelineBtn.setAttribute('data-completed', formatDate(order.productionCompletedAt));
+        timelineBtn.setAttribute('data-payment', formatDate(order.paymentDate));
+        timelineBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10A8 8 0 11 2 10a8 8 0 0116 0zM9 9a1 1 0 112 0v5a1 1 0 11-2 0V9zm1-4a1.5 1.5 0 100 3 1.5 1.5 0 000-3z" clip-rule="evenodd"/></svg>';
+        dateCell.appendChild(timelineBtn);
+      }
+      row.appendChild(dateCell);
+
+      addCell(order.imagesCount !== null && order.imagesCount !== undefined ? order.imagesCount : '-');
+      addCell(order.pagesCount !== null && order.pagesCount !== undefined ? order.pagesCount : '-');
+
+      const statusCell = document.createElement('td');
+      statusCell.className = 'p-2';
+      const { label, className } = statusStyles(order.status);
+      statusCell.classList.add(className);
+      statusCell.textContent = label;
+      row.appendChild(statusCell);
+
+      const actionsCell = document.createElement('td');
+      actionsCell.className = 'p-2';
+      const actionsWrapper = document.createElement('div');
+      actionsWrapper.className = 'flex flex-wrap gap-2';
+      const viewBtn = buildActionButton('view', 'indigo');
+      const editBtn = buildActionButton('edit', 'yellow');
+      const downloadBtn = buildActionButton('download', 'green');
+      const detailsBtn = document.createElement('button');
+      detailsBtn.type = 'button';
+      detailsBtn.textContent = 'details';
+      detailsBtn.className = 'px-2 py-1 rounded-full text-xs font-medium bg-pink-100 text-pink-700 hover:bg-pink-200';
+      detailsBtn.setAttribute('data-details', 'true');
+      detailsBtn.setAttribute('data-device', order.deviceInfo || '-');
+      detailsBtn.setAttribute('data-referral', order.referralSource || '-');
+      detailsBtn.setAttribute('data-occasion', order.occasion || '-');
+      detailsBtn.setAttribute('data-odate', formatDate(order.occasionDate));
+      detailsBtn.setAttribute('data-person', order.giftRecipientName || '-');
+      detailsBtn.setAttribute('data-relationship', order.giftRecipientRelationship || '-');
+      actionsWrapper.append(viewBtn, editBtn, downloadBtn, detailsBtn);
+      actionsCell.appendChild(actionsWrapper);
+      row.appendChild(actionsCell);
+
+      ordersBody.appendChild(row);
+    });
+  };
+
+  const updateKpis = (orders) => {
+    const now = new Date();
+    const periodStart = new Date(now);
+    periodStart.setDate(now.getDate() - 7);
+    const newOrders = orders.filter((order) => {
+      const date = toDate(order.orderDate);
+      return date && date >= periodStart;
+    }).length;
+
+    const statusCounts = orders.reduce((acc, order) => {
+      const key = (order.status || '').toLowerCase();
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    }, {});
+
+    const revenue = orders.reduce((sum, order) => sum + (Number(order.amountPaid) || 0), 0);
+    const pending = orders.filter((order) => {
+      const key = (order.status || '').toLowerCase();
+      return ['in_printing', 'ready_for_packing', 'ready_for_delivery'].includes(key);
+    }).length;
+
+    kpi.newOrders.textContent = newOrders;
+    kpi.printing.textContent = statusCounts['in_printing'] || 0;
+    kpi.delivered.textContent = statusCounts['delivered'] || 0;
+    kpi.abandoned.textContent = statusCounts['abandoned'] || 0;
+    kpi.revenue.textContent = formatCurrency(revenue);
+    kpi.aov.textContent = orders.length ? formatCurrency(revenue / orders.length) : 'PKR 0';
+    kpi.total.textContent = orders.length;
+    kpi.pending.textContent = pending;
+  };
+
+  const setActiveTab = (view) => {
+    state.view = view;
+    if (view === 'completed') {
+      tabCompleted.classList.add('bg-indigo-600', 'text-white');
+      tabCompleted.classList.remove('bg-gray-100', 'text-gray-700');
+      tabAbandoned.classList.add('bg-gray-100', 'text-gray-700');
+      tabAbandoned.classList.remove('bg-indigo-600', 'text-white');
+    } else {
+      tabAbandoned.classList.add('bg-indigo-600', 'text-white');
+      tabAbandoned.classList.remove('bg-gray-100', 'text-gray-700');
+      tabCompleted.classList.add('bg-gray-100', 'text-gray-700');
+      tabCompleted.classList.remove('bg-indigo-600', 'text-white');
+    }
+    renderOrders();
+  };
+
+  tabCompleted.addEventListener('click', () => setActiveTab('completed'));
+  tabAbandoned.addEventListener('click', () => setActiveTab('abandoned'));
+
+  document.getElementById('applyFilters').addEventListener('click', () => {
+    filters.search = filterInputs.search.value;
+    filters.status = filterInputs.status.value;
+    filters.size = filterInputs.size.value;
+    filters.city = filterInputs.city.value.trim().toLowerCase();
+    filters.from = filterInputs.from.value;
+    filters.to = filterInputs.to.value;
+    renderOrders();
+  });
+
+  document.getElementById('resetFilters').addEventListener('click', () => {
+    Object.values(filterInputs).forEach((input) => {
+      if (input.type === 'select-one' || input.type === 'text' || input.type === 'date') {
+        input.value = '';
+      }
+    });
+    filters.search = '';
+    filters.status = '';
+    filters.size = '';
+    filters.city = '';
+    filters.from = '';
+    filters.to = '';
+    renderOrders();
+  });
+
+  const loadOrders = async () => {
+    renderEmpty('loading orders...');
+    try {
+      const response = await fetch('/.netlify/functions/orders');
+      if (!response.ok) {
+        throw new Error(`Failed with status ${response.status}`);
+      }
+      const data = await response.json();
+      state.orders = Array.isArray(data.orders) ? data.orders : [];
+      updateKpis(state.orders);
+      renderOrders();
+    } catch (error) {
+      console.error('orders fetch error', error);
+      renderEmpty('unable to load orders right now');
+    }
+  };
+
+  loadOrders();
+
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+
+    if (btn.matches('[data-start]')) {
+      tlStart.textContent = btn.getAttribute('data-start') || '-';
+      tlCompleted.textContent = btn.getAttribute('data-completed') || '-';
+      tlPayment.textContent = btn.getAttribute('data-payment') || '-';
+      timelineModal.classList.remove('hidden'); timelineModal.classList.add('flex');
+      return;
+    }
+
+    if (btn.hasAttribute('data-details')) {
+      dtDevice.textContent = btn.getAttribute('data-device') || '-';
+      dtReferral.textContent = btn.getAttribute('data-referral') || '-';
+      dtOccasion.textContent = btn.getAttribute('data-occasion') || '-';
+      dtOdate.textContent = btn.getAttribute('data-odate') || '-';
+      dtPerson.textContent = btn.getAttribute('data-person') || '-';
+      dtRelationship.textContent = btn.getAttribute('data-relationship') || '-';
+      detailsModal.classList.remove('hidden'); detailsModal.classList.add('flex');
+      return;
+    }
+
+    if (btn.hasAttribute('data-payment-log')) {
+      pmTrans.textContent = btn.getAttribute('data-trans') || '-';
+      pmMethod.textContent = btn.getAttribute('data-method') || '-';
+      pmAmount.textContent = formatCurrency(btn.getAttribute('data-amount'));
+      pmDate.textContent = btn.getAttribute('data-date') || '-';
+      pmStatus.textContent = btn.getAttribute('data-status') || '-';
+      paymentModal.classList.remove('hidden'); paymentModal.classList.add('flex');
+      return;
+    }
+
+    if (btn.id === 'closeTimeline' || btn.id === 'okTimeline') {
+      timelineModal.classList.add('hidden'); timelineModal.classList.remove('flex');
+      return;
+    }
+    if (btn.id === 'closeDetails' || btn.id === 'okDetails') {
+      detailsModal.classList.add('hidden'); detailsModal.classList.remove('flex');
+      return;
+    }
+    if (btn.id === 'closePayment' || btn.id === 'okPayment') {
+      paymentModal.classList.add('hidden'); paymentModal.classList.remove('flex');
+      return;
+    }
+  });
+
+  [timelineModal, detailsModal, paymentModal].forEach((modal) => modal.addEventListener('click', (event) => {
+    if (event.target === modal || event.target.classList.contains('bg-black/40')) {
+      modal.classList.add('hidden'); modal.classList.remove('flex');
+    }
+  }));
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      [timelineModal, detailsModal, paymentModal].forEach((modal) => {
+        modal.classList.add('hidden'); modal.classList.remove('flex');
+      });
+    }
+  });
+</script>
+
+</body>
+</html>
+
+
+
+
+
+

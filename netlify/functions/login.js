@@ -15,7 +15,7 @@ exports.handler = async (event) => {
 
   try {
     const result = await client.query(
-      'SELECT id, email, name, address, postcode, phone_number, password_hash FROM users WHERE email = $1',
+      'SELECT id, email, name, address, postcode, phone_number, role, password_hash FROM users WHERE email = $1',
       [email]
     );
 

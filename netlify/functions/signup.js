@@ -22,7 +22,7 @@ exports.handler = async (event) => {
       `INSERT INTO users
          (email, password_hash, name, address, postcode, phone_number)
        VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING id, email, name, address, postcode, phone_number, created_at`,
+       RETURNING id, email, name, address, postcode, phone_number, role, created_at`,
       [email, password_hash, name || null, address || null, postcode || null, phone || null]
     );
 
