@@ -861,6 +861,56 @@
 }
 
 
+.slot111 {
+    top: 5%;
+    left: 5%;
+    width: 42.5%;
+    height: 18.75%;
+}
+.slot112 {
+    top: 28.75%;
+    left: 5%;
+    width: 42.5%;
+    height: 18.75%;
+}
+.slot113 {
+    top: 52.5%;
+    left: 5%;
+    width: 42.5%;
+    height: 18.75%;
+}
+.slot114 {
+    top: 76.25%;
+    left: 5%;
+    width: 42.5%;
+    height: 18.75%;
+}
+.slot115 {
+    top: 5%;
+    left: 52.5%;
+    width: 42.5%;
+    height: 18.75%;
+}
+.slot116 {
+    top: 28.75%;
+    left: 52.5%;
+    width: 42.5%;
+    height: 18.75%;
+}
+.slot117 {
+    top: 52.5%;
+    left: 52.5%;
+    width: 42.5%;
+    height: 18.75%;
+}
+.slot118 {
+    top: 76.25%;
+    left: 52.5%;
+    width: 42.5%;
+    height: 18.75%;
+}
+
+
 /* drag preview */
 #drag-preview {
     position: fixed;

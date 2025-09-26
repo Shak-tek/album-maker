@@ -204,6 +204,12 @@ export const pageTemplates = [
     },
     {
         id: 33,
+        name: '8-Up (Row of 2)',
+        slots: [110, 111, 112, 113, 114, 115, 116, 117],
+        thumbnailUrl: 'https://popsa.com/webapp/assets/icons//Templates/ICON_TEMPLATE_70_LANDSCAPE.webp',
+    },
+    {
+        id: 133,
         name: 'Half Text Half Image',
         slots: [3],
         textSlots: [4],
