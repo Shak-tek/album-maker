@@ -266,14 +266,14 @@
 .slot24 {
     top: 5%;
     left: 68.337%;
-    width: 21.66%;
+    width: 26.6667%;
     height: 42.5%;
 }
 
 .slot25 {
     top: 52.5%;
     left: 68.337%;
-    width: 21.66%;
+    width: 26.6667%;
     height: 42.5%;
 }
 
@@ -968,6 +968,35 @@
     left: 5%;
     width: 90%;
     height: 58.33%;
+}
+
+
+.slot126 {
+    top: 5%;
+    left: 5%;
+    width: 18.75%;
+    height: 90%;
+}
+
+.slot127 {
+    top: 5%;
+    left: calc(5% + (18.75 * 1) + (5% * 1));
+    width: 18.75%;
+    height: 90%;
+}
+
+.slot128{
+    top: 5%;
+    left: calc(5% + (18.75 * 2) + (5% * 2));
+    width: 18.75%;
+    height: 90%;
+}
+
+.slot129{
+    top: 5%;
+    left: calc(5% + (18.75 * 3) + (5% * 3));
+    width: 18.75%;
+    height: 90%;
 }
 
 
