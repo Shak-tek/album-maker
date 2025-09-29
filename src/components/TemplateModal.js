@@ -13,7 +13,7 @@ export default function TemplateModal({ onSelect, onClose }) {
             onClickOutside={onClose}
             modal
         >
-            <Box pad="medium" className="modalTemplates" width="" gap="medium" style={{ maxWidth: '90vw', maxHeight: '90vh', overflow: 'auto', zIndex: '1000' }}>
+            <Box pad="medium" className="modalTemplates" width="" gap="medium" style={{ background: '#f1f5f9', maxWidth: '90vw', maxHeight: '90vh', overflow: 'auto', zIndex: '1000' }}>
                 <Box direction="row" justify="between" align="center">
                     <Text weight="bold">Templates</Text>
                     <Button label="x" className="modalClose" Text="white" onClick={onClose} />
@@ -30,10 +30,9 @@ export default function TemplateModal({ onSelect, onClose }) {
                             
                                 <Box
                                     
-                                    height="110px"
+                                    height="90px"
                                     round="xsmall"
                                     overflow="hidden"
-                                    border={{ color: '#efefef' }}
                                     background={
                                         t.thumbnailUrl
                                             ? { image: `url(${t.thumbnailUrl})`, size: 'contain', position: 'center' }

@@ -1061,7 +1061,16 @@
 }
 
 .btnLayoutWrap .btnLayout>div {
-    background-color: #efefef;
+    background-color: #fff !important;
+    padding: 7px !important;
+    border: 0 !important;
+    
+    box-shadow: 0 5px 5px 0 rgba(0, 0, 0, 0.1) !important;
+    border-radius: 4px !important;
+    background-size: 100% 100% !important;
+}
+.btnLayoutWrap .btnLayout>div img {
+    
 }
 
 .btnLayoutWrap .btnLayout>span {
