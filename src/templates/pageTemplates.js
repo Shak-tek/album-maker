@@ -259,6 +259,13 @@ export const pageTemplates = [
         slots: [129, 130, 131, 132],
         thumbnailUrl: '/layout-41.png',
     },
+
+    {
+        id: 42,
+        name: '4‑Up',
+        slots: [33, 26, 131, 132],
+        thumbnailUrl: '/layout-41.png',
+    },
     {
         id: 133,
         name: 'Half Text Half Image',
