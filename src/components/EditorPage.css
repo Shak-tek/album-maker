@@ -918,6 +918,30 @@
 }
 
 
+
+
+
+.slot119 {
+    top: 5%;
+    left: 5%;
+    width: 25%;
+    height: 42.5%;
+}
+
+.slot120 {
+    top: 52.5%;
+    left: 5%;
+    width: 25%;
+    height: 42.5%;
+}
+.slot121 {
+    top: 5%;
+    left: 35%;
+    width: 60%;
+    height: 90%;
+}
+
+
 /* drag preview */
 #drag-preview {
     position: fixed;
