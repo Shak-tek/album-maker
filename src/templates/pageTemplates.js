@@ -270,7 +270,14 @@ export const pageTemplates = [
         id: 43,
         name: '4‑Up',
         slots: [35, 29, 61, 62],
-        thumbnailUrl: '/layout-43.png',
+        thumbnailUrl: '/layout-43.png', 
+    },
+
+    {
+        id: 44,
+        name: '6‑Up',
+        slots: [133, 76, 77, 79, 80, 134],
+        thumbnailUrl: '/layout-44.png', 
     },
     {
         id: 133,
