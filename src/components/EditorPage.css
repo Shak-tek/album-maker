@@ -980,23 +980,52 @@
 
 .slot127 {
     top: 5%;
-    left: calc(5% + (18.75 * 1) + (5% * 1));
+    left: calc(5% + (18.75% * 1) + (5% * 1));
     width: 18.75%;
     height: 90%;
 }
 
 .slot128{
     top: 5%;
-    left: calc(5% + (18.75 * 2) + (5% * 2));
+    left: calc(5% + (18.75% * 2) + (5% * 2));
     width: 18.75%;
     height: 90%;
 }
 
 .slot129{
     top: 5%;
-    left: calc(5% + (18.75 * 3) + (5% * 3));
+    left: calc(5% + (18.75% * 3) + (5% * 3));
     width: 18.75%;
     height: 90%;
+}
+
+
+.slot130 {
+    left: 5%;
+    top: 5%;
+    height: 18.75%;
+    width: 90%;
+}
+
+.slot131 {
+    left: 5%;
+    top: calc(5% + (18.75% * 1) + (5% * 1));
+    height: 18.75%;
+    width: 90%;
+}
+
+.slot132{
+    left: 5%;
+    top: calc(5% + (18.75% * 2) + (5% * 2));
+    height: 18.75%;
+    width: 90%;
+}
+
+.slot133{
+    left: 5%;
+    top: calc(5% + (18.75% * 3) + (5% * 3));
+    height: 18.75%;
+    width: 90%;
 }
 
 
