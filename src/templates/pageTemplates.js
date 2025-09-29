@@ -6,7 +6,7 @@ export const pageTemplates = [
     {
         id: 0,
         name: '1‑Up (Full‑Bleed)',
-        slots: [0, 1, 2],
+        slots: [9],
         thumbnailUrl: '/layout-0.png',
     },
     {
@@ -24,7 +24,7 @@ export const pageTemplates = [
     {
         id: 3,
         name: '3‑Up (Row of 3)',
-        slots: [9],
+        slots: [0, 1, 2],
         thumbnailUrl: '/layout-3.png',
     },
     {
