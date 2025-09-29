@@ -963,6 +963,15 @@
     height: 90%;
 }
 
+.slot125 {
+    top: 5%;
+    left: 5%;
+    width: 90%;
+    height: 58.33%;
+}
+
+
+
 /* drag preview */
 #drag-preview {
     position: fixed;
