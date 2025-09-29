@@ -942,6 +942,27 @@
 }
 
 
+.slot122 {
+    top: 5%;
+    left: 5%;
+    width: 20%;
+    height: 90%;
+}
+
+.slot123 {
+    top: 5%;
+    left: 30%;
+    width: 40%;
+    height: 90%;
+}
+
+.slot124 {
+    top: 5%;
+    left: 75%;
+    width: 20%;
+    height: 90%;
+}
+
 /* drag preview */
 #drag-preview {
     position: fixed;
