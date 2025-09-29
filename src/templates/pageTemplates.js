@@ -223,7 +223,7 @@ export const pageTemplates = [
     {
         id: 36,
         name: '2‑Up (Row of 3)',
-        slots: [118, 119],
+        slots: [118, 120],
         thumbnailUrl: '/layout-36.png',
     },
     {
