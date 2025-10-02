@@ -1046,6 +1046,44 @@
 }
 
 
+.slot136 {
+    top: 5%;
+    left: 5%;
+    height: 55%;
+    width: 90%;
+}
+
+
+
+.slot901{
+    left: 5%;
+    top: 68.3334%;
+    height: 26.6667%;
+    width: 90%;
+}
+
+.slot902{
+    left: 68.337%;
+    top: 5%;
+    width: 26.6667%;
+    height: 90%;
+}
+
+
+.slot903 {
+    left: 20%;
+    top: 65%;
+    width: 60%;
+    height: 30%;
+}
+.slot904 {
+    left: 58%;
+    top: 68%;
+    width: 37%;
+    height: 27%;
+}
+
+
 
 /* drag preview */
 #drag-preview {

@@ -294,15 +294,42 @@ export const pageTemplates = [
     {
         id: 47,
         name: '7‑Up',
-        slots: [73, 76, 79, 34, 75, 78, 81],
+        slots: [74, 75, 76, 77, 78, 80, 81],
         thumbnailUrl: '/layout-47.png', 
     },
     {
-        id: 133,
+        id: 48,
+        name: '7‑Up',
+        slots: [73, 74, 76, 77, 78, 79, 80],
+        thumbnailUrl: '/layout-48.png', 
+    },
+    {
+        id: 100,
         name: 'Half Text Half Image',
-        slots: [3],
-        textSlots: [4],
-        thumbnailUrl: '/layout-133.png',
+        slots: [124],
+        textSlots: [900],
+        thumbnailUrl: '/layout-100.png',
+    },
+    {
+        id: 101,
+        name: 'Half Text Half Image',
+        slots: [22],
+        textSlots: [901],
+        thumbnailUrl: '/layout-101.png',
+    },
+    {
+        id: 102,
+        name: 'Half Text Half Image',
+        slots: [135],
+        textSlots: [902],
+        thumbnailUrl: '/layout-102.png',
+    },
+    {
+        id: 103,
+        name: 'Text on Image',
+        slots: [9],
+        textSlots: [903],
+        thumbnailUrl: '/layout-103.png',
     },
 ];
 
