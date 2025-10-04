@@ -23,8 +23,8 @@
     "lowdb": "^7.0.1",
     "netlify": "^22.3.0",
     "pg": "^8.16.3",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
     "react-easy-crop": "^5.5.0",
     "react-scripts": "5.0.1",
     "styled-components": "^6.1.17",
@@ -32,12 +32,12 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "server": "node server.js",
     "dev": "netlify dev",
-    "build": "netlify build",
-    "serve:functions": "netlify functyions:serve"
+    "serve:functions": "netlify functions:serve"
   },
   "eslintConfig": {
     "extends": [
@@ -58,6 +58,15 @@
     ]
   },
   "devDependencies": {
+    "@babel/core": "^7",
+    "@babel/eslint-parser": "^7",
+    "eslint": "8.57.0",
+    "eslint-config-react-app": "7.0.1",
+    "eslint-plugin-flowtype": "^8",
+    "eslint-plugin-import": "^2",
+    "eslint-plugin-jsx-a11y": "^6",
+    "eslint-plugin-react": "^7",
+    "eslint-plugin-react-hooks": "^4",
     "netlify-cli": "^22.4.0"
   }
 }
