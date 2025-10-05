@@ -12,6 +12,7 @@ export default function SettingsBar({
   onEditTitle,
   textSettings,
   onChangeTextSettings,
+  fileInputRef,
 }) {
   const [showTextModal, setShowTextModal] = useState(false);
   const savedSel = useRef(null); // Range
@@ -21,6 +22,35 @@ export default function SettingsBar({
   useEffect(() => {
     setHex(textSettings?.color || '#000000');
   }, [textSettings?.color]);
+
+  const internalUploadInputRef = useRef(null);
+  const uploadInputRef = fileInputRef || internalUploadInputRef;
+
+  const emitSelectedFiles = (list) => {
+    if (!Array.isArray(list) || list.length === 0) return;
+    if (typeof onAddImages === 'function') {
+      onAddImages(list);
+    }
+  };
+
+  const handleHiddenInputChange = (event) => {
+    const selected = Array.from(event?.target?.files || []);
+    if (selected.length) emitSelectedFiles(selected);
+    if (event?.target) {
+      event.target.value = '';
+    }
+    if (uploadInputRef.current) {
+      uploadInputRef.current.value = '';
+    }
+  };
+
+  const handleFileInputChange = (event, data) => {
+    const selected = data?.files ? Array.from(data.files) : Array.from(event?.target?.files || []);
+    if (selected.length) emitSelectedFiles(selected);
+    if (event?.target) {
+      event.target.value = '';
+    }
+  };
 
   const applyTextSettings = (patch) => {
     if (!onChangeTextSettings) return;
@@ -145,6 +175,14 @@ export default function SettingsBar({
 
   return (
     <>
+      <input
+        ref={uploadInputRef}
+        type="file"
+        multiple
+        accept="image/*"
+        style={{ display: 'none' }}
+        onChange={handleHiddenInputChange}
+      />
       <Box
         className="settings-bar"
         direction="row"
@@ -161,10 +199,8 @@ export default function SettingsBar({
           <FileInput
             multiple
             name="images"
-            onChange={(event, { files }) => {
-              const list = files ? Array.from(files) : Array.from(event.target.files || []);
-              if (list.length && typeof onAddImages === 'function') onAddImages(list);
-            }}
+            accept="image/*"
+            onChange={handleFileInputChange}
           />
         </Box>
 
@@ -320,4 +356,3 @@ export default function SettingsBar({
     </>
   );
 }
-
