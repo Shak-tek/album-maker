@@ -105,7 +105,6 @@ export default function TextEditor({
                     dir="ltr"
                     data-placeholder={placeholder}
                     style={contentStyle}
-                    dangerouslySetInnerHTML={{ __html: stripBidi(value || "") }}
                     onInput={emit}
                     onPaste={onPaste}
                     onMouseDown={(e) => e.stopPropagation()}
