@@ -21,6 +21,39 @@ const IK_URL_ENDPOINT = process.env.REACT_APP_IMAGEKIT_URL_ENDPOINT || "";
 const getResizedUrl = (key, width = 1200) =>
     `${IK_URL_ENDPOINT}/${encodeURI(key)}?tr=w-${width},fo-face&v=${Date.now()}`;
 
+const parseFontSize = (size) => {
+    if (typeof size === "number" && !Number.isNaN(size)) {
+        return { value: size, unit: "px" };
+    }
+    if (typeof size !== "string") return { value: 0, unit: "px" };
+    const match = size.trim().match(/^([0-9.]+)\s*(px|rem|em)?$/i);
+    if (!match) return { value: 0, unit: "px" };
+    return { value: parseFloat(match[1]) || 0, unit: match[2] || "px" };
+};
+
+const scaleFontSize = (size, factor, min = 10) => {
+    const { value, unit } = parseFontSize(size);
+    if (!value) return `${min}${unit}`;
+    const scaled = Math.max(min, Math.round(value * factor));
+    return `${scaled}${unit}`;
+};
+
+const computeLineHeight = (size) => {
+    const { value } = parseFontSize(size);
+    if (!value) return "1.32";
+    if (value >= 50) return "1.1";
+    if (value >= 36) return "1.18";
+    if (value >= 28) return "1.24";
+    return "1.32";
+};
+
+const DEFAULT_TEXT_SETTINGS = {
+    fontFamily: 'Inter, system-ui, Helvetica, Arial, sans-serif',
+    fontSize: '32px',
+    color: '#1F2933',
+};
+
+
 // ---------------------- SLOT GEOMETRY (kept only for 0..9) ----------------------
 const slotMargin = 5;
 const gap = 5;
@@ -176,6 +209,22 @@ export default function EditorPage(props) {
             return null;
         }
     })();
+    const _storedTextSettings = (() => {
+        try {
+            const raw = localStorage.getItem("textSettings");
+            if (!raw) return null;
+            const parsed = JSON.parse(raw);
+            if (!parsed || typeof parsed !== "object") return null;
+            const { fontFamily, fontSize, color } = parsed;
+            return {
+                fontFamily: typeof fontFamily === "string" ? fontFamily : DEFAULT_TEXT_SETTINGS.fontFamily,
+                fontSize: typeof fontSize === "string" ? fontSize : DEFAULT_TEXT_SETTINGS.fontSize,
+                color: typeof color === "string" ? color : DEFAULT_TEXT_SETTINGS.color,
+            };
+        } catch {
+            return null;
+        }
+    })();
     const [pageSettings, setPageSettings] = useState(_initialFromStorage || []);
     // Remember whether we actually restored something so we don't auto-generate
     const [restoredFromStorage] = useState(Boolean(_initialFromStorage));
@@ -226,11 +275,7 @@ export default function EditorPage(props) {
     };
 
     // force LTR + text style
-    const [textSettings, setTextSettings] = useState({
-        fontFamily: 'Inter, system-ui, Helvetica, Arial, sans-serif',
-        fontSize: 18,
-        color: '#000000',
-    });
+    const [textSettings, setTextSettings] = useState(_storedTextSettings || { ...DEFAULT_TEXT_SETTINGS });
 
 
     // ----------------- OPTIONAL: try restoring from server (Netlify) if nothing in localStorage -----------------
@@ -244,6 +289,7 @@ export default function EditorPage(props) {
                 if (!res.ok) return;
                 const data = await res.json();
                 const remote = data?.settings?.pageSettings;
+                const remoteTextSettings = data?.settings?.textSettings;
                 if (Array.isArray(remote) && !cancelled) {
                     setPageSettings(
                         remote.map((ps) => ({
@@ -253,6 +299,13 @@ export default function EditorPage(props) {
                         }))
                     );
                     setImagesWarm(false);
+                    if (remoteTextSettings) {
+                        setTextSettings({
+                            fontFamily: typeof remoteTextSettings.fontFamily === "string" ? remoteTextSettings.fontFamily : DEFAULT_TEXT_SETTINGS.fontFamily,
+                            fontSize: typeof remoteTextSettings.fontSize === "string" ? remoteTextSettings.fontSize : DEFAULT_TEXT_SETTINGS.fontSize,
+                            color: typeof remoteTextSettings.color === "string" ? remoteTextSettings.color : DEFAULT_TEXT_SETTINGS.color,
+                        });
+                    }
                 }
             } catch {
                 // ignore; fall back to local init below
@@ -306,17 +359,18 @@ export default function EditorPage(props) {
     // persist to localStorage & DB
     useEffect(() => {
         localStorage.setItem("pageSettings", JSON.stringify(pageSettings));
+        localStorage.setItem("textSettings", JSON.stringify(textSettings));
         if (user && sessionId) {
             fetch("/.netlify/functions/session", {
                 method: "POST",
                 body: JSON.stringify({
                     userId: user.id,
                     sessionId,
-                    settings: { albumSize, identityId, pageSettings, user, title, subtitle },
+                    settings: { albumSize, identityId, pageSettings, user, title, subtitle, textSettings },
                 }),
             }).catch(console.error);
         }
-    }, [pageSettings, albumSize, identityId, user, sessionId, title, subtitle]);
+    }, [pageSettings, textSettings, albumSize, identityId, user, sessionId, title, subtitle]);
 
     // dynamic theme colors via ColorThief
     useEffect(() => {
@@ -826,6 +880,18 @@ export default function EditorPage(props) {
                                     }
                                     : { backgroundColor: bgColor };
 
+                                const titleFontSize = textSettings?.fontSize || '32px';
+                                const titleLineHeight = computeLineHeight(titleFontSize);
+                                const subtitleFontSize = scaleFontSize(titleFontSize, 0.6, 14);
+                                const subtitleLineHeight = computeLineHeight(subtitleFontSize);
+                                const textBoxFontSize = scaleFontSize(titleFontSize, 0.65, 14);
+                                const textBoxBaseStyle = {
+                                    fontFamily: textSettings.fontFamily,
+                                    fontSize: textBoxFontSize,
+                                    color: textSettings.color,
+                                    lineHeight: computeLineHeight(textBoxFontSize),
+                                };
+
                                 return (
                                     <div key={pi} className="page-wrapper" style={wrapperStyle}>
                                         <Box className="toolbar" direction="row" gap="small" align="center">
@@ -976,6 +1042,8 @@ export default function EditorPage(props) {
                                                     >
                                                         <TextEditor
                                                             value={content}
+                                                            baseStyle={textBoxBaseStyle}
+                                                            placeholder={textIdx === 0 ? "Add your story" : "Keep writing"}
                                                             onChange={(html) =>
                                                                 setPageSettings((prev) => {
                                                                     const next = [...prev];
@@ -1000,8 +1068,31 @@ export default function EditorPage(props) {
                                                         textAlign: "left",
                                                     }}
                                                 >
-                                                    {title && <h1 style={{ margin: 0 }}>{title}</h1>}
-                                                    {subtitle && <h2 style={{ margin: 0, opacity: 0.9 }}>{subtitle}</h2>}
+                                                    {title && (
+                                                        <h1
+                                                            style={{
+                                                                margin: 0,
+                                                                fontSize: titleFontSize,
+                                                                lineHeight: titleLineHeight,
+                                                                fontWeight: 700,
+                                                            }}
+                                                        >
+                                                            {title}
+                                                        </h1>
+                                                    )}
+                                                    {subtitle && (
+                                                        <h2
+                                                            style={{
+                                                                margin: 0,
+                                                                opacity: 0.85,
+                                                                fontSize: subtitleFontSize,
+                                                                lineHeight: subtitleLineHeight,
+                                                                fontWeight: 500,
+                                                            }}
+                                                        >
+                                                            {subtitle}
+                                                        </h2>
+                                                    )}
                                                 </div>
                                             )}
                                         </div>
@@ -1018,6 +1109,11 @@ export default function EditorPage(props) {
                 {pageSettings.map((ps, pi) => {
                     const tmpl = pageTemplates.find((t) => t.id === ps.templateId);
                     if (!tmpl) return null;
+                    const exportTitleFontSize = textSettings?.fontSize || DEFAULT_TEXT_SETTINGS.fontSize;
+                    const exportTitleLineHeight = computeLineHeight(exportTitleFontSize);
+                    const exportSubtitleFontSize = scaleFontSize(exportTitleFontSize, 0.6, 14);
+                    const exportSubtitleLineHeight = computeLineHeight(exportSubtitleFontSize);
+                    const exportTextBoxFontSize = scaleFontSize(exportTitleFontSize, 0.65, 14);
                     return (
                         <Box key={pi}>
                             <Box
@@ -1065,23 +1161,55 @@ export default function EditorPage(props) {
                                 {tmpl.textSlots?.map((slotPosIndex, textIdx) => {
                                     const inlinePos = getSlotRect(slotPosIndex, true);
                                     return (
-                                        +     <div
-                                            key={`text-${slotPosIndex}-${textIdx}`
-                                            }
-                                            className={`text-slot   slot${slotPosIndex + 1}`}
+                                        <div
+                                            key={`text-${slotPosIndex}-${textIdx}`}
+                                            className={`text-slot slot${slotPosIndex + 1}`}
                                             style={{
                                                 position: "absolute",
+                                                fontFamily: textSettings.fontFamily,
+                                                color: textSettings.color,
+                                                fontSize: exportTextBoxFontSize,
+                                                lineHeight: computeLineHeight(exportTextBoxFontSize),
                                                 ...(inlinePos || {}),
                                             }}
-                                            // IMPORTANT: no children at all on this element
                                             dangerouslySetInnerHTML={{ __html: ps.texts?.[textIdx] || "" }}
                                         />
                                     );
                                 })}
                                 {pi === 0 && (
-                                    <Box className="title-overlay">
-                                        {title && <h1>{title}</h1>}
-                                        {subtitle && <h2>{subtitle}</h2>}
+                                    <Box
+                                        className="title-overlay"
+                                        style={{
+                                            fontFamily: textSettings.fontFamily,
+                                            color: textSettings.color,
+                                            textAlign: "left",
+                                        }}
+                                    >
+                                        {title && (
+                                            <h1
+                                                style={{
+                                                    margin: 0,
+                                                    fontSize: exportTitleFontSize,
+                                                    lineHeight: exportTitleLineHeight,
+                                                    fontWeight: 700,
+                                                }}
+                                            >
+                                                {title}
+                                            </h1>
+                                        )}
+                                        {subtitle && (
+                                            <h2
+                                                style={{
+                                                    margin: 0,
+                                                    opacity: 0.85,
+                                                    fontSize: exportSubtitleFontSize,
+                                                    lineHeight: exportSubtitleLineHeight,
+                                                    fontWeight: 500,
+                                                }}
+                                            >
+                                                {subtitle}
+                                            </h2>
+                                        )}
                                     </Box>
                                 )}
                             </Box>

@@ -1,5 +1,5 @@
 // src/components/SettingsBar.js
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Box, Button, Text, Select, FileInput, CheckBox, Layer, Heading, TextInput, Tip } from 'grommet';
 import { Edit, TextWrap, Bold, Italic, Underline, TextAlignLeft, TextAlignCenter, TextAlignRight, ClearOption } from 'grommet-icons';
 
@@ -10,10 +10,29 @@ export default function SettingsBar({
   onOpenThemeModal,
   onSave,
   onEditTitle,
+  textSettings,
+  onChangeTextSettings,
 }) {
   const [showTextModal, setShowTextModal] = useState(false);
   const savedSel = useRef(null); // Range
   const savedEditable = useRef(null); // HTMLElement
+  const [hex, setHex] = useState(textSettings?.color || '#000000');
+
+  useEffect(() => {
+    setHex(textSettings?.color || '#000000');
+  }, [textSettings?.color]);
+
+  const applyTextSettings = (patch) => {
+    if (!onChangeTextSettings) return;
+    const updater = typeof patch === 'function' ? patch : () => patch;
+    if (typeof onChangeTextSettings === 'function') {
+      onChangeTextSettings((prev) => {
+        const safePrev = prev && typeof prev === 'object' ? prev : {};
+        const nextPatch = updater(safePrev) || {};
+        return { ...safePrev, ...nextPatch };
+      });
+    }
+  };
 
   // Icons (inline SVG OK)
   const BackgroundIcon = () => (
@@ -68,7 +87,6 @@ export default function SettingsBar({
     { name: 'Indigo', value: '#3949AB' },
     { name: 'Purple', value: '#8E24AA' },
   ]), []);
-  const [hex, setHex] = useState('#000000');
 
   /** Utilities to work on the saved selection inside your contentEditable **/
   const findEditableAncestor = (node) => {
@@ -85,9 +103,11 @@ export default function SettingsBar({
     if (!sel || sel.rangeCount === 0) return;
     const rng = sel.getRangeAt(0).cloneRange();
     savedSel.current = rng;
-    savedEditable.current = findEditableAncestor(rng.commonAncestorContainer.nodeType === 1
-      ? rng.commonAncestorContainer
-      : rng.commonAncestorContainer.parentNode);
+    savedEditable.current = findEditableAncestor(
+      rng.commonAncestorContainer.nodeType === 1
+        ? rng.commonAncestorContainer
+        : rng.commonAncestorContainer.parentNode,
+    );
   };
 
   const restoreSelection = () => {
@@ -95,7 +115,6 @@ export default function SettingsBar({
     const sel = window.getSelection();
     sel.removeAllRanges();
     sel.addRange(savedSel.current);
-    // refocus the editor surface if possible
     if (savedEditable.current && savedEditable.current.focus) {
       savedEditable.current.focus();
     }
@@ -103,24 +122,25 @@ export default function SettingsBar({
   };
 
   const exec = (command, value = null) => {
-    if (!restoreSelection()) return;
+    if (!restoreSelection()) return false;
     document.execCommand(command, false, value);
-    // re-save in case selection collapsed
     saveSelection();
+    return true;
   };
 
   const wrapSelectionWithSpan = (styleString) => {
-    if (!restoreSelection()) return;
+    if (!restoreSelection()) return false;
     const sel = window.getSelection();
-    if (!sel || sel.rangeCount === 0) return;
+    if (!sel || sel.rangeCount === 0) return false;
     const range = sel.getRangeAt(0);
-    if (range.collapsed) return;
+    if (range.collapsed) return false;
     const frag = range.cloneContents();
     const div = document.createElement('div');
     div.appendChild(frag);
     const html = div.innerHTML || range.toString();
     document.execCommand('insertHTML', false, `<span style="${styleString}">${html}</span>`);
     saveSelection();
+    return true;
   };
 
   return (
@@ -169,7 +189,11 @@ export default function SettingsBar({
         <Button
           icon={<TextWrap />}
           label="Text"
-          onClick={() => { saveSelection(); setShowTextModal(true); }}
+          onMouseDown={saveSelection}
+          onClick={() => {
+            saveSelection();
+            setShowTextModal(true);
+          }}
         />
         {onSave && (
           <Button icon={<SavingIcon />} label="Save" onClick={onSave} />
@@ -213,7 +237,11 @@ export default function SettingsBar({
                 <Text size="small" weight="bold">Font</Text>
                 <Select
                   options={fonts}
-                  onChange={({ option }) => { wrapSelectionWithSpan(`font-family:${option}`); }}
+                  value={textSettings?.fontFamily || fonts[0]}
+                  onChange={({ option }) => {
+                    const applied = wrapSelectionWithSpan(`font-family:${option}`);
+                    if (!applied) applyTextSettings({ fontFamily: option });
+                  }}
                 >
                   {(option) => (
                     <Box pad="xsmall">
@@ -229,7 +257,11 @@ export default function SettingsBar({
                 <Text size="small" weight="bold">Size</Text>
                 <Select
                   options={sizeOptions}
-                  onChange={({ option }) => { wrapSelectionWithSpan(`font-size:${option}`); }}
+                  value={textSettings?.fontSize || '32px'}
+                  onChange={({ option }) => {
+                    const applied = wrapSelectionWithSpan(`font-size:${option}`);
+                    if (!applied) applyTextSettings({ fontSize: option });
+                  }}
                 />
               </Box>
             </Box>
@@ -242,7 +274,12 @@ export default function SettingsBar({
                   options={colorOptions}
                   labelKey="name"
                   valueKey={{ key: 'value', reduce: true }}
-                  onChange={({ option }) => { wrapSelectionWithSpan(`color:${option.value}`); setHex(option.value); }}
+                  value={textSettings?.color || '#000000'}
+                  onChange={({ option }) => {
+                    const applied = wrapSelectionWithSpan(`color:${option.value}`);
+                    setHex(option.value);
+                    if (!applied) applyTextSettings({ color: option.value });
+                  }}
                 >
                   {(option) => (
                     <Box direction="row" gap="small" pad="xsmall" align="center">
@@ -263,9 +300,12 @@ export default function SettingsBar({
                     setHex(v);
                   }}
                   onBlur={() => {
-                    const v = /^#?[0-9a-fA-F]{6}$/.test(hex.replace('#', '')) ? (hex.startsWith('#') ? hex : `#${hex}`) : '#000000';
-                    setHex(v);
-                    wrapSelectionWithSpan(`color:${v}`);
+                    const normalized = /^#?[0-9a-fA-F]{6}$/.test(hex.replace('#', ''))
+                      ? (hex.startsWith('#') ? hex : `#${hex}`)
+                      : '#000000';
+                    setHex(normalized);
+                    const applied = wrapSelectionWithSpan(`color:${normalized}`);
+                    if (!applied) applyTextSettings({ color: normalized });
                   }}
                 />
               </Box>
@@ -280,3 +320,4 @@ export default function SettingsBar({
     </>
   );
 }
+
