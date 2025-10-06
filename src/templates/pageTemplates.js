@@ -303,6 +303,8 @@ export const pageTemplates = [
         slots: [73, 74, 76, 77, 78, 79, 80],
         thumbnailUrl: '/layout-48.png', 
     },
+
+
     {
         id: 100,
         name: 'Half Text Half Image',
@@ -313,7 +315,7 @@ export const pageTemplates = [
     {
         id: 101,
         name: 'Half Text Half Image',
-        slots: [22],
+        slots: [22], 
         textSlots: [901],
         thumbnailUrl: '/layout-101.png',
     },
@@ -331,5 +333,44 @@ export const pageTemplates = [
         textSlots: [903],
         thumbnailUrl: '/layout-103.png',
     },
+
+    {
+        id: 104,
+        name: 'Text and Image',
+        slots: [136, 137],
+        textSlots: [900],
+        thumbnailUrl: '/layout-104.png',
+    },
+
+    {
+        id: 105,
+        name: 'Text and Image',
+        slots: [64, 69],
+        textSlots: [901],
+        thumbnailUrl: '/layout-105.png',
+    },
+    {
+        id: 106,
+        name: 'Text and Image',
+        slots: [22, 23],
+        textSlots: [24],
+        thumbnailUrl: '/layout-106.png', 
+    },
+    {
+        id: 107,
+        name: 'Text and Image',
+        slots: [33, 40, 43],
+        textSlots: [35],
+        thumbnailUrl: '/layout-107.png',
+    },
+
+    {
+        id: 108,
+        name: 'Text and Image',
+        slots: [138, 139, 140],
+        textSlots: [38],
+        thumbnailUrl: '/layout-108.png',
+    },
+    
 ];
 
