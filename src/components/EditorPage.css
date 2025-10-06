@@ -130,6 +130,374 @@
     overflow: auto;
 }
 
+
+/* drag preview */
+#drag-preview {
+    position: fixed;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    pointer-events: none;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    display: none;
+    z-index: 1000;
+    transform: translate(-50%, -50%);
+}
+
+#drag-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* highlight target slot */
+.highlight {
+    outline: 3px dashed #f8f8f8;
+}
+
+/* wrap each page + toolbar together */
+.page-wrapper {
+    position: relative;
+    /* needed for clipping context */
+    overflow: hidden;
+    /* <-- clips the scaled .photo-page */
+    border-radius: 12px;
+    /* nice rounded corners */
+    display: block;
+}
+
+/* toolbar */
+.page-wrapper .toolbar {
+    position: relative;
+    background: #f8f8f8;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+}
+
+.page-wrapper .toolbar .btn-ico svg {
+    color: #000;
+    fill: #000;
+}
+
+@media (min-width: 768px) {
+    .page-wrapper:nth-child(even) .toolbar {
+        justify-content: flex-end;
+    }
+}
+
+/* skeleton loading */
+.skeleton-page-wrapper {
+    background: #f7f7f7;
+    margin-bottom: 1rem;
+    border-radius: 12px;
+    /* match page radius */
+}
+
+/* individual slot placeholders */
+.skeleton-photo-slot {
+    background: #e0e0e0;
+    flex: 1;
+    border-radius: 4px;
+    height: 150px;
+}
+
+/* floating settings bar */
+.settings-bar {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 8px !important;
+    background: rgba(255, 255, 255, .9) !important;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px !important;
+    justify-content: center;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: flex-start !important;
+    gap: 0 !important;
+    z-index: 20;
+}
+
+@media (max-width: 600px) {
+    .settings-bar {
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 0;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+}
+
+.btn-setting {
+    display: inline-flex;
+    flex-flow: column nowrap;
+    gap: 0 !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    line-height: 20px !important;
+    width: 100px;
+    color: #585858 !important;
+    text-align: center;
+    padding: 5px !important;
+}
+
+.btn-setting>div {
+    display: flex !important;
+    flex-flow: column nowrap !important;
+    gap: 0 !important;
+}
+
+.btn-setting div:empty {
+    display: none !important;
+}
+
+.btn-setting svg {
+    display: block;
+    width: 24px !important;
+    height: 24px !important;
+    margin: 0 0 10px !important;
+}
+
+.dynamicColors {
+    gap: 8px !important;
+}
+
+.modalTemplates {
+    width: 650px;
+}
+
+.btnLayoutWrap {
+    display: flex;
+    flex-flow: row wrap;
+    gap: 20px !important;
+}
+
+.btnLayoutWrap .btnLayout {
+    width: calc(25% - 15px) !important;
+}
+
+.btnLayoutWrap .btnLayout>div {
+    background-color: #fff !important;
+    padding: 5px !important;
+    border: 0 !important;
+
+    box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.06) !important;
+    border-radius: 4px !important;
+    background-size: calc(100% - 10px) calc(100% - 10px) !important;
+}
+
+.btnLayoutWrap .btnLayout>div img {}
+
+.btnLayoutWrap .btnLayout>span {
+    display: block;
+    margin-top: 8px;
+    font-size: 11px !important;
+    font-weight: 500;
+    letter-spacing: .5px;
+    text-align: center;
+}
+
+.modalClose {
+    color: #000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-weight: 700;
+}
+
+@media (max-width: 549px) {
+    .btnLayoutWrap .btnLayout {
+        width: calc(50% - 15px) !important;
+    }
+}
+
+/* --- Image cropper: per-slot overlay buttons --- */
+.slot-edit-btn,
+.slot-reset-btn {
+    position: absolute;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 4px 6px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    cursor: pointer;
+    line-height: 1;
+    opacity: 0;
+    /* hidden until hover/focus (desktop) */
+    transition: opacity 120ms ease, transform 120ms ease;
+}
+
+.slot-edit-btn {
+    top: 6px;
+    right: 6px;
+}
+
+.slot-reset-btn {
+    top: 6px;
+    left: 6px;
+    font-size: 11px;
+    padding: 2px 6px;
+}
+
+.slot-edit-btn:hover,
+.slot-reset-btn:hover {
+    transform: translateY(-1px);
+}
+
+.slot-edit-btn:focus-visible,
+.slot-reset-btn:focus-visible {
+    outline: 2px solid #000;
+    outline-offset: 2px;
+    opacity: 1;
+}
+
+/* reveal buttons on hover (desktop/mouse) */
+.photo-slot:hover .slot-edit-btn,
+.photo-slot:hover .slot-reset-btn {
+    opacity: 1;
+}
+
+/* ensure the icon sizes are tidy */
+.slot-edit-btn svg {
+    width: 16px;
+    height: 16px;
+    display: block;
+}
+
+/* on touch devices, keep buttons visible (no hover) */
+@media (hover: none) and (pointer: coarse) {
+
+    .slot-edit-btn,
+    .slot-reset-btn {
+        opacity: 1;
+    }
+}
+
+.modalTemplatesWrap {
+    overflow: hidden;
+}
+
+.photo-slot.empty {
+    outline: 2px dashed rgba(0, 0, 0, 0.2);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+}
+
+.slot-placeholder {
+    font-size: 1.5rem;
+    opacity: 0.5;
+}
+
+.photo-slot.empty-slot.highlight {
+    outline: 2px dashed #fff;
+    outline-offset: -2px;
+}
+
+/* --- Text editor --- */
+.text-editor {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.te-toolbar {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    padding: 4px 6px;
+    border-radius: 8px;
+    opacity: 0;
+    transition: opacity 160ms ease;
+    z-index: 2;
+}
+
+.text-slot:hover .te-toolbar,
+.text-editor:focus-within .te-toolbar {
+    opacity: 1;
+}
+
+.te-btn {
+    border: 0;
+    background: rgba(255, 255, 255, 0.1);
+    color: inherit;
+    border-radius: 6px;
+    padding: 4px 8px;
+    cursor: pointer;
+}
+
+.te-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.te-btn.te-active {
+    background: rgba(255, 255, 255, 0.35);
+}
+
+.te-select {
+    border: 0;
+    border-radius: 6px;
+    padding: 3px 6px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    cursor: pointer;
+}
+
+.te-sep {
+    width: 1px;
+    height: 18px;
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.te-content {
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 100%;
+    padding: 0;
+    outline: none;
+    overflow-y: auto;
+    background: transparent;
+    /* force a stable base direction; toggle via dir attribute */
+    direction: ltr;
+    unicode-bidi: isolate;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.te-content:empty:before {
+    content: attr(data-placeholder);
+    color: rgba(71, 85, 105, 0.6);
+    pointer-events: none;
+}
+
+/* Force LTR inside editable text areas */
+.text-slot,
+.text-slot * {
+    direction: ltr !important;
+    unicode-bidi: plaintext;
+    text-align: left;
+}
+
+/* And for the title overlay */
+.title-overlay,
+.title-overlay * {
+    direction: ltr !important;
+    text-align: left;
+}
+
 /* your exact slot positions from the snippet */
 .slot1 {
     top: 5%;
@@ -849,42 +1217,49 @@
     height: 42.5%;
     width: 18.75%;
 }
+
 .slot104 {
     left: 28.75%;
     top: 5%;
     height: 42.5%;
     width: 18.75%;
 }
+
 .slot105 {
     left: 52.5%;
     top: 5%;
     height: 42.5%;
     width: 18.75%;
 }
+
 .slot106 {
     left: 76.25%;
     top: 5%;
     height: 42.5%;
     width: 18.75%;
 }
+
 .slot107 {
     left: 5%;
     top: 52.5%;
     height: 42.5%;
     width: 18.75%;
 }
+
 .slot108 {
     left: 28.75%;
     top: 52.5%;
     height: 42.5%;
     width: 18.75%;
 }
+
 .slot109 {
     left: 52.5%;
     top: 52.5%;
     height: 42.5%;
     width: 18.75%;
 }
+
 .slot110 {
     left: 76.25%;
     top: 52.5%;
@@ -899,42 +1274,49 @@
     width: 42.5%;
     height: 18.75%;
 }
+
 .slot112 {
     top: 28.75%;
     left: 5%;
     width: 42.5%;
     height: 18.75%;
 }
+
 .slot113 {
     top: 52.5%;
     left: 5%;
     width: 42.5%;
     height: 18.75%;
 }
+
 .slot114 {
     top: 76.25%;
     left: 5%;
     width: 42.5%;
     height: 18.75%;
 }
+
 .slot115 {
     top: 5%;
     left: 52.5%;
     width: 42.5%;
     height: 18.75%;
 }
+
 .slot116 {
     top: 28.75%;
     left: 52.5%;
     width: 42.5%;
     height: 18.75%;
 }
+
 .slot117 {
     top: 52.5%;
     left: 52.5%;
     width: 42.5%;
     height: 18.75%;
 }
+
 .slot118 {
     top: 76.25%;
     left: 52.5%;
@@ -959,6 +1341,7 @@
     width: 25%;
     height: 42.5%;
 }
+
 .slot121 {
     top: 5%;
     left: 35%;
@@ -1010,14 +1393,14 @@
     height: 90%;
 }
 
-.slot128{
+.slot128 {
     top: 5%;
     left: calc(5% + (18.75% * 2) + (5% * 2));
     width: 18.75%;
     height: 90%;
 }
 
-.slot129{
+.slot129 {
     top: 5%;
     left: calc(5% + (18.75% * 3) + (5% * 3));
     width: 18.75%;
@@ -1039,14 +1422,14 @@
     width: 90%;
 }
 
-.slot132{
+.slot132 {
     left: 5%;
     top: calc(5% + (18.75% * 2) + (5% * 2));
     height: 18.75%;
     width: 90%;
 }
 
-.slot133{
+.slot133 {
     left: 5%;
     top: calc(5% + (18.75% * 3) + (5% * 3));
     height: 18.75%;
@@ -1060,6 +1443,7 @@
     width: 58.33%;
     height: 26.6667%;
 }
+
 .slot135 {
     top: 5%;
     left: 68.3334%;
@@ -1081,6 +1465,7 @@
     height: 58.3334%;
     width: 42.5%;
 }
+
 .slot138 {
     top: 5%;
     left: 52.5%;
@@ -1090,14 +1475,14 @@
 
 
 
-.slot901{
+.slot901 {
     left: 5%;
     top: 68.3334%;
     height: 26.6667%;
     width: 90%;
 }
 
-.slot902{
+.slot902 {
     left: 68.337%;
     top: 5%;
     width: 26.6667%;
@@ -1111,6 +1496,7 @@
     width: 60%;
     height: 30%;
 }
+
 .slot904 {
     left: 58%;
     top: 68%;
@@ -1139,375 +1525,191 @@
     height: 58.3334%;
 }
 
-
-
-
-
-
-/* drag preview */
-#drag-preview {
-    position: fixed;
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    overflow: hidden;
-    pointer-events: none;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    display: none;
-    z-index: 1000;
-    transform: translate(-50%, -50%);
+.slot142 {
+    top: 5%;
+    left: 10%;
+    width: 21.6667%;
+    height: 58.3334%;
 }
 
-#drag-preview img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+
+.slot143 {
+    top: 20%;
+    left: 36.6667%;
+    width: 26.6667%;
+    height: 58.3334%;
 }
 
-/* highlight target slot */
-.highlight {
-    outline: 3px dashed #f8f8f8;
+.slot144 {
+    top: 30%;
+    left: 68.3334%;
+    width: 18.6667%;
+    height: 58.3334%;
 }
 
-/* wrap each page + toolbar together */
-.page-wrapper {
-    position: relative;
-    /* needed for clipping context */
-    overflow: hidden;
-    /* <-- clips the scaled .photo-page */
-    border-radius: 12px;
-    /* nice rounded corners */
-    display: block;
+
+
+.slot905 {
+    left: 22%;
+    top: 37.5%;
+    width: 54%;
+    height: 25%;
 }
 
-/* toolbar */
-.page-wrapper .toolbar {
-    position: relative;
-    background: #f8f8f8;
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    padding: 10px;
+.slot907 {
+    left: 27%;
+    top: 37.5%; 
+    width: 44%;
+    height: 25%;
 }
 
-.page-wrapper .toolbar .btn-ico svg {
-    color: #000;
-    fill: #000;
+.slot145 {
+    top: 36.6667%;
+    left: 5%;
+    width: 26.6667%;
+    height: 58.3334%;
 }
 
-@media (min-width: 768px) {
-    .page-wrapper:nth-child(even) .toolbar {
-        justify-content: flex-end;
-    }
+.slot146 {
+    top: 36.6667%;
+    left: 36.6667%;
+    width: 26.6667%;
+    height: 58.3334%;
 }
 
-/* skeleton loading */
-.skeleton-page-wrapper {
-    background: #f7f7f7;
-    margin-bottom: 1rem;
-    border-radius: 12px;
-    /* match page radius */
+.slot147 {
+    top: 36.6667%;
+    left: 68.3334%;
+    width: 26.6667%;
+    height: 58.3334%;
 }
 
-/* individual slot placeholders */
-.skeleton-photo-slot {
-    background: #e0e0e0;
-    flex: 1;
-    border-radius: 4px;
-    height: 150px;
+
+.slot148 {
+    left: 5%;
+    top: 5%;
+    height: 30.6667%;
+    width: 90%;
 }
 
-/* floating settings bar */
-.settings-bar {
-    position: fixed;
-    bottom: 30px;
+
+.slot149 {
+    left: 5%;
+    top: 63.3334%;
+    height: 30.6667%;
+    width: 90%;
+}
+
+.slot150 {
+    left: 5%;
+    top: 40.3334%;
+    height: 18.6667%;
+    width: 26.6667%;
+}
+
+.slot151 {
+    left: 36.6667%;
+    top: 40.3334%;
+    height: 18.6667%;
+    width: 26.6667%;
+}
+
+.slot152 {
+    left: 68.3334%;
+    top: 40.3334%;
+    height: 18.6667%;
+    width: 26.6667%;
+}
+
+
+
+.slot153 {
+    left: 5%;
+    top: 5%;
+    height: 58.3334%;
+    width: 30.6667%;
+}
+.slot154 {
+    left: 41.6667%;
+    top: 5%;
+    height: 26.6667%;
+    width: 54.333%;
+}
+.slot155 {
+    left: 41.6667%;
+    top: 36.6667%;
+    height: 58.3334%;
+    width: 24.5%;
+}
+.slot156 {
+    left: 5%;
+    top: 68.334%;
+    height: 26.6667%;
+    width: 30.6667%;
+}
+.slot157 {
+    left: 71.167%;
+    top: 36.6667%;
+    height: 58.3334%;
+    width: 24.5%;
+}
+
+.slot906 {
+    left: 71.167%;
+    top: 36.6667%;
+    height: 58.3334%;
+    width: 24.5%;
+}
+.slot908 {
+    left: 10%;
+    top: 5%;
+    height: 21%;
+    width: 40%;
+}
+
+.slot158 {
+    top: 5%;
+    left: 5%;
+    width: 60%;
+    height: 55%;
+}
+
+.slot159 {
+    top: 45%;
     left: 50%;
-    transform: translateX(-50%);
-    border-radius: 8px !important;
-    background: rgba(255, 255, 255, .9) !important;
-    box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px !important;
-    justify-content: center;
-    display: flex;
-    flex-flow: row nowrap;
-    align-items: flex-start !important;
-    gap: 0 !important;
-    z-index: 20;
+    width: 45%;
+    height:50%;
+}
+.slot160 {
+    top: 65%;
+    left:5%;
+    width: 40%;
+    height:30%;
 }
 
-@media (max-width: 600px) {
-    .settings-bar {
-        left: 0;
-        right: 0;
-        bottom: 0;
-        border-radius: 0;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
+.slot909 {
+    left: 45%;
+    top: 25%;
+    height: 50%;
+    width: 40%;
 }
 
-.btn-setting {
-    display: inline-flex;
-    flex-flow: column nowrap;
-    gap: 0 !important;
-    font-size: 14px !important;
-    font-weight: 700 !important;
-    line-height: 20px !important;
-    width: 100px;
-    color: #585858 !important;
-    text-align: center;
-    padding: 5px !important;
-}
 
-.btn-setting>div {
-    display: flex !important;
-    flex-flow: column nowrap !important;
-    gap: 0 !important;
+.slot161 {
+    top: 5%;
+    left: 5%;
+    width: 90%;
+    height:26.6667%;
 }
-
-.btn-setting div:empty {
-    display: none !important;
+.slot162 {
+    top: 36.6667%;
+    left: 20%;
+    width: 60%;
+    height:20%;
 }
-
-.btn-setting svg {
-    display: block;
-    width: 24px !important;
-    height: 24px !important;
-    margin: 0 0 10px !important;
-}
-
-.dynamicColors {
-    gap: 8px !important;
-}
-
-.modalTemplates {
-    width: 650px;
-}
-
-.btnLayoutWrap {
-    display: flex;
-    flex-flow: row wrap;
-    gap: 20px !important;
-}
-
-.btnLayoutWrap .btnLayout {
-    width: calc(25% - 15px) !important;
-}
-
-.btnLayoutWrap .btnLayout>div {
-    background-color: #fff !important;
-    padding: 5px !important;
-    border: 0 !important;
-    
-    box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.06) !important;
-    border-radius: 4px !important;
-    background-size: calc(100% - 10px) calc(100% - 10px) !important;
-}
-.btnLayoutWrap .btnLayout>div img {
-    
-}
-
-.btnLayoutWrap .btnLayout>span {
-    display: block;
-    margin-top: 8px;
-    font-size: 11px !important;
-    font-weight: 500;
-    letter-spacing: .5px;
-    text-align: center;
-}
-
-.modalClose {
-    color: #000 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    font-weight: 700;
-}
-
-@media (max-width: 549px) {
-    .btnLayoutWrap .btnLayout {
-        width: calc(50% - 15px) !important;
-    }
-}
-
-/* --- Image cropper: per-slot overlay buttons --- */
-.slot-edit-btn,
-.slot-reset-btn {
-    position: absolute;
-    z-index: 2;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 4px 6px;
-    border-radius: 8px;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    background: rgba(255, 255, 255, 0.92);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
-    cursor: pointer;
-    line-height: 1;
-    opacity: 0;
-    /* hidden until hover/focus (desktop) */
-    transition: opacity 120ms ease, transform 120ms ease;
-}
-
-.slot-edit-btn {
-    top: 6px;
-    right: 6px;
-}
-
-.slot-reset-btn {
-    top: 6px;
-    left: 6px;
-    font-size: 11px;
-    padding: 2px 6px;
-}
-
-.slot-edit-btn:hover,
-.slot-reset-btn:hover {
-    transform: translateY(-1px);
-}
-
-.slot-edit-btn:focus-visible,
-.slot-reset-btn:focus-visible {
-    outline: 2px solid #000;
-    outline-offset: 2px;
-    opacity: 1;
-}
-
-/* reveal buttons on hover (desktop/mouse) */
-.photo-slot:hover .slot-edit-btn,
-.photo-slot:hover .slot-reset-btn {
-    opacity: 1;
-}
-
-/* ensure the icon sizes are tidy */
-.slot-edit-btn svg {
-    width: 16px;
-    height: 16px;
-    display: block;
-}
-
-/* on touch devices, keep buttons visible (no hover) */
-@media (hover: none) and (pointer: coarse) {
-
-    .slot-edit-btn,
-    .slot-reset-btn {
-        opacity: 1;
-    }
-}
-
-.modalTemplatesWrap {
-    overflow: hidden;
-}
-
-.photo-slot.empty {
-    outline: 2px dashed rgba(0, 0, 0, 0.2);
-    display: grid;
-    place-items: center;
-    cursor: pointer;
-}
-
-.slot-placeholder {
-    font-size: 1.5rem;
-    opacity: 0.5;
-}
-
-.photo-slot.empty-slot.highlight {
-    outline: 2px dashed #fff;
-    outline-offset: -2px;
-}
-
-/* --- Text editor --- */
-.text-editor {
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-
-.te-toolbar {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(0, 0, 0, 0.55);
-    color: #fff;
-    padding: 4px 6px;
-    border-radius: 8px;
-    opacity: 0;
-    transition: opacity 160ms ease;
-    z-index: 2;
-}
-
-.text-slot:hover .te-toolbar,
-.text-editor:focus-within .te-toolbar {
-    opacity: 1;
-}
-
-.te-btn {
-    border: 0;
-    background: rgba(255, 255, 255, 0.1);
-    color: inherit;
-    border-radius: 6px;
-    padding: 4px 8px;
-    cursor: pointer;
-}
-
-.te-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.te-btn.te-active {
-    background: rgba(255, 255, 255, 0.35);
-}
-
-.te-select {
-    border: 0;
-    border-radius: 6px;
-    padding: 3px 6px;
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-    cursor: pointer;
-}
-
-.te-sep {
-    width: 1px;
-    height: 18px;
-    background: rgba(255, 255, 255, 0.25);
-}
-
-.te-content {
-    flex: 1 1 auto;
-    width: 100%;
-    min-height: 100%;
-    padding: 0;
-    outline: none;
-    overflow-y: auto;
-    background: transparent;
-    /* force a stable base direction; toggle via dir attribute */
-    direction: ltr;
-    unicode-bidi: isolate;
-    white-space: pre-wrap;
-    word-break: break-word;
-}
-
-.te-content:empty:before {
-    content: attr(data-placeholder);
-    color: rgba(71, 85, 105, 0.6);
-    pointer-events: none;
-}
-
-/* Force LTR inside editable text areas */
-.text-slot,
-.text-slot * {
-    direction: ltr !important;
-    unicode-bidi: plaintext;
-    text-align: left;
-}
-
-/* And for the title overlay */
-.title-overlay,
-.title-overlay * {
-    direction: ltr !important;
-    text-align: left;
+.slot163 {
+    top: 61.6667%;
+    left: 5%;
+    width: 90%;
+    height:33.33%;
 }

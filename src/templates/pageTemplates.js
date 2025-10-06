@@ -371,6 +371,85 @@ export const pageTemplates = [
         textSlots: [38],
         thumbnailUrl: '/layout-108.png',
     },
-    
+    {
+        id: 109,
+        name: 'Text and Image',
+        slots: [141, 142, 143],
+        textSlots: [79],
+        thumbnailUrl: '/layout-109.png', 
+    },
+    {
+        id: 110,
+        name: 'Text and Image',
+        slots: [5, 6, 7, 8],
+        textSlots: [904],
+        thumbnailUrl: '/layout-110.png', 
+    },
+    {
+        id: 111,
+        name: 'Text and Image',
+        slots: [144, 145, 146],
+        textSlots: [36],
+        thumbnailUrl: '/layout-111.png',
+    },
+    {
+        id: 112,
+        name: 'Text and Image',
+        slots: [147, 148, 149, 150],
+        textSlots: [151],
+        thumbnailUrl: '/layout-112.png',
+    },
+    {
+        id: 113,
+        name: 'Text and Image',
+        slots: [152, 153, 154, 155],
+        textSlots: [156],
+        thumbnailUrl: '/layout-113.png',
+    },
+
+    {
+        id: 114,
+        name: 'Text and Image',
+        slots: [9],
+        textSlots: [906], 
+        thumbnailUrl: '/layout-114.png',
+    },
+
+    {
+        id: 115,
+        name: 'Text and Image',
+        slots: [22, 75, 78, 81],
+        textSlots: [907], 
+        thumbnailUrl: '/layout-115.png',
+    },
+    {
+        id: 116,
+        name: 'Text and Image',
+        slots: [120],
+        textSlots: [33], 
+        thumbnailUrl: '/layout-116.png',
+    },
+    {
+        id: 117,
+        name: 'Text and Image',
+        slots: [157, 158],
+        textSlots: [159], 
+        thumbnailUrl: '/layout-117.png',
+    },
+    {
+        id: 118,
+        name: 'Text and Image',
+        slots: [9],
+        textSlots: [908], 
+        thumbnailUrl: '/layout-118.png',
+    },
+
+    {
+        id: 119,
+        name: 'Text and Image',
+        slots: [160, 162],
+        textSlots: [161],  
+        thumbnailUrl: '/layout-119.png',
+    },
 ];
 
