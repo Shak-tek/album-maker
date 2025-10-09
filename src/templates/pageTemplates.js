@@ -568,7 +568,7 @@ export const pageTemplates = [
         name: 'Text and Image',
         slots: [40, 41, 62, 63], 
         textSlots: [33],
-        thumbnailUrl: '/layout-137.png',
+        thumbnailUrl: '/layout-136.png',
     },  
     {
         id: 137,
@@ -576,6 +576,48 @@ export const pageTemplates = [
         slots: [39, 40, 61, 62], 
         textSlots: [35],
         thumbnailUrl: '/layout-137.png',
+    }, 
+    {
+        id: 138,
+        name: 'Text and Image',
+        slots: [124], 
+        textSlots: [49],
+        thumbnailUrl: '/layout-138.png', 
+    }, 
+    {
+        id: 139,
+        name: 'Text and Image',
+        slots: [182], 
+        textSlots: [45],
+        thumbnailUrl: '/layout-139.png', 
+    }, 
+    {
+        id: 140,
+        name: 'Text and Image',
+        slots: [88], 
+        textSlots: [87],
+        thumbnailUrl: '/layout-140.png', 
+    }, 
+    {
+        id: 141,
+        name: 'Text and Image',
+        slots: [87], 
+        textSlots: [88],
+        thumbnailUrl: '/layout-141.png', 
+    }, 
+    {
+        id: 142,
+        name: 'Text and Image',
+        slots: [182, 183], 
+        textSlots: [184],
+        thumbnailUrl: '/layout-142.png',  
+    }, 
+    {
+        id: 143,
+        name: 'Text and Image',
+        slots: [182, 184], 
+        textSlots: [183],
+        thumbnailUrl: '/layout-143.png', 
     }, 
 ];
 
