@@ -194,38 +194,37 @@ export default function SettingsBar({
         wrap
       >
         {/* Photos */}
-        <Box direction="row" align="center" gap="xsmall" className='btn-setting'>
-          
+        <Box direction="row" align="center" gap="xsmall">
+          <PhotosIcon />
           <FileInput
             multiple
             name="images"
             accept="image/*"
-            
             onChange={handleFileInputChange}
           />
         </Box>
 
         {/* Background toggle */}
-        <Box direction="row" align="center" gap="xsmall" className='btn-setting'>
+        <Box direction="row" align="center" gap="xsmall">
           <BackgroundIcon />
           <CheckBox
             toggle
             checked={backgroundEnabled}
-            label={backgroundEnabled ? 'Remove Borders' : 'Keep Borders'}
+            label={backgroundEnabled ? 'Background: On' : 'Background: Off'}
             onChange={(e) => setBackgroundEnabled(e.target.checked)}
           />
         </Box>
 
         {/* Theme / Title / Text / Save */}
         {onOpenThemeModal && (
-          <Button className='btn-setting' icon={<ThemeIcon />} label="Change Theme" onClick={onOpenThemeModal} />
+          <Button icon={<ThemeIcon />} label="Change Theme" onClick={onOpenThemeModal} />
         )}
         {onEditTitle && (
-          <Button className='btn-setting' icon={<Edit />} label="Edit Title" onClick={onEditTitle} />
+          <Button icon={<Edit />} label="Edit Title" onClick={onEditTitle} />
         )}
-        <Button  className='btn-setting' 
+        <Button
           icon={<TextWrap />}
-          label="Text Styles"
+          label="Text"
           onMouseDown={saveSelection}
           onClick={() => {
             saveSelection();
@@ -233,7 +232,7 @@ export default function SettingsBar({
           }}
         />
         {onSave && (
-          <Button  className='btn-setting' icon={<SavingIcon />} label="Save Album" onClick={onSave} />
+          <Button icon={<SavingIcon />} label="Save" onClick={onSave} />
         )}
       </Box>
 
