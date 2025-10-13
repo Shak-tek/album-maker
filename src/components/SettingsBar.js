@@ -194,7 +194,7 @@ export default function SettingsBar({
         wrap
       >
         {/* Photos */}
-        <Box direction="row" align="center" gap="xsmall" className='btn-setting'>
+        <Box direction="row" align="center" gap="xsmall" className="btn-setting">
           <PhotosIcon />
           <FileInput
             multiple
