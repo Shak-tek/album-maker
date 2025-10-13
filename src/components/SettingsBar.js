@@ -205,24 +205,25 @@ export default function SettingsBar({
         </Box>
 
         {/* Background toggle */}
-        <Box direction="row" align="center" gap="xsmall">
+        <Box direction="row" align="center" gap="xsmall" className="btn-setting">
           <BackgroundIcon />
           <CheckBox
             toggle
             checked={backgroundEnabled}
-            label={backgroundEnabled ? 'Background: On' : 'Background: Off'}
+            label={backgroundEnabled ? 'Keep Borders' : 'Remove Borders'}
             onChange={(e) => setBackgroundEnabled(e.target.checked)}
           />
         </Box>
 
         {/* Theme / Title / Text / Save */}
         {onOpenThemeModal && (
-          <Button icon={<ThemeIcon />} label="Change Theme" onClick={onOpenThemeModal} />
+          <Button icon={<ThemeIcon />} label="Change Theme" onClick={onOpenThemeModal}  className="btn-setting" />
         )}
         {onEditTitle && (
-          <Button icon={<Edit />} label="Edit Title" onClick={onEditTitle} />
+          <Button icon={<Edit />} label="Edit Title" onClick={onEditTitle}  className="btn-setting" />
         )}
         <Button
+          className="btn-setting"
           icon={<TextWrap />}
           label="Text"
           onMouseDown={saveSelection}
@@ -232,7 +233,7 @@ export default function SettingsBar({
           }}
         />
         {onSave && (
-          <Button icon={<SavingIcon />} label="Save" onClick={onSave} />
+          <Button  className="btn-setting" icon={<SavingIcon />} label="Save" onClick={onSave} />
         )}
       </Box>
 
