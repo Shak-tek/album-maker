@@ -195,7 +195,7 @@ export default function SettingsBar({
       >
         {/* Photos */}
         <Box direction="row" align="center" gap="xsmall" className='btn-setting btnUpload'>
-          {/* <PhotosIcon /> */}
+        
           <FileInput
             multiple
             name="images"
