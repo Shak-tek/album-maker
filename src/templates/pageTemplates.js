@@ -619,5 +619,29 @@ export const pageTemplates = [
         textSlots: [183],
         thumbnailUrl: '/layout-143.png', 
     }, 
+    {
+        id: 144,
+        name: 'Text and Image',
+        slots: [124, 185], 
+        thumbnailUrl: '/layout-144.png', 
+    }, 
+    {
+        id: 145,
+        name: 'Text and Image',
+        slots: [124, 186], 
+        thumbnailUrl: '/layout-144.png', 
+    }, 
+    {
+        id: 146,
+        name: 'Text and Image',
+        slots: [120, 187], 
+        thumbnailUrl: '/layout-146.png', 
+    }, 
+    {
+        id: 147,
+        name: 'Text and Image',
+        slots: [22, 188], 
+        thumbnailUrl: '/layout-147.png', 
+    }, 
 ];
 
