@@ -219,6 +219,7 @@
     align-items: flex-start !important;
     gap: 0 !important;
     z-index: 20;
+    max-width: 510px !important;
 }
 
 @media (max-width: 600px) {
@@ -233,16 +234,26 @@
 }
 
 .btn-setting {
-    display: inline-flex;
-    flex-flow: column nowrap;
+    display: inline-flex !important;
+    flex-flow: column nowrap !important;
     gap: 0 !important;
-    font-size: 14px !important;
-    font-weight: 700 !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
     line-height: 20px !important;
-    width: 100px;
-    color: #585858 !important;
-    text-align: center;
+    width: 80px !important;
+    color: #1a1a1a !important;
+    text-align: center !important;
+    
     padding: 5px !important;
+    label input[type="checkbox"] {
+        display: none;
+    }
+    label > div {
+        margin: 0;
+    }
+    label input + span {
+        display: none !important;
+    }
 }
 
 .btn-setting>div {
@@ -1905,4 +1916,67 @@
     top: 42.5%;
     height: 42.5%;
     width: 45.5%;
+}
+
+.btn-setting.btnUpload {
+    width: 100% !important;
+
+    input {
+        width: 100%;
+        font-size: 14px;
+    }
+    .FileInput__ContentsBox-sc-1jzq7im-0 {
+        width: 100%;
+        > .StyledBox-sc-13pk1d4-0 {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            padding: 10px 20px;
+            align-items: center;
+
+            > .StyledBox-sc-13pk1d4-0 {
+                padding: 0;
+                margin: 0;
+                flex-grow: 1;
+                overflow: hidden;
+                display: flex;
+                align-items: center;
+            }
+            .StyledButton-sc-323bzc-0 {
+                margin: 0;
+                padding: 0;
+
+                svg {
+                    margin: 0 !important;
+                    padding: 0;
+                    display: block;
+                }
+            }
+            .StyledBox-sc-13pk1d4-0.jUSFfA {
+                flex-grow: 0;
+                flex-shrink: 0;
+            }
+            span {
+                font-size: 12px;
+                line-height: 20px;
+                padding: 0 !important;
+                margin: 0;
+            }
+            a {
+                padding-left: 0;
+                padding: 0 !important;
+                margin: 0 0 0 5px;
+                display: inline-block;
+                color: rgba(223, 59, 59, 1) !important;
+                text-transform: capitalize;
+                
+            }
+
+            .FileInput__Message-sc-1jzq7im-2 {
+                flex-grow: 1;
+                text-align: left;
+                font-size: 18px;
+            }
+        }
+    }
 }

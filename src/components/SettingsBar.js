@@ -194,37 +194,38 @@ export default function SettingsBar({
         wrap
       >
         {/* Photos */}
-        <Box direction="row" align="center" gap="xsmall">
-          <PhotosIcon />
+        <Box direction="row" align="center" gap="xsmall" className='btn-setting btnUpload'>
+          {/* <PhotosIcon /> */}
           <FileInput
             multiple
             name="images"
             accept="image/*"
+            label="Upload Photos"
             onChange={handleFileInputChange}
           />
         </Box>
 
         {/* Background toggle */}
-        <Box direction="row" align="center" gap="xsmall">
+        <Box direction="row" align="center" gap="xsmall" className='btn-setting'>
           <BackgroundIcon />
           <CheckBox
             toggle
             checked={backgroundEnabled}
-            label={backgroundEnabled ? 'Background: On' : 'Background: Off'}
+            label={backgroundEnabled ? 'Remove Borders' : 'Keep Borders'}
             onChange={(e) => setBackgroundEnabled(e.target.checked)}
           />
         </Box>
 
         {/* Theme / Title / Text / Save */}
         {onOpenThemeModal && (
-          <Button icon={<ThemeIcon />} label="Change Theme" onClick={onOpenThemeModal} />
+          <Button className='btn-setting' icon={<ThemeIcon />} label="Change Theme" onClick={onOpenThemeModal} />
         )}
         {onEditTitle && (
-          <Button icon={<Edit />} label="Edit Title" onClick={onEditTitle} />
+          <Button className='btn-setting' icon={<Edit />} label="Edit Title" onClick={onEditTitle} />
         )}
-        <Button
+        <Button  className='btn-setting' 
           icon={<TextWrap />}
-          label="Text"
+          label="Text Styles"
           onMouseDown={saveSelection}
           onClick={() => {
             saveSelection();
@@ -232,7 +233,7 @@ export default function SettingsBar({
           }}
         />
         {onSave && (
-          <Button icon={<SavingIcon />} label="Save" onClick={onSave} />
+          <Button  className='btn-setting' icon={<SavingIcon />} label="Save Album" onClick={onSave} />
         )}
       </Box>
 
