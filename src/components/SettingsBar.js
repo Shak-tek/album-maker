@@ -194,13 +194,13 @@ export default function SettingsBar({
         wrap
       >
         {/* Photos */}
-        <Box direction="row" align="center" gap="xsmall" className='btn-setting btnUpload'>
-        
+        <Box direction="row" align="center" gap="xsmall" className='btn-setting'>
+          
           <FileInput
             multiple
             name="images"
             accept="image/*"
-            label="Upload Photos"
+            
             onChange={handleFileInputChange}
           />
         </Box>
