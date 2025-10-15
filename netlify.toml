@@ -1,0 +1,6 @@
+[functions]
+  node_bundler = "esbuild"
+
+[functions."process-album-jobs"]
+  schedule = "*/10 * * * *"
+  external_node_modules = ["@sparticuz/chromium", "puppeteer-core"]
