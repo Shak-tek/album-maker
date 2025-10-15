@@ -1980,3 +1980,60 @@
         }
     }
 }
+
+
+
+.editModal {
+    color: rgb(46, 46, 46) !important;
+    border-radius: 15px !important;
+    max-width: 1000px !important;
+    overflow: hidden;
+    width: 100%;
+
+    .editModal-frame {
+        overflow: auto;
+        max-height: 90vh;
+        width: 100%;
+    }
+    .editModal-header {
+        padding: 25px 30px !important;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .btn-close {
+        position: relative;
+        background: none;
+        border: 0;
+        padding: 0;
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: rgb(46, 46, 46);
+    }
+    .modal-content {
+        display: flex;
+        align-items: flex-start;
+        padding: 0 30px;
+        border: 0;
+        flex-flow: row nowrap;
+        justify-content: space-between;
+        gap: 30px;
+    }
+    .photo-area {
+        width: 450px;
+        flex-shrink: 0;
+        height: 450px;
+        position: relative;
+        background: #000;
+        margin: 30px 0;
+    }
+    .options-area {
+        flex-grow: 1;
+        padding: 30px 0;
+        overflow: hidden;
+        max-width: 350px;
+        display: block;
+        min-height: 510px;
+    }
+}
