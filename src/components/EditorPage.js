@@ -3,8 +3,6 @@ import "./EditorPage.css";
 import React, { useState, useEffect, useRef } from "react";
 import ColorThief from "color-thief-browser";
 import { Box, Button, Layer, Text, Spinner, Meter } from "grommet";
-import { jsPDF } from "jspdf";
-import { toJpeg } from "html-to-image";
 import { Template as TemplateIcon, Brush, Edit, Add } from "grommet-icons"; // NEW: Add
 import Cropper from "react-easy-crop";
 import TemplateModal from "./TemplateModal";
@@ -709,24 +707,153 @@ export default function EditorPage(props) {
 
     // ---------------- PDF SAVE ----------------
     const handleSave = async () => {
-        if (!albumSize) return;
+        if (!albumSize || !sessionId || !user?.id) return;
         setSaving(true);
-        const { width, height } = albumSize;
-        const orientation = width >= height ? "landscape" : "portrait";
-        const pdf = new jsPDF({ orientation, unit: "cm", format: [width, height] });
-        for (let i = 0; i < pageSettings.length; i++) {
-            const node = refs.current[i];
-            if (!node) continue;
-            // eslint-disable-next-line no-await-in-loop
-            const dataUrl = await toJpeg(node, { quality: 0.95, cacheBust: true, skipFonts: true });
-            if (i > 0) pdf.addPage([width, height], orientation);
-            pdf.addImage(dataUrl, "JPEG", 0, 0, width, height);
-        }
 
-        const blob = pdf.output("blob");
-        const key = `${sessionId}/album.pdf`;
+        const round = (value) => Math.round(value * 1000) / 1000;
+        const toPercent = (value, total) => {
+            if (!total || Number.isNaN(total)) return 0;
+            return (value / total) * 100;
+        };
+
+        const collectPageGeometry = (pageEl) => {
+            if (!pageEl) {
+                return { slots: [], textSlots: [], titleOverlay: null };
+            }
+
+            const pageRect = pageEl.getBoundingClientRect();
+
+            const slots = Array.from(pageEl.querySelectorAll("[data-slot-index]"))
+                .map((el) => {
+                    const rect = el.getBoundingClientRect();
+                    const slotIndex = Number(el.dataset.slotIndex ?? 0);
+                    return {
+                        slotIndex,
+                        bounds: {
+                            top: round(toPercent(rect.top - pageRect.top, pageRect.height)),
+                            left: round(toPercent(rect.left - pageRect.left, pageRect.width)),
+                            width: round(toPercent(rect.width, pageRect.width)),
+                            height: round(toPercent(rect.height, pageRect.height)),
+                        },
+                    };
+                })
+                .sort((a, b) => a.slotIndex - b.slotIndex);
+
+            const textSlots = Array.from(pageEl.querySelectorAll("[data-text-index]"))
+                .map((el) => {
+                    const rect = el.getBoundingClientRect();
+                    const textIndex = Number(el.dataset.textIndex ?? 0);
+                    const computed = window.getComputedStyle(el);
+                    return {
+                        textIndex,
+                        bounds: {
+                            top: round(toPercent(rect.top - pageRect.top, pageRect.height)),
+                            left: round(toPercent(rect.left - pageRect.left, pageRect.width)),
+                            width: round(toPercent(rect.width, pageRect.width)),
+                            height: round(toPercent(rect.height, pageRect.height)),
+                        },
+                        style: {
+                            fontFamily: computed.fontFamily,
+                            fontSize: computed.fontSize,
+                            color: computed.color,
+                            lineHeight: computed.lineHeight,
+                            fontWeight: computed.fontWeight,
+                            fontStyle: computed.fontStyle,
+                            textAlign: computed.textAlign,
+                        },
+                    };
+                })
+                .sort((a, b) => a.textIndex - b.textIndex);
+
+            const overlayEl = pageEl.querySelector(".title-overlay");
+            let titleOverlay = null;
+            if (overlayEl) {
+                const rect = overlayEl.getBoundingClientRect();
+                const computed = window.getComputedStyle(overlayEl);
+                const headingEl = overlayEl.querySelector("h1");
+                const subheadingEl = overlayEl.querySelector("h2");
+                const headingStyle = headingEl ? window.getComputedStyle(headingEl) : null;
+                const subheadingStyle = subheadingEl ? window.getComputedStyle(subheadingEl) : null;
+                titleOverlay = {
+                    bounds: {
+                        top: round(toPercent(rect.top - pageRect.top, pageRect.height)),
+                        left: round(toPercent(rect.left - pageRect.left, pageRect.width)),
+                        width: round(toPercent(rect.width, pageRect.width)),
+                        height: round(toPercent(rect.height, pageRect.height)),
+                    },
+                    style: {
+                        fontFamily: computed.fontFamily,
+                        color: computed.color,
+                        textAlign: computed.textAlign,
+                    },
+                    headingStyle: headingStyle
+                        ? {
+                              fontSize: headingStyle.fontSize,
+                              fontWeight: headingStyle.fontWeight,
+                              lineHeight: headingStyle.lineHeight,
+                          }
+                        : null,
+                    subheadingStyle: subheadingStyle
+                        ? {
+                              fontSize: subheadingStyle.fontSize,
+                              fontWeight: subheadingStyle.fontWeight,
+                              lineHeight: subheadingStyle.lineHeight,
+                          }
+                        : null,
+                };
+            }
+
+            return { slots, textSlots, titleOverlay };
+        };
+
+        const pages = pageSettings.map((ps, index) => {
+            const layout = collectPageGeometry(refs.current[index]);
+            return {
+                index,
+                templateId: ps?.templateId ?? null,
+                theme: ps?.theme || null,
+                assignedImages: Array.isArray(ps?.assignedImages) ? [...ps.assignedImages] : [],
+                edits: Array.isArray(ps?.edits)
+                    ? ps.edits.map((edit) =>
+                          edit
+                              ? {
+                                    originalSrc: edit.originalSrc || null,
+                                    previewDataUrl: edit.previewDataUrl || null,
+                                    params: edit.params || null,
+                                }
+                              : null,
+                      )
+                    : [],
+                texts: Array.isArray(ps?.texts) ? [...ps.texts] : [],
+                layout,
+            };
+        });
+
+        const payload = {
+            jobType: "album-pdf",
+            sessionId,
+            userId: user.id,
+            customerName: user.name || user.email || "Customer",
+            albumSize,
+            backgroundEnabled,
+            title,
+            subtitle,
+            textSettings: textSettings ? { ...textSettings } : null,
+            pages,
+        };
+
         try {
-            await s3.upload({ Key: key, Body: blob, ContentType: "application/pdf" }).promise();
+            const res = await fetch("/.netlify/functions/queue-album-job", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+            if (!res.ok) {
+                const message = await res.text();
+                throw new Error(message || "Failed to queue album job");
+            }
+        } catch (error) {
+            console.error("Failed to queue album job", error);
         } finally {
             setSaving(false);
         }
@@ -1029,7 +1156,7 @@ export default function EditorPage(props) {
                                                 return (
                                                     <div
                                                         key={`text-${slotPosIndex}-${textIdx}`}
-                                                        className={`text-slot slot${slotPosIndex + 1}`}
+                                                        className={`text-slot slot${slotPosIndex + 1}`} data-text-index={textIdx}
                                                         ref={(el) => {
                                                             if (!slotRefs.current[pi]) slotRefs.current[pi] = [];
                                                             slotRefs.current[pi][tmpl.slots.length + textIdx] = el || null;
@@ -1141,7 +1268,7 @@ export default function EditorPage(props) {
                                     return (
                                         <Box
                                             key={`${slotPosIndex}-${slotIdx}`}
-                                            className={`photo-slot slot${slotPosIndex + 1}`}
+                                            className={`photo-slot slot${slotPosIndex + 1}`} data-slot-index={slotIdx}
                                             style={{
                                                 position: "absolute",
                                                 overflow: "hidden",
@@ -1163,7 +1290,7 @@ export default function EditorPage(props) {
                                     return (
                                         <div
                                             key={`text-${slotPosIndex}-${textIdx}`}
-                                            className={`text-slot slot${slotPosIndex + 1}`}
+                                            className={`text-slot slot${slotPosIndex + 1}`} data-text-index={textIdx}
                                             style={{
                                                 position: "absolute",
                                                 fontFamily: textSettings.fontFamily,
@@ -1451,3 +1578,6 @@ export default function EditorPage(props) {
         </>
     );
 }
+
+
+
