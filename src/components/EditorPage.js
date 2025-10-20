@@ -1484,71 +1484,73 @@ export default function EditorPage(props) {
 
             {/* CROPPER MODAL */}
             {cropOpen && (
-                <Layer onEsc={closeCropper} onClickOutside={closeCropper} modal responsive={false} position="center">
-                    <Box width="large" height="medium" overflow="hidden">
-                        <Box pad="small" border={{ side: "bottom" }} direction="row" justify="between" align="center">
-                            <Text weight="bold">Adjust photo</Text>
-                            <Button label="Close" onClick={closeCropper} />
+                <Layer onEsc={closeCropper} onClickOutside={closeCropper} modal responsive={false} position="center" className="editModal">
+                    <Box width="large" className="editModal-frame">
+                        <Box pad="small" border={{ side: "bottom" }} direction="row" justify="between" align="center" className="editModal-header">
+                            <Text weight="bold">Edit photo</Text>
+                            <Button label="x" className="btn-close" onClick={closeCropper} />
                         </Box>
-                        <Box background="black" style={{ position: "relative", flex: 1, height: "60vh" }}>
-                            {(() => {
-                                const { pageIdx, slotIdx } = cropTarget;
-                                const src =
-                                    pageIdx != null && slotIdx != null
-                                        ? pageSettings[pageIdx]?.assignedImages?.[slotIdx]
-                                        : null;
-                                if (!src) return null;
-                                return (
-                                    <Cropper
-                                        image={src}
-                                        crop={cropState.crop}
-                                        zoom={cropState.zoom}
-                                        rotation={cropState.rotation}
-                                        aspect={cropTarget.aspect}
-                                        onCropChange={(crop) => setCropState((p) => ({ ...p, crop }))}
-                                        onZoomChange={(zoom) => setCropState((p) => ({ ...p, zoom }))}
-                                        onRotationChange={(rotation) => setCropState((p) => ({ ...p, rotation }))}
-                                        onCropComplete={onCropComplete}
-                                        restrictPosition
-                                        showGrid
+                        <Box className="modal-content">
+                            <Box className="photo-area">
+                                {(() => {
+                                    const { pageIdx, slotIdx } = cropTarget;
+                                    const src =
+                                        pageIdx != null && slotIdx != null
+                                            ? pageSettings[pageIdx]?.assignedImages?.[slotIdx]
+                                            : null;
+                                    if (!src) return null;
+                                    return (
+                                        <Cropper
+                                            image={src}
+                                            crop={cropState.crop}
+                                            zoom={cropState.zoom}
+                                            rotation={cropState.rotation}
+                                            aspect={cropTarget.aspect}
+                                            onCropChange={(crop) => setCropState((p) => ({ ...p, crop }))}
+                                            onZoomChange={(zoom) => setCropState((p) => ({ ...p, zoom }))}
+                                            onRotationChange={(rotation) => setCropState((p) => ({ ...p, rotation }))}
+                                            onCropComplete={onCropComplete}
+                                            restrictPosition
+                                            showGrid
+                                        />
+                                    );
+                                })()}
+                            </Box>
+                            <Box className="options-area" pad="small" gap="small" direction="row" align="center" border={{ side: "top" }}>
+                                <Box width="medium">
+                                    <Text size="small">Zoom ({cropState.zoom.toFixed(2)}×)</Text>
+                                    <input
+                                        type="range"
+                                        min={1}
+                                        max={4}
+                                        step={0.01}
+                                        value={cropState.zoom}
+                                        onChange={(e) => setCropState((p) => ({ ...p, zoom: Number(e.target.value) }))}
+                                        style={{ width: "100%" }}
                                     />
-                                );
-                            })()}
-                        </Box>
-                        <Box pad="small" gap="small" direction="row" align="center" border={{ side: "top" }}>
-                            <Box width="medium">
-                                <Text size="small">Zoom ({cropState.zoom.toFixed(2)}×)</Text>
-                                <input
-                                    type="range"
-                                    min={1}
-                                    max={4}
-                                    step={0.01}
-                                    value={cropState.zoom}
-                                    onChange={(e) => setCropState((p) => ({ ...p, zoom: Number(e.target.value) }))}
-                                    style={{ width: "100%" }}
-                                />
-                            </Box>
-                            <Box width="medium">
-                                <Text size="small">Rotation ({Math.round(cropState.rotation)}°)</Text>
-                                <input
-                                    type="range"
-                                    min={-180}
-                                    max={180}
-                                    step={1}
-                                    value={cropState.rotation}
-                                    onChange={(e) => setCropState((p) => ({ ...p, rotation: Number(e.target.value) }))}
-                                    style={{ width: "100%" }}
-                                />
-                            </Box>
-                            <Box direction="row" gap="small" margin={{ left: "auto" }}>
-                                <Button
-                                    label="Reset"
-                                    onClick={() => {
-                                        setCropState({ crop: { x: 0, y: 0 }, zoom: 1, rotation: 0 });
-                                        setCroppedAreaPixels(null);
-                                    }}
-                                />
-                                <Button primary label="Save crop" onClick={saveCrop} disabled={!croppedAreaPixels} />
+                                </Box>
+                                <Box width="medium">
+                                    <Text size="small">Rotation ({Math.round(cropState.rotation)}°)</Text>
+                                    <input
+                                        type="range"
+                                        min={-180}
+                                        max={180}
+                                        step={1}
+                                        value={cropState.rotation}
+                                        onChange={(e) => setCropState((p) => ({ ...p, rotation: Number(e.target.value) }))}
+                                        style={{ width: "100%" }}
+                                    />
+                                </Box>
+                                <Box direction="row" gap="small" margin={{ left: "auto" }}>
+                                    <Button
+                                        label="Reset"
+                                        onClick={() => {
+                                            setCropState({ crop: { x: 0, y: 0 }, zoom: 1, rotation: 0 });
+                                            setCroppedAreaPixels(null);
+                                        }}
+                                    />
+                                    <Button primary label="Save crop" onClick={saveCrop} disabled={!croppedAreaPixels} />
+                                </Box>
                             </Box>
                         </Box>
                     </Box>
