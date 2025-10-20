@@ -21,7 +21,7 @@ export default function GridStep({
     return (
         <Box>
             <Grid className="uploader-grid" rows="small" columns={["small", "small", "small", "small", "small", "small"]} gap="large">
-                {uploads.length < 24 && (
+                { (
                     <Box
                         key="add"
                         align="center"
