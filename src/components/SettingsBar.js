@@ -1,7 +1,7 @@
 // src/components/SettingsBar.js
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Box, Button, Text, Select, FileInput, CheckBox, Layer, Heading, TextInput, Tip } from 'grommet';
-import { Edit, TextWrap, Bold, Italic, Underline, TextAlignLeft, TextAlignCenter, TextAlignRight, ClearOption } from 'grommet-icons';
+import React, { useRef } from 'react';
+import { Box, Button, FileInput, CheckBox } from 'grommet';
+import { Edit } from 'grommet-icons';
 
 export default function SettingsBar({
   backgroundEnabled,
@@ -10,19 +10,8 @@ export default function SettingsBar({
   onOpenThemeModal,
   onSave,
   onEditTitle,
-  textSettings,
-  onChangeTextSettings,
   fileInputRef,
 }) {
-  const [showTextModal, setShowTextModal] = useState(false);
-  const savedSel = useRef(null); // Range
-  const savedEditable = useRef(null); // HTMLElement
-  const [hex, setHex] = useState(textSettings?.color || '#000000');
-
-  useEffect(() => {
-    setHex(textSettings?.color || '#000000');
-  }, [textSettings?.color]);
-
   const internalUploadInputRef = useRef(null);
   const uploadInputRef = fileInputRef || internalUploadInputRef;
 
@@ -51,19 +40,6 @@ export default function SettingsBar({
       event.target.value = '';
     }
   };
-
-  const applyTextSettings = (patch) => {
-    if (!onChangeTextSettings) return;
-    const updater = typeof patch === 'function' ? patch : () => patch;
-    if (typeof onChangeTextSettings === 'function') {
-      onChangeTextSettings((prev) => {
-        const safePrev = prev && typeof prev === 'object' ? prev : {};
-        const nextPatch = updater(safePrev) || {};
-        return { ...safePrev, ...nextPatch };
-      });
-    }
-  };
-
   // Icons (inline SVG OK)
   const BackgroundIcon = () => (
     <svg viewBox="0 0 256 256" width="20" height="20" aria-hidden="true">
@@ -89,89 +65,6 @@ export default function SettingsBar({
       c1.764,0,3.199,1.435,3.199,3.199V91H17.4z" />
     </svg>
   );
-
-  // Font/size/color options
-  const fonts = useMemo(() => ([
-    'Inter, system-ui, Helvetica, Arial, sans-serif',
-    'Roboto, system-ui, Helvetica, Arial, sans-serif',
-    'Helvetica, Arial, sans-serif',
-    'Georgia, serif',
-    '"Times New Roman", Times, serif',
-    '"Courier New", Courier, monospace',
-  ]), []);
-  const sizeOptions = useMemo(() => {
-    const arr = [];
-    for (let s = 10; s <= 72; s += 2) arr.push(`${s}px`);
-    return arr;
-  }, []);
-  const colorOptions = useMemo(() => ([
-    { name: 'Black', value: '#000000' },
-    { name: 'Dark Grey', value: '#333333' },
-    { name: 'Grey', value: '#777777' },
-    { name: 'White', value: '#FFFFFF' },
-    { name: 'Red', value: '#E53935' },
-    { name: 'Orange', value: '#FB8C00' },
-    { name: 'Yellow', value: '#FDD835' },
-    { name: 'Green', value: '#43A047' },
-    { name: 'Blue', value: '#1E88E5' },
-    { name: 'Indigo', value: '#3949AB' },
-    { name: 'Purple', value: '#8E24AA' },
-  ]), []);
-
-  /** Utilities to work on the saved selection inside your contentEditable **/
-  const findEditableAncestor = (node) => {
-    while (node && node.nodeType === 1 /*ELEMENT_NODE*/) {
-      const ce = node.getAttribute && node.getAttribute('contenteditable');
-      if (ce === '' || ce === 'true') return node;
-      node = node.parentNode;
-    }
-    return null;
-  };
-
-  const saveSelection = () => {
-    const sel = window.getSelection();
-    if (!sel || sel.rangeCount === 0) return;
-    const rng = sel.getRangeAt(0).cloneRange();
-    savedSel.current = rng;
-    savedEditable.current = findEditableAncestor(
-      rng.commonAncestorContainer.nodeType === 1
-        ? rng.commonAncestorContainer
-        : rng.commonAncestorContainer.parentNode,
-    );
-  };
-
-  const restoreSelection = () => {
-    if (!savedSel.current) return false;
-    const sel = window.getSelection();
-    sel.removeAllRanges();
-    sel.addRange(savedSel.current);
-    if (savedEditable.current && savedEditable.current.focus) {
-      savedEditable.current.focus();
-    }
-    return true;
-  };
-
-  const exec = (command, value = null) => {
-    if (!restoreSelection()) return false;
-    document.execCommand(command, false, value);
-    saveSelection();
-    return true;
-  };
-
-  const wrapSelectionWithSpan = (styleString) => {
-    if (!restoreSelection()) return false;
-    const sel = window.getSelection();
-    if (!sel || sel.rangeCount === 0) return false;
-    const range = sel.getRangeAt(0);
-    if (range.collapsed) return false;
-    const frag = range.cloneContents();
-    const div = document.createElement('div');
-    div.appendChild(frag);
-    const html = div.innerHTML || range.toString();
-    document.execCommand('insertHTML', false, `<span style="${styleString}">${html}</span>`);
-    saveSelection();
-    return true;
-  };
 
   return (
     <>
@@ -215,145 +108,19 @@ export default function SettingsBar({
           />
         </Box>
 
-        {/* Theme / Title / Text / Save */}
+        {/* Theme / Title / Save */}
         {onOpenThemeModal && (
           <Button icon={<ThemeIcon />} label="Change Theme" onClick={onOpenThemeModal}  className="btn-setting" />
         )}
         {onEditTitle && (
           <Button icon={<Edit />} label="Edit Title" onClick={onEditTitle}  className="btn-setting" />
         )}
-        <Button
-          className="btn-setting"
-          icon={<TextWrap />}
-          label="Text"
-          onMouseDown={saveSelection}
-          onClick={() => {
-            saveSelection();
-            setShowTextModal(true);
-          }}
-        />
         {onSave && (
           <Button  className="btn-setting" icon={<SavingIcon />} label="Save" onClick={onSave} />
         )}
       </Box>
 
       {/* All editor options live here */}
-      {showTextModal && (
-        <Layer
-          onEsc={() => setShowTextModal(false)}
-          onClickOutside={() => setShowTextModal(false)}
-          responsive
-          modal
-          onChildrenMount={saveSelection}
-        >
-          <Box pad="medium" gap="medium" width="large">
-            <Heading level={4} margin="none">Text Tools</Heading>
-
-            {/* Row 1: B/I/U + Align + Clear */}
-            <Box direction="row" gap="xsmall" align="center" wrap className="textTools">
-              <Tip content="Bold"><Button onClick={() => exec('bold')} icon={<Bold />} /></Tip>
-              <Tip content="Italic"><Button onClick={() => exec('italic')} icon={<Italic />} /></Tip>
-              <Tip content="Underline"><Button onClick={() => exec('underline')} icon={<Underline />} /></Tip>
-
-              <Box width="1px" height="24px" background="light-4" margin={{ horizontal: 'small' }} />
-
-              <Tip content="Align left"><Button onClick={() => exec('justifyLeft')} icon={<TextAlignLeft />} /></Tip>
-              <Tip content="Align center"><Button onClick={() => exec('justifyCenter')} icon={<TextAlignCenter />} /></Tip>
-              <Tip content="Align right"><Button onClick={() => exec('justifyRight')} icon={<TextAlignRight />} /></Tip>
-
-              <Box width="1px" height="24px" background="light-4" margin={{ horizontal: 'small' }} />
-
-              <Tip content="Clear formatting">
-                <Button onClick={() => { exec('removeFormat'); exec('unlink'); }} icon={<ClearOption />} />
-              </Tip>
-            </Box>
-
-            {/* Row 2: Font / Size */}
-            <Box direction="row" gap="medium" wrap>
-              <Box gap="xsmall" width="medium">
-                <Text size="small" weight="bold">Font</Text>
-                <Select
-                  options={fonts}
-                  value={textSettings?.fontFamily || fonts[0]}
-                  onChange={({ option }) => {
-                    const applied = wrapSelectionWithSpan(`font-family:${option}`);
-                    if (!applied) applyTextSettings({ fontFamily: option });
-                  }}
-                >
-                  {(option) => (
-                    <Box pad="xsmall">
-                      <Text style={{ fontFamily: option }}>
-                        {option.split(',')[0].replaceAll('"', '')}
-                      </Text>
-                    </Box>
-                  )}
-                </Select>
-              </Box>
-
-              <Box gap="xsmall" width="small">
-                <Text size="small" weight="bold">Size</Text>
-                <Select
-                  options={sizeOptions}
-                  value={textSettings?.fontSize || '32px'}
-                  onChange={({ option }) => {
-                    const applied = wrapSelectionWithSpan(`font-size:${option}`);
-                    if (!applied) applyTextSettings({ fontSize: option });
-                  }}
-                />
-              </Box>
-            </Box>
-
-            {/* Row 3: Color (swatches + hex) */}
-            <Box direction="row" gap="medium" align="end" wrap>
-              <Box gap="xsmall" width="medium">
-                <Text size="small" weight="bold">Color</Text>
-                <Select
-                  options={colorOptions}
-                  labelKey="name"
-                  valueKey={{ key: 'value', reduce: true }}
-                  value={textSettings?.color || '#000000'}
-                  onChange={({ option }) => {
-                    const applied = wrapSelectionWithSpan(`color:${option.value}`);
-                    setHex(option.value);
-                    if (!applied) applyTextSettings({ color: option.value });
-                  }}
-                >
-                  {(option) => (
-                    <Box direction="row" gap="small" pad="xsmall" align="center">
-                      <Box width="16px" height="16px" round background={option.value} border={{ color: 'light-4' }} />
-                      <Text>{option.name}</Text>
-                    </Box>
-                  )}
-                </Select>
-              </Box>
-
-              <Box gap="xsmall" width="small">
-                <Text size="small" weight="bold">Hex</Text>
-                <TextInput
-                  placeholder="#RRGGBB"
-                  value={hex}
-                  onChange={(e) => {
-                    const v = e.target.value.trim();
-                    setHex(v);
-                  }}
-                  onBlur={() => {
-                    const normalized = /^#?[0-9a-fA-F]{6}$/.test(hex.replace('#', ''))
-                      ? (hex.startsWith('#') ? hex : `#${hex}`)
-                      : '#000000';
-                    setHex(normalized);
-                    const applied = wrapSelectionWithSpan(`color:${normalized}`);
-                    if (!applied) applyTextSettings({ color: normalized });
-                  }}
-                />
-              </Box>
-            </Box>
-
-            <Box direction="row" gap="small" justify="end">
-              <Button label="Close" onClick={() => setShowTextModal(false)} />
-            </Box>
-          </Box>
-        </Layer>
-      )}
     </>
   );
 }

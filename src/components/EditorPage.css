@@ -31,6 +31,11 @@
     /* inherit wrapper radius so clip matches */
     will-change: transform;
     backface-visibility: hidden;
+    backdrop-filter: blur(4px);
+        background: rgba(255, 255, 255, 0.3);
+        /* optional semi-transparent background */
+        -webkit-backdrop-filter: blur(12px);
+        /* Safari support */
 }
 
 
@@ -98,6 +103,20 @@
 
 .text-slot .text-editor {
     flex: 1 1 auto;
+}
+
+.text-slot[role="button"] {
+    cursor: pointer;
+}
+
+.text-slot[role="button"]:hover {
+    border-color: rgba(15, 23, 42, 0.2);
+    box-shadow: 0 28px 46px rgba(15, 23, 42, 0.2);
+}
+
+.text-slot[role="button"]:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
 }
 
 .text-editor {

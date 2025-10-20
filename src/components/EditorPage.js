@@ -1,6 +1,6 @@
 // src/components/EditorPage.js
 import "./EditorPage.css";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import ColorThief from "color-thief-browser";
 import { Box, Button, Layer, Text, Spinner, Meter } from "grommet";
 import { Template as TemplateIcon, Brush, Edit, Add } from "grommet-icons"; // NEW: Add
@@ -10,7 +10,7 @@ import ThemeModal from "./ThemeModal";
 import SettingsBar from "./SettingsBar";
 import { pageTemplates } from "../templates/pageTemplates";
 import TitleModal from "./TitleModal";
-import TextEditor from "./TextEditor";
+import TextEditor, { TextEditorModal } from "./TextEditor";
 
 // base ImageKit URL for rendering uploaded images
 const IK_URL_ENDPOINT = process.env.REACT_APP_IMAGEKIT_URL_ENDPOINT || "";
@@ -274,6 +274,18 @@ export default function EditorPage(props) {
 
     // force LTR + text style
     const [textSettings, setTextSettings] = useState(_storedTextSettings || { ...DEFAULT_TEXT_SETTINGS });
+    const [activeTextSlot, setActiveTextSlot] = useState(null); // { pageIdx, textIdx, placeholder }
+    const defaultTitleFontSize = textSettings?.fontSize || DEFAULT_TEXT_SETTINGS.fontSize;
+    const defaultTextBoxFontSize = scaleFontSize(defaultTitleFontSize, 0.65, 14);
+    const defaultTextBaseStyle = {
+        fontFamily: textSettings?.fontFamily || DEFAULT_TEXT_SETTINGS.fontFamily,
+        fontSize: defaultTextBoxFontSize,
+        color: textSettings?.color || DEFAULT_TEXT_SETTINGS.color,
+        lineHeight: computeLineHeight(defaultTextBoxFontSize),
+    };
+    const activeTextValue = activeTextSlot
+        ? pageSettings[activeTextSlot.pageIdx]?.texts?.[activeTextSlot.textIdx] || ""
+        : "";
 
 
     // ----------------- OPTIONAL: try restoring from server (Netlify) if nothing in localStorage -----------------
@@ -369,6 +381,15 @@ export default function EditorPage(props) {
             }).catch(console.error);
         }
     }, [pageSettings, textSettings, albumSize, identityId, user, sessionId, title, subtitle]);
+
+    useEffect(() => {
+        if (!activeTextSlot) return;
+        const { pageIdx, textIdx } = activeTextSlot;
+        const page = pageSettings[pageIdx];
+        if (!page || !Array.isArray(page.texts) || textIdx >= page.texts.length) {
+            setActiveTextSlot(null);
+        }
+    }, [activeTextSlot, pageSettings]);
 
     // dynamic theme colors via ColorThief
     useEffect(() => {
@@ -635,6 +656,12 @@ export default function EditorPage(props) {
             fileInputRef.current.click();
         }
     };
+
+    const handleOpenTextEditor = useCallback((pageIdx, textIdx, placeholder) => {
+        setActiveTextSlot({ pageIdx, textIdx, placeholder });
+    }, []);
+
+    const handleCloseTextEditor = useCallback(() => setActiveTextSlot(null), []);
 
     // ---------------- TEMPLATE & THEME ----------------
     const openTemplateModal = (pi) => {
@@ -1153,6 +1180,8 @@ export default function EditorPage(props) {
                                                     ? (getSlotRect(slotPosIndex, true) || null)
                                                     : (noBgRects?.[pi]?.[tmpl.slots.length + textIdx] || null);
                                                 const content = ps.texts?.[textIdx] || "";
+                                                const placeholder = textIdx === 0 ? "Add your story" : "Keep writing";
+                                                const activateEditor = () => handleOpenTextEditor(pi, textIdx, placeholder);
                                                 return (
                                                     <div
                                                         key={`text-${slotPosIndex}-${textIdx}`}
@@ -1166,20 +1195,22 @@ export default function EditorPage(props) {
                                                             ...(inlinePos || {}),
                                                             position: "absolute",
                                                         }}
+                                                        role="button"
+                                                        tabIndex={0}
+                                                        aria-label={`Edit text ${textIdx + 1} on page ${pi + 1}`}
+                                                        onClick={activateEditor}
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === "Enter" || e.key === " ") {
+                                                                e.preventDefault();
+                                                                activateEditor();
+                                                            }
+                                                        }}
                                                     >
                                                         <TextEditor
+                                                            readOnly
                                                             value={content}
                                                             baseStyle={textBoxBaseStyle}
-                                                            placeholder={textIdx === 0 ? "Add your story" : "Keep writing"}
-                                                            onChange={(html) =>
-                                                                setPageSettings((prev) => {
-                                                                    const next = [...prev];
-                                                                    const texts = [...(next[pi].texts || [])];
-                                                                    texts[textIdx] = html;
-                                                                    next[pi] = { ...next[pi], texts };
-                                                                    return next;
-                                                                })
-                                                            }
+                                                            placeholder={placeholder}
                                                         />
                                                     </div>
                                                 );
@@ -1389,6 +1420,33 @@ export default function EditorPage(props) {
                 />
             )}
 
+            <TextEditorModal
+                open={Boolean(activeTextSlot)}
+                value={activeTextValue}
+                onChange={(html) => {
+                    if (!activeTextSlot) return;
+                    const slot = activeTextSlot;
+                    setPageSettings((prev) => {
+                        if (!slot) return prev;
+                        const { pageIdx, textIdx } = slot;
+                        const page = prev[pageIdx];
+                        if (!page) return prev;
+                        const next = [...prev];
+                        const textsSource = Array.isArray(page.texts) ? page.texts : [];
+                        const texts = [...textsSource];
+                        while (texts.length <= textIdx) texts.push("");
+                        texts[textIdx] = html;
+                        next[pageIdx] = { ...page, texts };
+                        return next;
+                    });
+                }}
+                onClose={handleCloseTextEditor}
+                textSettings={textSettings}
+                onChangeTextSettings={setTextSettings}
+                placeholder={activeTextSlot?.placeholder || "Write something..."}
+                baseStyle={defaultTextBaseStyle}
+            />
+
             <SettingsBar
                 backgroundEnabled={backgroundEnabled}
                 setBackgroundEnabled={setBackgroundEnabled}
@@ -1396,8 +1454,6 @@ export default function EditorPage(props) {
                 onOpenThemeModal={() => openThemeModal(null)}
                 onSave={handleSave}
                 onEditTitle={() => setShowTitleModal(true)}
-                textSettings={textSettings}            // NEW
-                onChangeTextSettings={setTextSettings}
                 onAddImages={async (incoming) => {
                     const files = Array.isArray(incoming)
                         ? incoming.filter(Boolean)
