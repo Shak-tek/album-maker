@@ -248,3 +248,12 @@ h3,
         grid-template-columns: repeat(2, 1fr) !important;
     }
 }
+
+.textTools {
+    color: #000;
+
+    svg {
+        fill: #000 !important;
+        stroke: #000 !important;
+    }
+}

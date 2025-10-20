@@ -247,10 +247,10 @@ export default function SettingsBar({
           onChildrenMount={saveSelection}
         >
           <Box pad="medium" gap="medium" width="large">
-            <Heading level={3} margin="none">Text Tools</Heading>
+            <Heading level={4} margin="none">Text Tools</Heading>
 
             {/* Row 1: B/I/U + Align + Clear */}
-            <Box direction="row" gap="xsmall" align="center" wrap>
+            <Box direction="row" gap="xsmall" align="center" wrap className="textTools">
               <Tip content="Bold"><Button onClick={() => exec('bold')} icon={<Bold />} /></Tip>
               <Tip content="Italic"><Button onClick={() => exec('italic')} icon={<Italic />} /></Tip>
               <Tip content="Underline"><Button onClick={() => exec('underline')} icon={<Underline />} /></Tip>
