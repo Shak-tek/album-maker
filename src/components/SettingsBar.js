@@ -1,6 +1,6 @@
 // src/components/SettingsBar.js
-import React, { useRef } from 'react';
-import { Box, Button, FileInput, CheckBox } from 'grommet';
+import React, { useRef, useState } from 'react';
+import { Box, Button, FileInput, CheckBox, Layer, Text } from 'grommet';
 import { Edit } from 'grommet-icons';
 
 export default function SettingsBar({
@@ -14,6 +14,7 @@ export default function SettingsBar({
 }) {
   const internalUploadInputRef = useRef(null);
   const uploadInputRef = fileInputRef || internalUploadInputRef;
+  const [isUploadModalOpen, setUploadModalOpen] = useState(false);
 
   const emitSelectedFiles = (list) => {
     if (!Array.isArray(list) || list.length === 0) return;
@@ -21,6 +22,9 @@ export default function SettingsBar({
       onAddImages(list);
     }
   };
+
+  const openUploadModal = () => setUploadModalOpen(true);
+  const closeUploadModal = () => setUploadModalOpen(false);
 
   const handleHiddenInputChange = (event) => {
     const selected = Array.from(event?.target?.files || []);
@@ -35,7 +39,10 @@ export default function SettingsBar({
 
   const handleFileInputChange = (event, data) => {
     const selected = data?.files ? Array.from(data.files) : Array.from(event?.target?.files || []);
-    if (selected.length) emitSelectedFiles(selected);
+    if (selected.length) {
+      emitSelectedFiles(selected);
+      closeUploadModal();
+    }
     if (event?.target) {
       event.target.value = '';
     }
@@ -83,24 +90,21 @@ export default function SettingsBar({
         pad="xsmall"
         background="light-1"
         elevation="medium"
-        align="center"
-        wrap
-      >
-        {/* Photos */}
-        <Box direction="row" align="center" gap="xsmall" className="btn-setting btnUpload"> 
-          <PhotosIcon />
-          <FileInput
-            multiple
-            name="images"
-            accept="image/*"
-            onChange={handleFileInputChange}
-          />
-        </Box>
+      align="center"
+      wrap
+    >
+      {/* Photos */}
+      <Button
+        icon={<PhotosIcon />}
+        label="Upload Photos"
+        className="btn-setting btnUpload"
+        onClick={openUploadModal}
+      />
 
-        {/* Background toggle */}
-        <Box direction="row" align="center" gap="xsmall" className="btn-setting">
-          <BackgroundIcon />
-          <CheckBox
+      {/* Background toggle */}
+      <Box direction="row" align="center" gap="xsmall" className="btn-setting">
+        <BackgroundIcon />
+        <CheckBox
             toggle
             checked={backgroundEnabled}
             label={backgroundEnabled ? 'Keep Borders' : 'Remove Borders'}
@@ -121,6 +125,25 @@ export default function SettingsBar({
       </Box>
 
       {/* All editor options live here */}
+      {isUploadModalOpen && (
+        <Layer onEsc={closeUploadModal} onClickOutside={closeUploadModal}>
+          <Box pad="medium" gap="medium" width="medium">
+            <Box direction="row" justify="between" align="center">
+              <Box direction="row" align="center" gap="small">
+                <PhotosIcon />
+                <Text weight="bold">Upload Photos</Text>
+              </Box>
+              <Button label="Close" onClick={closeUploadModal} />
+            </Box>
+            <FileInput
+              multiple
+              name="images"
+              accept="image/*"
+              onChange={handleFileInputChange}
+            />
+          </Box>
+        </Layer>
+      )}
     </>
   );
 }
