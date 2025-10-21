@@ -1499,41 +1499,133 @@ export default function EditorPage(props) {
                         onAddImagesProp(uploaded);
                     }
 
-                    // If a specific slot triggered the upload, defer pageSettings
-                    // mutation to the pendingUploadTarget effect. Otherwise append
-                    // new images to the first page (creating it if needed).
-                    if (pendingUploadTarget) return;
+                    // Helper to resolve templates
+                    const getTemplate = (id) =>
+                        pageTemplates.find((t) => t.id === id) || null;
+                    const defaultTemplate =
+                        getTemplate(3) || pageTemplates.find((t) => (t.slots?.length ?? 0) > 0) || null;
+
+                    const target = pendingUploadTarget;
+                    let didUpdate = false;
 
                     setPageSettings((prev) => {
-                        const next = [...prev];
-                        // Append to first page or create the first page
-                        if (next.length === 0) {
-                            next.push({
-                                templateId: 3,
-                                theme: { mode: "dynamic", color: null, image: null },
-                                assignedImages: [...uploaded],
-                                edits: new Array(uploaded.length).fill(null),
-                            });
-                        } else {
-                            const existing = new Set(
-                                Array.isArray(next[0].assignedImages)
-                                    ? next[0].assignedImages
-                                    : []
-                            );
-                            const unique = uploaded.filter((u) => !existing.has(u));
-                            next[0].assignedImages = [
-                                ...(Array.isArray(next[0].assignedImages)
-                                    ? next[0].assignedImages
-                                    : []),
-                                ...unique,
-                            ];
-                            next[0].edits = ensureEditsArray(
-                                next[0],
-                                next[0].assignedImages.length
-                            );
+                        let remaining = uploaded.filter(Boolean);
+                        if (!remaining.length) return prev;
+
+                        const clonePage = (page) => ({
+                            ...page,
+                            assignedImages: Array.isArray(page.assignedImages)
+                                ? [...page.assignedImages]
+                                : [],
+                            edits: Array.isArray(page.edits) ? [...page.edits] : [],
+                            texts: Array.isArray(page.texts) ? [...page.texts] : [],
+                        });
+
+                        const next = prev.map(clonePage);
+
+                        // Avoid inserting duplicates that already exist
+                        const existingUrls = new Set(
+                            next.flatMap((p) =>
+                                Array.isArray(p.assignedImages) ? p.assignedImages : []
+                            ).filter(Boolean)
+                        );
+                        remaining = remaining.filter((url) => !existingUrls.has(url));
+                        if (!remaining.length) return prev;
+
+                        const ensureSlotCapacity = (page, slotCount) => {
+                            if (page.assignedImages.length < slotCount) {
+                                while (page.assignedImages.length < slotCount) {
+                                    page.assignedImages.push(null);
+                                }
+                            }
+                        };
+
+                        // If a specific slot triggered the upload, fill it first
+                        if (target) {
+                            const { pageIdx, slotIdx } = target;
+                            const page = next[pageIdx];
+                            if (page) {
+                                const tmpl = getTemplate(page.templateId);
+                                const slotCount = Math.max(
+                                    1,
+                                    tmpl?.slots?.length ?? page.assignedImages.length ?? 1
+                                );
+                                ensureSlotCapacity(page, slotCount);
+                                if (remaining.length) {
+                                    page.assignedImages[slotIdx] = remaining.shift();
+                                    page.edits = ensureEditsArray(
+                                        page,
+                                        Math.max(page.assignedImages.length, slotCount)
+                                    );
+                                    didUpdate = true;
+                                }
+                            }
                         }
+
+                        const fillPage = (page) => {
+                            const tmpl = getTemplate(page.templateId);
+                            const slotCount = Math.max(
+                                1,
+                                tmpl?.slots?.length ?? page.assignedImages.length ?? 1
+                            );
+                            ensureSlotCapacity(page, slotCount);
+                            let changed = false;
+                            for (let i = 0; i < slotCount && remaining.length; i += 1) {
+                                if (!page.assignedImages[i]) {
+                                    page.assignedImages[i] = remaining.shift();
+                                    changed = true;
+                                }
+                            }
+                            if (changed) {
+                                page.edits = ensureEditsArray(
+                                    page,
+                                    Math.max(page.assignedImages.length, slotCount)
+                                );
+                                didUpdate = true;
+                            }
+                        };
+
+                        next.forEach(fillPage);
+
+                        const pickTemplateForAppend = () => {
+                            const last = next[next.length - 1];
+                            if (last) {
+                                const tmpl = getTemplate(last.templateId);
+                                if (tmpl && (tmpl.slots?.length ?? 0) > 0) return tmpl;
+                            }
+                            return defaultTemplate;
+                        };
+
+                        while (remaining.length) {
+                            const tmpl = pickTemplateForAppend();
+                            if (!tmpl) break;
+                            const slotCount = Math.max(1, tmpl.slots?.length ?? 1);
+                            const assigned = [];
+                            while (assigned.length < slotCount && remaining.length) {
+                                assigned.push(remaining.shift());
+                            }
+                            if (!assigned.length) break;
+                            while (assigned.length < slotCount) assigned.push(null);
+                            next.push({
+                                templateId: tmpl.id,
+                                theme: { mode: "dynamic", color: null, image: null },
+                                assignedImages: assigned,
+                                edits: new Array(slotCount).fill(null),
+                                texts: tmpl.textSlots ? new Array(tmpl.textSlots.length).fill("") : [],
+                            });
+                            didUpdate = true;
+                        }
+
+                        if (!didUpdate) return prev;
                         return next;
                     });
+
+                    if (target) {
+                        setPendingUploadTarget(null);
+                    }
+                    if (didUpdate) {
+                        setImagesWarm(false);
+                    }
                 }}
             />
 

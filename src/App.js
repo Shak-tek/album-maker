@@ -337,6 +337,8 @@ function MainApp() {
     localStorage.removeItem("albumSize");
     localStorage.removeItem("albumTitle");
     localStorage.removeItem("albumSubtitle");
+    localStorage.removeItem("pageSettings");
+    localStorage.removeItem("textSettings");
     setSessionId(sid);
     setLoadedImages([]);
     setAlbumSize(null);
@@ -351,6 +353,7 @@ function MainApp() {
           userId: user.id,
           sessionId: sid,
           settings: { identityId },
+          reset: true,
         }),
       }).catch(console.error);
     }

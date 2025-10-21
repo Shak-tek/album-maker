@@ -18,17 +18,40 @@ exports.handler = async (event) => {
 
     if (event.httpMethod === 'POST') {
       const body = JSON.parse(event.body || '{}');
-      const { userId, sessionId, settings } = body;
+      const { userId, sessionId, settings, reset } = body;
       if (!userId || !sessionId) return { statusCode: 400, body: 'Missing fields' };
-      await client.query(
-        `INSERT INTO sessions (user_id, session_id, settings)
-         VALUES ($1, $2, $3)
-         ON CONFLICT (user_id)
-         DO UPDATE SET session_id = EXCLUDED.session_id,
-                       settings = COALESCE(sessions.settings, '{}'::jsonb) || EXCLUDED.settings,
-                       updated_at = NOW()`,
-        [userId, sessionId, settings || {}]
-      );
+
+      const shouldReset = Boolean(reset);
+      const params = [userId, sessionId, settings || {}];
+
+      let beganTransaction = false;
+      try {
+        if (shouldReset) {
+          await client.query('BEGIN');
+          beganTransaction = true;
+          await client.query('DELETE FROM sessions WHERE user_id = $1', [userId]);
+        }
+
+        await client.query(
+          `INSERT INTO sessions (user_id, session_id, settings)
+           VALUES ($1, $2, $3)
+           ON CONFLICT (user_id)
+           DO UPDATE SET session_id = EXCLUDED.session_id,
+                         settings = COALESCE(sessions.settings, '{}'::jsonb) || COALESCE(EXCLUDED.settings, '{}'::jsonb),
+                         updated_at = NOW()`,
+          params
+        );
+
+        if (beganTransaction) {
+          await client.query('COMMIT');
+        }
+      } catch (err) {
+        if (beganTransaction) {
+          await client.query('ROLLBACK');
+        }
+        throw err;
+      }
+
       return { statusCode: 200, body: JSON.stringify({ ok: true }) };
     }
 
