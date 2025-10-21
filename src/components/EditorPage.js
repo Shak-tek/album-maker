@@ -133,32 +133,64 @@ const createImageEl = (url) =>
         img.src = url;
     });
 
+const degToRad = (deg) => (deg * Math.PI) / 180;
+
+function getRotatedSize(width, height, rotation) {
+    const rotRad = Math.abs(degToRad(rotation));
+    const sin = Math.sin(rotRad);
+    const cos = Math.cos(rotRad);
+    return {
+        width: Math.abs(width * cos) + Math.abs(height * sin),
+        height: Math.abs(width * sin) + Math.abs(height * cos),
+    };
+}
+
 async function getCroppedDataUrl(imageSrc, pixelCrop, rotation = 0, quality = 0.92) {
     const image = await createImageEl(imageSrc);
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    if (!ctx) throw new Error("Canvas 2D not available");
+    const rotRad = degToRad(rotation);
 
-    const safe = Math.max(image.width, image.height) * 2;
-    canvas.width = safe;
-    canvas.height = safe;
+    const { width: bBoxWidth, height: bBoxHeight } = getRotatedSize(image.width, image.height, rotation);
 
-    ctx.translate(safe / 2, safe / 2);
-    ctx.rotate((rotation * Math.PI) / 180);
-    ctx.translate(-safe / 2, -safe / 2);
-    ctx.drawImage(image, (safe - image.width) / 2, (safe - image.height) / 2);
+    const tempCanvas = document.createElement("canvas");
+    const tempCtx = tempCanvas.getContext("2d");
+    if (!tempCtx) throw new Error("Canvas 2D not available");
 
-    const data = ctx.getImageData(0, 0, safe, safe);
+    tempCanvas.width = bBoxWidth;
+    tempCanvas.height = bBoxHeight;
 
-    canvas.width = pixelCrop.width;
-    canvas.height = pixelCrop.height;
-    ctx.putImageData(
-        data,
-        Math.round(-pixelCrop.x + (image.width - safe) / 2),
-        Math.round(-pixelCrop.y + (image.height - safe) / 2)
+    tempCtx.translate(bBoxWidth / 2, bBoxHeight / 2);
+    tempCtx.rotate(rotRad);
+    tempCtx.translate(-image.width / 2, -image.height / 2);
+    tempCtx.drawImage(image, 0, 0);
+
+    const outputCanvas = document.createElement("canvas");
+    const outputCtx = outputCanvas.getContext("2d");
+    if (!outputCtx) throw new Error("Canvas 2D not available");
+
+    const targetWidth = Math.max(1, Math.round(pixelCrop.width));
+    const targetHeight = Math.max(1, Math.round(pixelCrop.height));
+
+    outputCanvas.width = targetWidth;
+    outputCanvas.height = targetHeight;
+
+    const maxSx = Math.max(0, tempCanvas.width - pixelCrop.width);
+    const maxSy = Math.max(0, tempCanvas.height - pixelCrop.height);
+    const sx = Math.min(maxSx, Math.max(0, pixelCrop.x));
+    const sy = Math.min(maxSy, Math.max(0, pixelCrop.y));
+
+    outputCtx.drawImage(
+        tempCanvas,
+        sx,
+        sy,
+        pixelCrop.width,
+        pixelCrop.height,
+        0,
+        0,
+        targetWidth,
+        targetHeight
     );
 
-    return canvas.toDataURL("image/jpeg", quality);
+    return outputCanvas.toDataURL("image/jpeg", quality);
 }
 
 // ensure a page's edits array exists and has at least n entries
