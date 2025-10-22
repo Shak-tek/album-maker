@@ -259,7 +259,7 @@
     font-size: 13px !important;
     font-weight: 600 !important;
     line-height: 20px !important;
-    width: 80px !important;
+    min-width: 80px !important;
     color: #1a1a1a !important;
     text-align: center !important;
     
