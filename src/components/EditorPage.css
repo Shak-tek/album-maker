@@ -1939,6 +1939,7 @@
 
 .btn-setting.btnUpload {
     width: 100% !important;
+    display: none !important;
 
     input {
         width: 100%;
