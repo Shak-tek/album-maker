@@ -95,6 +95,12 @@ export default function SettingsBar({
     >
       {/* Photos */}
       
+      <Button
+        icon={<PhotosIcon />}
+        label="Upload Photos"
+        className="btn-setting btnUpload"
+        onClick={openUploadModal}
+      />
 
       {/* Background toggle */}
       <Box direction="row" align="center" gap="xsmall" className="btn-setting">
