@@ -162,7 +162,7 @@ h3,
     min-height: calc(100vh - 80px);
     display: flex;
     flex-flow: column nowrap;
-    
+
 }
 
 .page-height-content {
@@ -255,5 +255,122 @@ h3,
     svg {
         fill: #000 !important;
         stroke: #000 !important;
+    }
+}
+
+
+
+.print-quality {
+    position: relative;
+    width: 100%;
+
+    .print-area {
+        border: 1px solid rgb(228, 228, 228);
+
+        background: #fff;
+        padding: 0 16px;
+        border-radius: 8px;
+        position: relative;
+        color: rgb(88, 88, 88);
+        overflow: hidden;
+        font-size: 12px;
+        line-height: 18px;
+        font-weight: 600;
+    }
+
+    .print-area-inner {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        width: 40%;
+    }
+
+    .print-text {
+        display: flex;
+        min-height: 40px;
+        align-items: center;
+        justify-content: space-between;
+    }
+}
+
+.photo-info {
+    padding: 12px 16px;
+    position: relative;
+    font-size: 12px;
+    line-height: 18px;
+    color: rgb(88, 88, 88);
+    font-weight: 600;
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        padding: 4px 0;
+
+        span:first-child {
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        span:last-child {
+            flex-shrink: 0;
+            margin-left: 8px;
+        }
+
+    }
+}
+
+.input-range {
+    position: relative;
+    margin: 16px 0 0;
+    padding: 0 16px;
+
+    span {
+        display: block;
+        font-weight: 600;
+        margin: 0 0 8px;
+        font-size: 12px;
+        letter-spacing: .25px;
+    }
+}
+
+.btnsListing {
+    position: relative;
+    padding: 20px 16px 30px;
+    margin: 0;
+    list-style: none;
+    display: flex;
+    flex-flow: row wrap;
+    gap: 10px;
+
+    li {
+        flex-grow: 1;
+        flex-shrink: 0;
+        flex-basis: 0;
+        min-width: 20%;
+    }
+
+    .btnListItem {
+        border: 1px solid #585858;
+        background: none;
+        border-radius: 6px;
+        display: flex;
+        width: 100%;
+        align-items: center;
+        justify-content: center;
+        flex-flow: column nowrap;
+        gap: 4px;
+        padding: 10px 4px;
+        font-size: 13px;
+        line-height: 1.5;
+        text-align: center;
+        font-weight: 600;
+
+        svg {
+            display: block;
+            max-width: 100%;
+        }
     }
 }

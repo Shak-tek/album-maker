@@ -1697,7 +1697,30 @@ export default function EditorPage(props) {
                                 })()}
                             </Box>
                             <Box className="options-area" pad="small" gap="small" direction="row" align="center" border={{ side: "top" }}>
-                                <Box width="medium">
+                                <div className="print-quality">
+                                    <div className="print-area">
+                                        <div className="print-area-inner"></div>
+                                        <div className="print-text">
+                                            <span>Print Quality</span>
+                                            <span>2/10</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="photo-info">
+                                    <div className="info-item">
+                                        <span>Scale</span>
+                                        <span>100%</span>
+                                    </div>
+                                    <div className="info-item">
+                                        <span>Dimensions</span>
+                                        <span>512 x 512</span>
+                                    </div>
+                                    <div className="info-item">
+                                        <span>Source</span>
+                                        <span>Device</span>
+                                    </div>
+                                </div>
+                                <Box width="medium" className="input-range">
                                     <Text size="small">Zoom ({cropState.zoom.toFixed(2)}×)</Text>
                                     <input
                                         type="range"
@@ -1709,7 +1732,7 @@ export default function EditorPage(props) {
                                         style={{ width: "100%" }}
                                     />
                                 </Box>
-                                <Box width="medium">
+                                <Box width="medium" className="input-range">
                                     <Text size="small">Rotation ({Math.round(cropState.rotation)}°)</Text>
                                     <input
                                         type="range"
@@ -1721,6 +1744,32 @@ export default function EditorPage(props) {
                                         style={{ width: "100%" }}
                                     />
                                 </Box>
+                                <ul className="btnsListing">
+                                    <li>
+                                        <button className="btnListItem">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" width="24" height="24"><path fill="#585858" fill-rule="evenodd" d="M22 3.6A1.6 1.6 0 0 0 20.4 2h-3.8a.6.6 0 0 0-.6.6v.8a.6.6 0 0 0 .6.6h1.971l-4.647 4.647a.6.6 0 0 0 0 .848l.566.566a.6.6 0 0 0 .848 0L20 5.4v2a.6.6 0 0 0 .6.6h.8a.6.6 0 0 0 .6-.6zM4 5.414V7.4a.6.6 0 0 1-.6.6h-.8a.6.6 0 0 1-.6-.6V3.6A1.6 1.6 0 0 1 3.6 2h3.8a.6.6 0 0 1 .6.6v.8a.6.6 0 0 1-.6.6H5.414l4.647 4.647a.6.6 0 0 1 0 .848l-.566.566a.6.6 0 0 1-.848 0zM20.4 22a1.6 1.6 0 0 0 1.6-1.6v-3.8a.6.6 0 0 0-.6-.6h-.8a.6.6 0 0 0-.6.6v1.986l-4.661-4.662a.6.6 0 0 0-.85 0l-.565.566a.6.6 0 0 0 0 .848L18.586 20H16.6a.6.6 0 0 0-.6.6v.8a.6.6 0 0 0 .6.6zM8.647 13.924a.6.6 0 0 1 .848 0l.566.566a.6.6 0 0 1 0 .848L5.399 20H7.4a.6.6 0 0 1 .6.6v.8a.6.6 0 0 1-.6.6H3.6A1.6 1.6 0 0 1 2 20.4v-3.8a.6.6 0 0 1 .6-.6h.8a.6.6 0 0 1 .6.6v1.971z" clip-rule="evenodd"></path></svg>
+                                            <span>Fill</span>
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button className="btnListItem">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" width="24" height="24"><path fill="#585858" fill-rule="evenodd" d="M8.4 14a1.6 1.6 0 0 1 1.6 1.6v3.8a.6.6 0 0 1-.6.6h-.8a.6.6 0 0 1-.6-.6v-2L3.588 21.81a.6.6 0 0 1-.848 0l-.566-.566a.6.6 0 0 1 0-.848L6.571 16H4.6a.6.6 0 0 1-.6-.6v-.8a.6.6 0 0 1 .6-.6zm11 0a.6.6 0 0 1 .6.6v.8a.6.6 0 0 1-.6.6h-1.983l4.397 4.397a.6.6 0 0 1 0 .848l-.566.566a.6.6 0 0 1-.848 0l-4.4-4.4V19.4a.6.6 0 0 1-.6.6h-.8a.6.6 0 0 1-.6-.6v-3.8a1.6 1.6 0 0 1 1.6-1.6zM3.588 2.174 8 6.586V4.6a.6.6 0 0 1 .6-.6h.8a.6.6 0 0 1 .6.6v3.8A1.6 1.6 0 0 1 8.4 10H4.6a.6.6 0 0 1-.6-.6v-.8a.6.6 0 0 1 .6-.6h1.986L2.174 3.588a.6.6 0 0 1 0-.848l.566-.566a.6.6 0 0 1 .848 0m17.66 0 .566.566a.6.6 0 0 1 0 .848L17.4 8H19.4a.6.6 0 0 1 .6.6v.8a.6.6 0 0 1-.6.6h-3.8A1.6 1.6 0 0 1 14 8.4V4.6a.6.6 0 0 1 .6-.6h.8a.6.6 0 0 1 .6.6v1.974l4.4-4.4a.6.6 0 0 1 .848 0" clip-rule="evenodd"></path></svg>
+                                        <span>Fit</span>
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button className="btnListItem">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" width="24" height="24"><path fill="#585858" fill-rule="evenodd" d="M1.6 5.003C1 6.18 1 7.72 1 10.8v2.4c0 3.08 0 4.62.6 5.797A5.5 5.5 0 0 0 4.002 21.4C5.18 22 6.72 22 9.8 22h4.4c3.08 0 4.62 0 5.797-.6a5.5 5.5 0 0 0 2.404-2.403C23 17.82 23 16.28 23 13.2v-2.4c0-3.08 0-4.62-.6-5.797a5.5 5.5 0 0 0-2.403-2.404C18.82 2 17.28 2 14.2 2H9.8c-3.08 0-4.62 0-5.797.6a5.5 5.5 0 0 0-2.404 2.403m1.781.908C3 6.66 3 7.64 3 9.6v4.8c0 1.882 0 2.86.337 3.598l5.538-5.537a1.6 1.6 0 0 1 2.262 0l.727.758c.023.024-.534 1.263-.534 1.263l.922-.906 3.379-3.378a1.6 1.6 0 0 1 2.262 0L21 13.305V9.6c0-1.96 0-2.94-.381-3.689a3.5 3.5 0 0 0-1.53-1.53C18.34 4 17.36 4 15.4 4H8.6c-1.96 0-2.94 0-3.689.381a3.5 3.5 0 0 0-1.53 1.53m1.53 13.708a4 4 0 0 1-.235-.132l5.33-5.33 1.292 1.293.22.22-1 2.483 1.734-1.749 4.51-4.51 4.222 4.223c-.03.895-.116 1.483-.366 1.972a3.5 3.5 0 0 1-1.529 1.53C18.34 20 17.36 20 15.4 20H8.6c-1.96 0-2.94 0-3.689-.381M9 8.5C9 7.673 8.327 7 7.5 7S6 7.673 6 8.5 6.673 10 7.5 10 9 9.327 9 8.5" clip-rule="evenodd"></path></svg>
+                                        <span>Replace</span>
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button className="btnListItem">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" width="24" height="24"><path fill="#585858" fill-rule="evenodd" d="M9.4 2a.4.4 0 0 0-.4.4v.5a.1.1 0 0 1-.1.1H5.3A1.3 1.3 0 0 0 4 4.3v.3c0 .22.18.4.4.4h.599v12.5a3.5 3.5 0 0 0 3.5 3.5h7a3.5 3.5 0 0 0 3.5-3.5V5h.601a.4.4 0 0 0 .4-.4v-.3A1.3 1.3 0 0 0 18.7 3h-3.6a.1.1 0 0 1-.1-.1v-.5a.4.4 0 0 0-.4-.4zM6.999 17.5V5H17v12.5a1.5 1.5 0 0 1-1.5 1.5H8.499a1.5 1.5 0 0 1-1.5-1.5M9 7.64c0-.224 0-.336.044-.422a.4.4 0 0 1 .174-.174C9.304 7 9.416 7 9.64 7h.72c.224 0 .336 0 .422.044a.4.4 0 0 1 .174.174c.044.086.044.198.044.422v8.72c0 .224 0 .336-.044.422a.4.4 0 0 1-.174.174c-.086.044-.198.044-.422.044h-.72c-.224 0-.336 0-.422-.044a.4.4 0 0 1-.174-.174C9 16.696 9 16.584 9 16.36zm4.044-.422C13 7.304 13 7.416 13 7.64v8.72c0 .224 0 .336.044.422a.4.4 0 0 0 .174.174c.086.044.198.044.422.044h.72c.224 0 .336 0 .422-.044a.4.4 0 0 0 .174-.174c.044-.086.044-.198.044-.422V7.64c0-.224 0-.336-.044-.422a.4.4 0 0 0-.174-.174C14.696 7 14.584 7 14.36 7h-.72c-.224 0-.336 0-.422.044a.4.4 0 0 0-.174.174" clip-rule="evenodd"></path></svg>
+                                        <span>Remove</span>
+                                        </button>
+                                    </li>
+                                </ul>
                                 <Box direction="row" gap="small" margin={{ left: "auto" }}>
                                     <Button
                                         label="Reset"
@@ -1729,7 +1778,7 @@ export default function EditorPage(props) {
                                             setCroppedAreaPixels(null);
                                         }}
                                     />
-                                    <Button primary label="Save crop" onClick={saveCrop} disabled={!croppedAreaPixels} />
+                                    <Button primary label="Save Settings" onClick={saveCrop} disabled={!croppedAreaPixels} />
                                 </Box>
                             </Box>
                         </Box>
