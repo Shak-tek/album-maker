@@ -41,6 +41,25 @@ export default function ThemeModal({
         }
     };
 
+    const swatchProps = {
+        round: 'xsmall',
+        border: { color: 'light-4', size: 'xsmall' },
+        className: 'themePaletteSwatch',
+        role: 'button',
+        tabIndex: 0,
+        style: { cursor: 'pointer' },
+    };
+
+    const makeSwatchHandlers = (payload) => ({
+        onClick: () => onSelect(pageIdx, payload),
+        onKeyDown: (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                onSelect(pageIdx, payload);
+            }
+        },
+    });
+
     return (
         <Layer
             position="center"
@@ -48,7 +67,13 @@ export default function ThemeModal({
             onEsc={onClose}
             onClickOutside={onClose}
         >
-            <Box pad="small" gap="medium" width="large" style={{ maxWidth: '90vw', overflowY: 'auto', maxHeight: '90vh' }}>
+            <Box
+                pad="small"
+                gap="medium"
+                width="large"
+                className="themeModalContent"
+                style={{ maxWidth: '90vw', overflowY: 'auto', maxHeight: '90vh' }}
+            >
                 <Box>
                     <Text weight="bold">Custom Image</Text>
                     <Box pad={{ vertical: 'xsmall' }}>
@@ -67,26 +92,28 @@ export default function ThemeModal({
                                 <>
                                     <Box
                                         pad="small"
-                                        width="xxsmall"
-                                        height="xxsmall"
                                         border={{ color: 'brand', size: 'xsmall' }}
                                         round="xsmall"
+                                        className="themePaletteAuto"
+                                        role="button"
+                                        tabIndex={0}
                                         onClick={() => onSelect(pageIdx, { mode: 'dynamic', color: null })}
-                                        style={{ cursor: 'pointer' }}
+                                        onKeyDown={(event) => {
+                                            if (event.key === 'Enter' || event.key === ' ') {
+                                                event.preventDefault();
+                                                onSelect(pageIdx, { mode: 'dynamic', color: null });
+                                            }
+                                        }}
                                     >
-                                        <Text size="xxsmall">Auto</Text>
+                                        <Text size="small">Auto</Text>
                                     </Box>
                                     {dynamicColors.length ? (
                                         dynamicColors.map((c, idx) => (
                                             <Box
                                                 key={`${c}-${idx}`}
-                                                width="xxsmall"
-                                                height="xxsmall"
                                                 background={c}
-                                                round="xsmall"
-                                                onClick={() => onSelect(pageIdx, { mode: 'dynamic', color: c })}
-                                                border={{ color: 'light-4', size: 'xsmall' }}
-                                                style={{ cursor: 'pointer' }}
+                                                {...swatchProps}
+                                                {...makeSwatchHandlers({ mode: 'dynamic', color: c })}
                                             />
                                         ))
                                     ) : (
@@ -104,13 +131,9 @@ export default function ThemeModal({
                                     
                                     <Box
                                         key={c}
-                                        width="xxsmall"
-                                        height="xxsmall"
                                         background={c}
-                                        round="xsmall"
-                                        border={{ color: 'light-4', size: 'xsmall' }}
-                                        style={{ cursor: 'pointer' }}
-                                        onClick={() => onSelect(pageIdx, { mode: 'manual', color: c })}
+                                        {...swatchProps}
+                                        {...makeSwatchHandlers({ mode: 'manual', color: c })}
                                     />
                                 ))
                             )}
