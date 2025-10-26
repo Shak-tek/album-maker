@@ -94,6 +94,7 @@ export default function SettingsBar({
       wrap
     >
       {/* Photos */}
+      
       <Button
         icon={<PhotosIcon />}
         label="Upload Photos"
@@ -120,7 +121,7 @@ export default function SettingsBar({
           <Button icon={<Edit />} label="Edit Title" onClick={onEditTitle}  className="btn-setting" />
         )}
         {onSave && (
-          <Button  className="btn-setting" icon={<SavingIcon />} label="Save" onClick={onSave} />
+          <Button  className="btn-setting" icon={<SavingIcon />} label="Continue" onClick={onSave} />
         )}
       </Box>
 
