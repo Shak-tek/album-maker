@@ -265,6 +265,8 @@ export default function EditorPage(props) {
     const [showTitleModal, setShowTitleModal] = useState(false);
     const [backgroundEnabled, setBackgroundEnabled] = useState(true);
     const [imagesWarm, setImagesWarm] = useState(false);
+    const [dynamicPalette, setDynamicPalette] = useState([]);
+    const [dynamicPaletteLoading, setDynamicPaletteLoading] = useState(false);
     // upload progress state for Add Photos
     const [uploading, setUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -292,6 +294,9 @@ export default function EditorPage(props) {
 
     const [saving, setSaving] = useState(false);
     const paddingPercent = albumSize ? (albumSize.height / albumSize.width) * 100 : 75;
+    const hasDynamicPaletteSources = pageSettings.some(
+        (ps) => Array.isArray(ps.assignedImages) && ps.assignedImages.some(Boolean)
+    );
 
     // ---------------- Cropper state ----------------
     const [cropOpen, setCropOpen] = useState(false);
@@ -444,6 +449,76 @@ export default function EditorPage(props) {
                 };
             }
         });
+    }, [imagesWarm, pageSettings]);
+
+    // build a global palette derived from uploaded/assigned images
+    useEffect(() => {
+        if (!imagesWarm) {
+            setDynamicPaletteLoading(false);
+            return;
+        }
+
+        const assigned = pageSettings.flatMap((ps) => ps.assignedImages).filter(Boolean);
+        if (!assigned.length) {
+            setDynamicPalette((prev) => (prev.length ? [] : prev));
+            setDynamicPaletteLoading(false);
+            return;
+        }
+
+        let cancelled = false;
+        setDynamicPaletteLoading(true);
+
+        const thief = new ColorThief();
+        const MAX_SOURCE_IMAGES = 8;
+        const COLORS_PER_IMAGE = 25;
+        const MAX_COLORS = 51;
+        const uniqueSources = Array.from(new Set(assigned)).slice(0, MAX_SOURCE_IMAGES);
+        const paletteSet = new Set();
+
+        const loaders = uniqueSources.map(
+            (url) =>
+                new Promise((resolve) => {
+                    const img = new Image();
+                    img.crossOrigin = "Anonymous";
+                    img.src = url;
+                    img.onload = () => {
+                        if (cancelled) return resolve();
+                        try {
+                            const palette = thief.getPalette(img, COLORS_PER_IMAGE);
+                            palette?.forEach(([r, g, b]) => {
+                                if (paletteSet.size < MAX_COLORS) {
+                                    paletteSet.add(`rgb(${r}, ${g}, ${b})`);
+                                }
+                            });
+                        } catch (err) {
+                            console.error("color thief palette error", err);
+                        }
+                        resolve();
+                    };
+                    img.onerror = () => resolve();
+                })
+        );
+
+        Promise.all(loaders)
+            .then(() => {
+                if (cancelled) return;
+                const nextColors = Array.from(paletteSet);
+                setDynamicPalette((prev) => {
+                    if (prev.length === nextColors.length && prev.every((c, idx) => c === nextColors[idx])) {
+                        return prev;
+                    }
+                    return nextColors;
+                });
+                setDynamicPaletteLoading(false);
+            })
+            .catch(() => {
+                if (cancelled) return;
+                setDynamicPaletteLoading(false);
+            });
+
+        return () => {
+            cancelled = true;
+        };
     }, [imagesWarm, pageSettings]);
 
     // preload assigned images (skip nulls)
@@ -753,7 +828,7 @@ export default function EditorPage(props) {
                         ...s,
                         theme: {
                             mode,
-                            color: mode === "dynamic" ? null : color,
+                            color: mode === "dynamic" ? (color ?? null) : color,
                             image: mode === "image" ? image : null,
                         },
                     };
@@ -1437,6 +1512,9 @@ export default function EditorPage(props) {
                     onClose={() => setShowThemeModal(false)}
                     s3={s3}
                     sessionId={sessionId}
+                    dynamicColors={dynamicPalette}
+                    paletteLoading={dynamicPaletteLoading}
+                    hasPaletteSources={hasDynamicPaletteSources}
                 />
             )}
             {showTitleModal && (

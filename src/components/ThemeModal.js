@@ -9,7 +9,16 @@ const IK_URL_ENDPOINT = process.env.REACT_APP_IMAGEKIT_URL_ENDPOINT || "";
 const getResizedUrl = (key, width = 1200) =>
     `${IK_URL_ENDPOINT}/${encodeURI(key)}?tr=w-${width},fo-face&v=${Date.now()}`;
 
-export default function ThemeModal({ onSelect, onClose, pageIdx, s3, sessionId }) {
+export default function ThemeModal({
+    onSelect,
+    onClose,
+    pageIdx,
+    s3,
+    sessionId,
+    dynamicColors = [],
+    paletteLoading = false,
+    hasPaletteSources = false,
+}) {
     const [uploading, setUploading] = useState(false);
 
     const handleImageUpload = async (e) => {
@@ -39,7 +48,7 @@ export default function ThemeModal({ onSelect, onClose, pageIdx, s3, sessionId }
             onEsc={onClose}
             onClickOutside={onClose}
         >
-            <Box pad="small" gap="medium" width="medium" style={{ maxWidth: '90vw', overflowY: 'auto', maxHeight: '90vh' }}>
+            <Box pad="small" gap="medium" width="large" style={{ maxWidth: '90vw', overflowY: 'auto', maxHeight: '90vh' }}>
                 <Box>
                     <Text weight="bold">Custom Image</Text>
                     <Box pad={{ vertical: 'xsmall' }}>
@@ -50,29 +59,61 @@ export default function ThemeModal({ onSelect, onClose, pageIdx, s3, sessionId }
                         )}
                     </Box>
                 </Box>
-                {themeGroups.map(group => (
+                {themeGroups.map((group) => (
                     <Box key={group.name}>
                         <Text weight="bold">{group.name}</Text>
-                        <Box className="dynamicColors" direction="row" wrap pad={{ vertical: 'xsmall' }}>
-                            {group.dynamic
-                                ? <Box
-                                    pad="small"
-                                    border={{ color: 'brand' }}
-                                    round="xsmall"
-                                    onClick={() => onSelect(pageIdx, { mode: 'dynamic' })}
-                                >
-                                    <Text size="small">Auto</Text>
-                                </Box>
-                                : group.colors.map(c => (
+                        <Box className="dynamicColors" direction="row" wrap gap="small" pad={{ vertical: 'xsmall' }}>
+                            {group.dynamic ? (
+                                <>
+                                    <Box
+                                        pad="small"
+                                        width="xxsmall"
+                                        height="xxsmall"
+                                        border={{ color: 'brand', size: 'xsmall' }}
+                                        round="xsmall"
+                                        onClick={() => onSelect(pageIdx, { mode: 'dynamic', color: null })}
+                                        style={{ cursor: 'pointer' }}
+                                    >
+                                        <Text size="xxsmall">Auto</Text>
+                                    </Box>
+                                    {dynamicColors.length ? (
+                                        dynamicColors.map((c, idx) => (
+                                            <Box
+                                                key={`${c}-${idx}`}
+                                                width="xxsmall"
+                                                height="xxsmall"
+                                                background={c}
+                                                round="xsmall"
+                                                onClick={() => onSelect(pageIdx, { mode: 'dynamic', color: c })}
+                                                border={{ color: 'light-4', size: 'xsmall' }}
+                                                style={{ cursor: 'pointer' }}
+                                            />
+                                        ))
+                                    ) : (
+                                        <Text size="small" color="dark-5">
+                                            {paletteLoading
+                                                ? 'Extracting colors...'
+                                                : hasPaletteSources
+                                                    ? 'Generating palette...'
+                                                    : 'Upload photos to unlock palette'}
+                                        </Text>
+                                    )}
+                                </>
+                            ) : (
+                                    group.colors.map((c) => (
+                                    
                                     <Box
                                         key={c}
                                         width="xxsmall"
                                         height="xxsmall"
                                         background={c}
+                                        round="xsmall"
+                                        border={{ color: 'light-4', size: 'xsmall' }}
+                                        style={{ cursor: 'pointer' }}
                                         onClick={() => onSelect(pageIdx, { mode: 'manual', color: c })}
                                     />
                                 ))
-                            }
+                            )}
                         </Box>
                     </Box>
                 ))}
