@@ -407,7 +407,6 @@
 }
 
 /* --- Image cropper: per-slot overlay buttons --- */
-.slot-edit-btn,
 .slot-reset-btn {
     position: absolute;
     z-index: 2;
@@ -427,24 +426,16 @@
     transition: opacity 120ms ease, transform 120ms ease;
 }
 
-.slot-edit-btn {
-    top: 6px;
-    right: 6px;
-}
-
 .slot-reset-btn {
     top: 6px;
     left: 6px;
     font-size: 11px;
     padding: 2px 6px;
-}
-
-.slot-edit-btn:hover,
 .slot-reset-btn:hover {
     transform: translateY(-1px);
 }
+}
 
-.slot-edit-btn:focus-visible,
 .slot-reset-btn:focus-visible {
     outline: 2px solid #000;
     outline-offset: 2px;
@@ -452,22 +443,13 @@
 }
 
 /* reveal buttons on hover (desktop/mouse) */
-.photo-slot:hover .slot-edit-btn,
 .photo-slot:hover .slot-reset-btn {
     opacity: 1;
-}
-
-/* ensure the icon sizes are tidy */
-.slot-edit-btn svg {
-    width: 16px;
-    height: 16px;
-    display: block;
 }
 
 /* on touch devices, keep buttons visible (no hover) */
 @media (hover: none) and (pointer: coarse) {
 
-    .slot-edit-btn,
     .slot-reset-btn {
         opacity: 1;
     }

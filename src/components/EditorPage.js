@@ -3,7 +3,7 @@ import "./EditorPage.css";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import ColorThief from "color-thief-browser";
 import { Box, Button, Layer, Text, Spinner, Meter } from "grommet";
-import { Template as TemplateIcon, Brush, Edit, Add } from "grommet-icons"; // NEW: Add
+import { Template as TemplateIcon, Brush, Add } from "grommet-icons"; // NEW: Add
 import Cropper from "react-easy-crop";
 import TemplateModal from "./TemplateModal";
 import ThemeModal from "./ThemeModal";
@@ -283,6 +283,8 @@ export default function EditorPage(props) {
     const dragActiveRef = useRef(false);
     const dragSrcRef = useRef({ page: null, slot: null });
     const touchTimerRef = useRef(null);
+    const mouseHoldTimerRef = useRef(null);
+    const skipClickRef = useRef(false);
     // reference to hidden file input in SettingsBar so we can trigger it from placeholders
     const fileInputRef = useRef(null);
 
@@ -552,6 +554,55 @@ export default function EditorPage(props) {
     const longPressDuration = 300;
     const lastTouchRef = useRef({ x: 0, y: 0 });
 
+    const cancelMouseDrag = () => {
+        if (mouseHoldTimerRef.current) {
+            clearTimeout(mouseHoldTimerRef.current);
+            mouseHoldTimerRef.current = null;
+        }
+    };
+
+    const scheduleMouseDrag = (pi, si, e) => {
+        cancelMouseDrag();
+        if (e?.persist) e.persist();
+        const nativeEvent = e?.nativeEvent || e;
+        if (nativeEvent) {
+            const { clientX, clientY } = nativeEvent;
+            lastTouchRef.current = {
+                x: typeof clientX === "number" ? clientX : 0,
+                y: typeof clientY === "number" ? clientY : 0,
+            };
+        }
+        mouseHoldTimerRef.current = setTimeout(() => {
+            if (!mouseHoldTimerRef.current) return;
+            mouseHoldTimerRef.current = null;
+            if (!nativeEvent) return;
+            const { x, y } = lastTouchRef.current;
+            const fakeEvent = {
+                clientX: typeof x === "number" ? x : nativeEvent.clientX,
+                clientY: typeof y === "number" ? y : nativeEvent.clientY,
+                target: nativeEvent.target || nativeEvent.currentTarget || null,
+                currentTarget: nativeEvent.currentTarget || null,
+                cancelable: true,
+                preventDefault: () => nativeEvent.preventDefault?.(),
+                stopPropagation: () => nativeEvent.stopPropagation?.(),
+            };
+            startDrag(pi, si, fakeEvent);
+        }, longPressDuration);
+    };
+
+    const handleSlotClick = (pageIdx, slotIdx, isEmpty, e) => {
+        if (isEmpty) return;
+        cancelMouseDrag();
+        cancelTouchDrag();
+        if (dragActiveRef.current) return;
+        if (skipClickRef.current) {
+            e?.stopPropagation?.();
+            return;
+        }
+        e?.stopPropagation?.();
+        openCropper(pageIdx, slotIdx);
+    };
+
     const scheduleTouchDrag = (pi, si, e) => {
         cancelTouchDrag();
         const touch = e.touches?.[0];
@@ -581,13 +632,30 @@ export default function EditorPage(props) {
         }
     };
 
+    useEffect(() => {
+        return () => {
+            if (mouseHoldTimerRef.current) {
+                clearTimeout(mouseHoldTimerRef.current);
+                mouseHoldTimerRef.current = null;
+            }
+            if (touchTimerRef.current) {
+                clearTimeout(touchTimerRef.current);
+                touchTimerRef.current = null;
+            }
+            skipClickRef.current = false;
+        };
+    }, []);
+
     const startDrag = (pageIdx, slotIdx, e) => {
+        cancelMouseDrag();
+        cancelTouchDrag();
         e.stopPropagation();
 
         // Check if there's actually an image to drag
         const url = pageSettings[pageIdx]?.assignedImages?.[slotIdx];
         if (!url) return;
 
+        skipClickRef.current = true;
         dragActiveRef.current = true;
         dragSrcRef.current = { page: pageIdx, slot: slotIdx };
 
@@ -721,6 +789,10 @@ export default function EditorPage(props) {
 
         // Cancel any pending touch drag
         cancelTouchDrag();
+
+        setTimeout(() => {
+            skipClickRef.current = false;
+        }, 0);
     };
 
     // NEW: helper – find newest image URL that is not used anywhere yet
@@ -1205,8 +1277,16 @@ export default function EditorPage(props) {
                                                             justifyContent: "center",
                                                         }}
                                                         onMouseDown={(e) => {
-                                                            if (!isEmpty) startDrag(pi, slotIdx, e);
+                                                            if (!isEmpty) scheduleMouseDrag(pi, slotIdx, e);
                                                         }}
+                                                        onMouseMove={(e) => {
+                                                            if (mouseHoldTimerRef.current) {
+                                                                lastTouchRef.current = { x: e.clientX, y: e.clientY };
+                                                            }
+                                                        }}
+                                                        onMouseUp={cancelMouseDrag}
+                                                        onMouseLeave={cancelMouseDrag}
+                                                        onClick={(e) => handleSlotClick(pi, slotIdx, isEmpty, e)}
                                                         onTouchStart={(e) => {
                                                             if (!isEmpty) scheduleTouchDrag(pi, slotIdx, e);
                                                         }}
@@ -1246,21 +1326,6 @@ export default function EditorPage(props) {
                                                                 }}
                                                             >
                                                                 <Add />
-                                                            </button>
-                                                        )}
-
-                                                        {/* EDIT BUTTON (hide when empty) */}
-                                                        {!isEmpty && (
-                                                            <button
-                                                                className="slot-edit-btn"
-                                                                onMouseDown={(e) => e.stopPropagation()}
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    openCropper(pi, slotIdx);
-                                                                }}
-                                                                title="Edit crop"
-                                                            >
-                                                                <Edit size="small" />
                                                             </button>
                                                         )}
 
