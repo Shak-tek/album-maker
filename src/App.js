@@ -9,6 +9,8 @@ import {
   Layer,
   Box,
   Menu,
+  DropButton,
+  TextInput,
 } from "grommet";
 import { deepMerge } from "grommet/utils";
 import ImageUploader from "./components/ImageUploader";
@@ -21,6 +23,8 @@ import LoginPage from "./LoginPage";
 import ProfilePage from "./ProfilePage";
 import AdminPanel from "./admin/AdminPanel";
 import AdminLogin from "./admin/AdminLogin";
+import HomePage from "./HomePage";
+import { User } from "grommet-icons";
 
 // theme
 /*
@@ -201,9 +205,11 @@ const IK_URL_ENDPOINT = process.env.REACT_APP_IMAGEKIT_URL_ENDPOINT || "";
 const getResizedUrl = (key, width = 1000) =>
   `${IK_URL_ENDPOINT}/${encodeURI(key)}?tr=w-${width},fo-face`;
 
+const PROTECTED_VIEWS = new Set(["profile", "albums", "upload", "title", "editor"]);
+
 function MainApp() {
   const [sessionId, setSessionId] = useState(null);
-  const [view, setView] = useState("login");
+  const [view, setView] = useState("home");
   const [user, setUser] = useState(null);
   const [loadedImages, setLoadedImages] = useState([]);
   const [showPrompt, setShowPrompt] = useState(false);
@@ -215,9 +221,32 @@ function MainApp() {
     localStorage.getItem("albumSubtitle") || ""
   );
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [authMode, setAuthMode] = useState("signup");
+  const [pendingView, setPendingView] = useState(null);
+  const [authPrompt, setAuthPrompt] = useState("");
+  const [authDropOpen, setAuthDropOpen] = useState(false);
+  const [authEmail, setAuthEmail] = useState("");
   const [identityId, setIdentityId] = useState(
     localStorage.getItem("identityId") || null
   );
+
+  const showAuth = (mode = "signup", prompt = "") => {
+    setAuthMode(mode);
+    setAuthPrompt(prompt);
+    setAuthDropOpen(false);
+    setView("login");
+  };
+
+  const navigate = (nextView) => {
+    if (!user && PROTECTED_VIEWS.has(nextView)) {
+      setPendingView(nextView);
+      showAuth("signup", "Sign up or log in to start your album.");
+      return;
+    }
+    setAuthDropOpen(false);
+    setAuthPrompt("");
+    setView(nextView);
+  };
 
   // Fetch the Cognito identity ID on mount
   useEffect(() => {
@@ -282,17 +311,33 @@ function MainApp() {
   }, [identityId]);
 
 
-  const handleLogin = (u) => {
-    setUser(u);
-    localStorage.setItem("user", JSON.stringify(u));
-    loadSessionFromDb(u.id);
-    setView("products");
+  const handleLogin = (authUser) => {
+    if (!authUser) return;
+    setUser(authUser);
+    localStorage.setItem("user", JSON.stringify(authUser));
+    loadSessionFromDb(authUser.id);
+    setAuthDropOpen(false);
+    setAuthEmail("");
+    setAuthPrompt("");
+    if (pendingView) {
+      setView(pendingView);
+      setPendingView(null);
+    } else {
+      setView("products");
+    }
+    setAuthMode("login");
   };
 
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem("user");
-    setView("login");
+    setPendingView(null);
+    setAuthMode("signup");
+    setAuthDropOpen(false);
+    setAuthEmail("");
+    setAuthPrompt("");
+    setShowPrompt(false);
+    navigate("products");
   };
 
   useEffect(() => {
@@ -344,7 +389,7 @@ function MainApp() {
     setAlbumSize(null);
     setAlbumTitle("");
     setAlbumSubtitle("");
-    setView("products");
+    navigate("products");
     setShowPrompt(false);
     if (user) {
       fetch("/.netlify/functions/session", {
@@ -379,9 +424,9 @@ function MainApp() {
       if (storedTitle) setAlbumTitle(storedTitle);
       const storedSubtitle = localStorage.getItem("albumSubtitle");
       if (storedSubtitle) setAlbumSubtitle(storedSubtitle);
-      setView("editor");
+      navigate("editor");
     } else {
-      setView("products");
+      navigate("products");
     }
     setShowPrompt(false);
   };
@@ -390,13 +435,18 @@ function MainApp() {
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      const u = JSON.parse(storedUser);
-      setUser(u);
-      loadSessionFromDb(u.id);
-      setView("products");
-    } else {
-      setView("login");
-      return;
+      try {
+        const u = JSON.parse(storedUser);
+        if (u && u.id) {
+          setUser(u);
+          loadSessionFromDb(u.id);
+        } else {
+          localStorage.removeItem("user");
+        }
+      } catch (err) {
+        console.error(err);
+        localStorage.removeItem("user");
+      }
     }
 
     const sid = localStorage.getItem("sessionId");
@@ -426,7 +476,7 @@ function MainApp() {
   if (view === "login") {
     return (
       <Grommet theme={theme} full>
-        <LoginPage onLogin={handleLogin} />
+        <LoginPage onLogin={handleLogin} initialMode={authMode} message={authPrompt} />
       </Grommet>
     );
   }
@@ -435,22 +485,53 @@ function MainApp() {
     <Grommet theme={theme} full>
       <Page className="page">
         <Header className="header" background="gray" pad="small">
-          <Text size="large">FlipSnip</Text>
+          <Button plain onClick={() => navigate("home")} hoverIndicator>
+            <Text size="large" weight="bold">
+              FlipSnip
+            </Text>
+          </Button>
           {user ? (
             <Menu
               label="Profile"
               items={[
-                { label: "My Profile", onClick: () => setView("profile") },
-                { label: "My Albums", onClick: () => setView("albums") },
+                { label: "My Profile", onClick: () => navigate("profile") },
+                { label: "My Albums", onClick: () => navigate("albums") },
                 { label: "Sign Out", onClick: handleLogout },
               ]}
             />
           ) : (
-            <Button label="Login" onClick={() => setView("login")} />
+            <DropButton
+              open={authDropOpen}
+              onOpen={() => setAuthDropOpen(true)}
+              onClose={() => setAuthDropOpen(false)}
+              plain
+              dropAlign={{ top: "bottom", right: "right" }}
+              label={
+                <Box direction="row" gap="xsmall" align="center">
+                  <User />
+                  <Text>User</Text>
+                </Box>
+              }
+              dropContent={
+                <Box pad="medium" gap="small" width="medium">
+                  <Text weight="bold">Do you have an account?</Text>
+                  <Button
+                    primary
+                    label="Get started with Sign Up"
+                    onClick={() => showAuth("signup")}
+                  />
+                  <Button
+                    primary
+                    label="Already have an account? Log in"
+                    onClick={() => showAuth("login")}
+                  />
+                </Box>
+              }
+            />
           )}
         </Header>
         <div className="main-content">
-          {showPrompt && (
+          {user && showPrompt && (
             <Layer
               position="center"
               responsive={false}
@@ -466,7 +547,7 @@ function MainApp() {
                     label="Show Previous Album"
                     onClick={() => {
                       setShowPrompt(false);
-                      setView('albums');
+                      navigate('albums');
                     }}
                   />
                   <Button primary label="New Session" onClick={createNewSession} />
@@ -475,18 +556,24 @@ function MainApp() {
             </Layer>
           )}
 
-          {view === "profile" ? (
+          {view === "home" ? (
+            <HomePage
+              onStartAlbum={() => navigate("products")}
+              onBrowseProducts={() => navigate("products")}
+              onSignUp={() => showAuth("signup")}
+            />
+          ) : view === "profile" ? (
             <ProfilePage user={user} />
           ) : view === "albums" ? (
             <AlbumsPage sessionId={sessionId} onOpen={continueSession} />
           ) : view === "products" ? (
-            <ProductsPage onSelect={(p) => { setSelectedProduct(p); setView("productDetail"); }} />
+            <ProductsPage onSelect={(p) => { setSelectedProduct(p); navigate("productDetail"); }} />
           ) : view === "productDetail" ? (
             <ProductDetailPage
               product={selectedProduct}
               onContinue={(size) => {
                 setAlbumSize(size);
-                setView("upload");
+                navigate("upload");
               }}
             />
           ) : view === "upload" ? (
@@ -499,7 +586,7 @@ function MainApp() {
                   ? [urls]
                   : [];
                 setLoadedImages(list);
-                setView("title");
+                navigate("title");
               }}
             />
           ) : view === "title" ? (
@@ -507,7 +594,7 @@ function MainApp() {
               onContinue={({ title, subtitle }) => {
                 setAlbumTitle(title);
                 setAlbumSubtitle(subtitle);
-                setView("editor");
+                navigate("editor");
               }}
               initialTitle={albumTitle}
               initialSubtitle={albumSubtitle}

@@ -53,7 +53,7 @@ export default function SignupForm({ onSignup, onSignIn }) {
           type="button"
           label="Already have an account? Log in"
           onClick={onSignIn}
-          secondary
+          primary
         />
       </Box>
     </Form>
