@@ -2,8 +2,8 @@
 import "./EditorPage.css";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import ColorThief from "color-thief-browser";
-import { Box, Button, Layer, Text, Spinner, Meter } from "grommet";
-import { Template as TemplateIcon, Brush, Add } from "grommet-icons"; // NEW: Add
+import { Box, Button, Layer, Text, Spinner, Meter, Heading, RadioButtonGroup } from "grommet";
+import { Template as TemplateIcon, Brush, Add, Directions } from "grommet-icons"; // NEW: Add
 import Cropper from "react-easy-crop";
 import TemplateModal from "./TemplateModal";
 import ThemeModal from "./ThemeModal";
@@ -50,6 +50,50 @@ const DEFAULT_TEXT_SETTINGS = {
     fontSize: '32px',
     color: '#1F2933',
 };
+
+const DEFAULT_TITLE_ORIENTATION = "top";
+const COVER_IMAGE_RECT = { top: 20, left: 12, width: 76, height: 60 };
+
+const INTRO_PAGES = 2;
+
+const COVER_TEMPLATE = { id: "__cover__", slots: [9], textSlots: [] };
+const BLANK_TEMPLATE = { id: "__blank__", slots: [], textSlots: [] };
+
+const findTemplateById = (id) => pageTemplates.find((t) => t.id === id) || null;
+
+const isCoverPageIndex = (idx) => idx === 0;
+const isBlankIntroPageIndex = (idx) => idx === 1;
+
+const getTemplateForPageIndex = (page, pageIdx) => {
+    if (isCoverPageIndex(pageIdx)) return COVER_TEMPLATE;
+    if (isBlankIntroPageIndex(pageIdx)) return BLANK_TEMPLATE;
+    return findTemplateById(page?.templateId) || null;
+};
+
+const getSlotsForPageIndex = (page, pageIdx) => {
+    const template = getTemplateForPageIndex(page, pageIdx);
+    return Array.isArray(template?.slots) ? template.slots : [];
+};
+
+const getTextSlotsForPageIndex = (page, pageIdx) => {
+    const template = getTemplateForPageIndex(page, pageIdx);
+    return Array.isArray(template?.textSlots) ? template.textSlots : [];
+};
+
+const getSlotCountForPageIndex = (page, pageIdx) => {
+    const slots = getSlotsForPageIndex(page, pageIdx);
+    if (slots.length) return slots.length;
+    const assignedLength = Array.isArray(page?.assignedImages) ? page.assignedImages.length : 0;
+    if (assignedLength) return assignedLength;
+    return 0;
+};
+
+const rectToPercentStyle = (rect) => ({
+    top: `${rect.top}%`,
+    left: `${rect.left}%`,
+    width: `${rect.width}%`,
+    height: `${rect.height}%`,
+});
 
 
 // ---------------------- SLOT GEOMETRY (kept only for 0..9) ----------------------
@@ -200,6 +244,117 @@ function ensureEditsArray(ps, n) {
     return arr;
 }
 
+const shallowEqualArray = (a = [], b = []) => {
+    if (a === b) return true;
+    if (!Array.isArray(a) || !Array.isArray(b)) return false;
+    if (a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i += 1) {
+        if (a[i] !== b[i]) return false;
+    }
+    return true;
+};
+
+const normalizeIntroPagesSettings = (pages) => {
+    if (!Array.isArray(pages)) {
+        return { changed: false, pages };
+    }
+
+    const normalizeTheme = (theme) => {
+        if (!theme || typeof theme !== "object") {
+            return { mode: "dynamic", color: null, image: null };
+        }
+        const normalized = {
+            mode: typeof theme.mode === "string" ? theme.mode : "dynamic",
+            color: typeof theme.color === "string" ? theme.color : null,
+            image: typeof theme.image === "string" ? theme.image : null,
+        };
+        if (
+            normalized.mode === theme.mode &&
+            normalized.color === theme.color &&
+            normalized.image === theme.image
+        ) {
+            return theme;
+        }
+        return normalized;
+    };
+
+    const next = pages.map((p) => ({
+        ...p,
+        theme: normalizeTheme(p?.theme),
+        assignedImages: Array.isArray(p?.assignedImages) ? [...p.assignedImages] : [],
+        edits: Array.isArray(p?.edits) ? [...p.edits] : [],
+        texts: Array.isArray(p?.texts) ? [...p.texts] : [],
+    }));
+
+    let changed = false;
+
+    const ensureIntroPage = (idx) => {
+        if (!next[idx]) {
+            next[idx] = {
+                templateId: null,
+                theme: { mode: "dynamic", color: null, image: null },
+                assignedImages: [],
+                edits: [],
+                texts: [],
+            };
+            changed = true;
+        }
+        const page = next[idx];
+
+        if (page.templateId !== null) {
+            page.templateId = null;
+            changed = true;
+        }
+
+        const normalizedTheme = normalizeTheme(page.theme);
+        if (normalizedTheme !== page.theme) {
+            page.theme = normalizedTheme;
+            changed = true;
+        }
+
+        const slotCount = getSlotCountForPageIndex(page, idx);
+
+        const desiredAssigned = Array.isArray(page.assignedImages)
+            ? page.assignedImages.slice(0, slotCount)
+            : [];
+        while (desiredAssigned.length < slotCount) desiredAssigned.push(null);
+        if (!shallowEqualArray(page.assignedImages, desiredAssigned)) {
+            page.assignedImages = desiredAssigned;
+            changed = true;
+        }
+
+        const desiredEdits = ensureEditsArray(
+            { edits: Array.isArray(page.edits) ? page.edits.slice(0, slotCount) : [] },
+            slotCount
+        ).slice(0, slotCount);
+        if (!shallowEqualArray(page.edits, desiredEdits)) {
+            page.edits = desiredEdits;
+            changed = true;
+        }
+
+        if (page.texts.length) {
+            page.texts = [];
+            changed = true;
+        }
+    };
+
+    ensureIntroPage(0);
+    ensureIntroPage(1);
+
+    while (next.length < INTRO_PAGES) {
+        next.push({
+            templateId: null,
+            theme: { mode: "dynamic", color: null, image: null },
+            assignedImages: [],
+            edits: [],
+            texts: [],
+        });
+        changed = true;
+    }
+
+    return { changed, pages: next };
+};
+
 // NEW: track a slot awaiting an upload and a snapshot of prior images
 const usePrevious = (val) => {
     const ref = useRef(val);
@@ -255,6 +410,15 @@ export default function EditorPage(props) {
             return null;
         }
     })();
+    const _storedTitleOrientation = (() => {
+        try {
+            const raw = localStorage.getItem("titleOrientation");
+            if (raw === "top" || raw === "bottom") return raw;
+            return DEFAULT_TITLE_ORIENTATION;
+        } catch {
+            return DEFAULT_TITLE_ORIENTATION;
+        }
+    })();
     const [pageSettings, setPageSettings] = useState(_initialFromStorage || []);
     // Remember whether we actually restored something so we don't auto-generate
     const [restoredFromStorage] = useState(Boolean(_initialFromStorage));
@@ -263,6 +427,8 @@ export default function EditorPage(props) {
     const [showThemeModal, setShowThemeModal] = useState(false);
     const [themeModalPage, setThemeModalPage] = useState(null);
     const [showTitleModal, setShowTitleModal] = useState(false);
+    const [showOrientationModal, setShowOrientationModal] = useState(false);
+    
     const [backgroundEnabled, setBackgroundEnabled] = useState(true);
     const [imagesWarm, setImagesWarm] = useState(false);
     const [dynamicPalette, setDynamicPalette] = useState([]);
@@ -313,6 +479,9 @@ export default function EditorPage(props) {
 
     // force LTR + text style
     const [textSettings, setTextSettings] = useState(_storedTextSettings || { ...DEFAULT_TEXT_SETTINGS });
+    const [titleOrientation, setTitleOrientation] = useState(
+        _storedTitleOrientation || DEFAULT_TITLE_ORIENTATION
+    );
     const [activeTextSlot, setActiveTextSlot] = useState(null); // { pageIdx, textIdx, placeholder }
     const defaultTitleFontSize = textSettings?.fontSize || DEFAULT_TEXT_SETTINGS.fontSize;
     const defaultTextBoxFontSize = scaleFontSize(defaultTitleFontSize, 0.65, 14);
@@ -322,6 +491,7 @@ export default function EditorPage(props) {
         color: textSettings?.color || DEFAULT_TEXT_SETTINGS.color,
         lineHeight: computeLineHeight(defaultTextBoxFontSize),
     };
+    const coverImageStyle = rectToPercentStyle(COVER_IMAGE_RECT);
     const activeTextValue = activeTextSlot
         ? pageSettings[activeTextSlot.pageIdx]?.texts?.[activeTextSlot.textIdx] || ""
         : "";
@@ -355,6 +525,10 @@ export default function EditorPage(props) {
                             color: typeof remoteTextSettings.color === "string" ? remoteTextSettings.color : DEFAULT_TEXT_SETTINGS.color,
                         });
                     }
+                    const remoteOrientation = data?.settings?.titleOrientation;
+                    if (remoteOrientation === "top" || remoteOrientation === "bottom") {
+                        setTitleOrientation(remoteOrientation);
+                    }
                 }
             } catch {
                 // ignore; fall back to local init below
@@ -369,16 +543,21 @@ export default function EditorPage(props) {
         if (restoredFromStorage) return;
 
         const remaining = images.slice();
-        const pages = [];
+        const createIntroPage = () => ({
+            templateId: null,
+            theme: { mode: "dynamic", color: null, image: null },
+            assignedImages: [],
+            edits: [],
+            texts: [],
+        });
+        const pages = [createIntroPage(), createIntroPage()];
 
-        const pickTemplateId = (i, candidates) => {
-            const byId = (id) => candidates.find((t) => t.id === id)?.id;
-            if (i === 0) return byId(3) ?? candidates[0].id; // prefer title/full-bleed
-            if (i < 2) return byId(1) ?? candidates[0].id;   // prefer 2-up
-            return candidates[i % candidates.length].id;
-        };
+        if (remaining.length) {
+            pages[0].assignedImages = [remaining.shift()];
+            pages[0].edits = [null];
+        }
 
-        let i = 0;
+        let contentPageIndex = 0;
         while (remaining.length > 0) {
             const candidates = pageTemplates
                 .map((t) => ({ ...t, _slots: Math.max(1, t.slots?.length ?? 1) }))
@@ -386,7 +565,13 @@ export default function EditorPage(props) {
 
             if (!candidates.length) break;
 
-            const templateId = pickTemplateId(i, candidates);
+            const templateId = (() => {
+                const preferTwoUp = candidates.find((t) => t.id === 1);
+                if (contentPageIndex < 2 && preferTwoUp) return preferTwoUp.id;
+                const preferFull = candidates.find((t) => t.id === 3);
+                if (contentPageIndex === 0 && preferFull) return preferFull.id;
+                return candidates[contentPageIndex % candidates.length].id;
+            })();
             const tmpl = candidates.find((t) => t.id === templateId) || candidates[0];
             const slotsCount = Math.max(1, tmpl.slots?.length ?? 1);
             const assigned = remaining.splice(0, slotsCount);
@@ -398,28 +583,37 @@ export default function EditorPage(props) {
                 edits: new Array(slotsCount).fill(null),
                 texts: tmpl.textSlots ? new Array(tmpl.textSlots.length).fill("") : [],
             });
-            i += 1;
+            contentPageIndex += 1;
         }
 
         setPageSettings(pages);
         setImagesWarm(false);
     }, [images, pageSettings.length, restoredFromStorage]);
 
+    useEffect(() => {
+        if (!pageSettings.length) return;
+        const { changed, pages } = normalizeIntroPagesSettings(pageSettings);
+        if (changed) {
+            setPageSettings(pages);
+        }
+    }, [pageSettings]);
+
     // persist to localStorage & DB
     useEffect(() => {
         localStorage.setItem("pageSettings", JSON.stringify(pageSettings));
         localStorage.setItem("textSettings", JSON.stringify(textSettings));
+        localStorage.setItem("titleOrientation", titleOrientation);
         if (user && sessionId) {
             fetch("/.netlify/functions/session", {
                 method: "POST",
                 body: JSON.stringify({
                     userId: user.id,
                     sessionId,
-                    settings: { albumSize, identityId, pageSettings, user, title, subtitle, textSettings },
+                    settings: { albumSize, identityId, pageSettings, user, title, subtitle, textSettings, titleOrientation },
                 }),
             }).catch(console.error);
         }
-    }, [pageSettings, textSettings, albumSize, identityId, user, sessionId, title, subtitle]);
+    }, [pageSettings, textSettings, titleOrientation, albumSize, identityId, user, sessionId, title, subtitle]);
 
     useEffect(() => {
         if (!activeTextSlot) return;
@@ -851,6 +1045,10 @@ export default function EditorPage(props) {
 
     // CHANGED: allow larger templates and fill extras with null placeholders
     const pickTemplate = (pi, tid) => {
+        if (pi <= 1) {
+            setShowTemplateModal(false);
+            return;
+        }
         setPageSettings((prev) => {
             const next = prev.map((p) => ({ ...p, assignedImages: [...(p.assignedImages || [])] }));
             const page = next[pi];
@@ -1045,6 +1243,7 @@ export default function EditorPage(props) {
             title,
             subtitle,
             textSettings: textSettings ? { ...textSettings } : null,
+            titleOrientation,
             pages,
         };
 
@@ -1170,6 +1369,17 @@ export default function EditorPage(props) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [backgroundEnabled, pageSettings]);
 
+    const trimmedTitle = typeof title === "string" ? title.trim() : "";
+    const trimmedSubtitle = typeof subtitle === "string" ? subtitle.trim() : "";
+    const headerNode = (
+        <div className="editor-header">
+            <h1 className="editor-header__title">{trimmedTitle || "Untitled Album"}</h1>
+            {trimmedSubtitle ? (
+                <p className="editor-header__subtitle">{trimmedSubtitle}</p>
+            ) : null}
+        </div>
+    );
+
     // ---------------- RENDER ----------------
     return (
         <>
@@ -1177,18 +1387,27 @@ export default function EditorPage(props) {
             {!imagesWarm ? (
                 <div className="editor-page">
                     <div className="page-container">
+                        {headerNode}
                         <div className="container">
                             {pageSettings.map((ps, pi) => {
-                                const tmpl = pageTemplates.find((t) => t.id === ps.templateId);
+                                const slots = getSlotsForPageIndex(ps, pi);
+                                const textSlots = getTextSlotsForPageIndex(ps, pi);
+                                const isIntroPage = pi < INTRO_PAGES;
                                 return (
-                                    <div key={pi} className="page-wrapper skeleton-page-wrapper">
+                                    <div
+                                        key={pi}
+                                        className={`page-wrapper skeleton-page-wrapper${isIntroPage ? " intro-page" : ""}`}
+                                    >
                                         <Box direction="row" wrap gap="small" pad="small">
-                                            {tmpl?.slots?.map((_, slotIdx) => (
-                                                <div key={slotIdx} className="skeleton-photo-slot" />
+                                            {slots.map((_, slotIdx) => (
+                                                <div key={`slot-${slotIdx}`} className="skeleton-photo-slot" />
                                             ))}
-                                            {tmpl?.textSlots?.map((_, slotIdx) => (
+                                            {textSlots.map((_, slotIdx) => (
                                                 <div key={`text-${slotIdx}`} className="skeleton-photo-slot" />
                                             ))}
+                                            {slots.length === 0 && textSlots.length === 0 && (
+                                                <div className="skeleton-photo-slot skeleton-photo-slot--blank" />
+                                            )}
                                         </Box>
                                     </div>
                                 );
@@ -1200,10 +1419,13 @@ export default function EditorPage(props) {
                 // REAL EDITOR
                 <div className="editor-page">
                     <div className="page-container">
+                        {headerNode}
                         <div className="container">
                             {pageSettings.map((ps, pi) => {
-                                const tmpl = pageTemplates.find((t) => t.id === ps.templateId);
-                                if (!tmpl) return null;
+                                const isCoverPage = isCoverPageIndex(pi);
+                                const isIntroPage = pi < INTRO_PAGES;
+                                const slots = getSlotsForPageIndex(ps, pi);
+                                const textSlots = getTextSlotsForPageIndex(ps, pi);
                                 const bgColor = ps.theme.color || "transparent";
                                 const wrapperStyle = ps.theme.image
                                     ? {
@@ -1212,6 +1434,10 @@ export default function EditorPage(props) {
                                         backgroundPosition: "center",
                                     }
                                     : { backgroundColor: bgColor };
+                                const wrapperClassName = `page-wrapper${isIntroPage ? " intro-page" : ""}`;
+                                const canChangeTemplate = pi >= INTRO_PAGES;
+                                const canChangeTheme = pi !== 1;
+                                const showToolbar = canChangeTemplate || canChangeTheme || isIntroPage;
 
                                 const titleFontSize = textSettings?.fontSize || '32px';
                                 const titleLineHeight = computeLineHeight(titleFontSize);
@@ -1226,21 +1452,35 @@ export default function EditorPage(props) {
                                 };
 
                                 return (
-                                    <div key={pi} className="page-wrapper" style={wrapperStyle}>
-                                        <Box className="toolbar" direction="row" gap="small" align="center">
-                                            {pi !== 0 && (
+                                    <div key={pi} className={wrapperClassName} style={wrapperStyle}>
+                                        {showToolbar && (
+                                            <Box className="toolbar" direction="row" gap="small" align="center">
+                                                {canChangeTemplate && (
+                                                    <Button
+                                                        icon={<TemplateIcon />}
+                                                        color="black"
+                                                        className="btn-ico"
+                                                        onClick={() => openTemplateModal(pi)}
+                                                    />
+                                            )}
+                                            {canChangeTheme && (
+                                                <Button icon={<Brush />} color="black" className="btn-ico" onClick={() => openThemeModal(pi)} />
+                                            )}
+                                            {isIntroPage && (
                                                 <Button
-                                                    icon={<TemplateIcon />}
+                                                    icon={<Directions />}
                                                     color="black"
                                                     className="btn-ico"
-                                                    onClick={() => openTemplateModal(pi)}
+                                                    onClick={() => setShowOrientationModal(true)}
+                                                    title="Adjust title position"
+                                                    aria-label="Adjust title position"
                                                 />
                                             )}
-                                            <Button icon={<Brush />} color="black" className="btn-ico" onClick={() => openThemeModal(pi)} />
-                                        </Box>
+                                            </Box>
+                                        )}
 
-                                        <div className={`photo-page ${!backgroundEnabled ? "zoomed" : ""}`}>
-                                            {tmpl?.slots?.map((slotPosIndex, slotIdx) => {
+                                        <div className={`photo-page ${!backgroundEnabled ? "zoomed" : ""} ${isCoverPage ? "cover-page-layout" : ""}`}>
+                                            {slots.map((slotPosIndex, slotIdx) => {
                                                 const inlinePos = backgroundEnabled
                                                     ? (getSlotRect(slotPosIndex, true) || null)
                                                     : (noBgRects?.[pi]?.[slotIdx] || null);
@@ -1264,7 +1504,7 @@ export default function EditorPage(props) {
                                                             ...(inlinePos || {}),
                                                             position: "absolute",
                                                             overflow: "hidden",
-                                                            borderRadius: "4px",
+                                                            borderRadius: isCoverPage ? "24px" : "4px",
                                                             visibility: (!backgroundEnabled && !inlinePos) ? "hidden" : "visible",
                                                             transition:
                                                                 "top 200ms ease, left 200ms ease, width 200ms ease, height 200ms ease, opacity 200ms ease, transform 200ms ease",
@@ -1347,10 +1587,10 @@ export default function EditorPage(props) {
                                                 );
                                             })}
 
-                                            {tmpl?.textSlots?.map((slotPosIndex, textIdx) => {
+                                            {textSlots.map((slotPosIndex, textIdx) => {
                                                 const inlinePos = backgroundEnabled
                                                     ? (getSlotRect(slotPosIndex, true) || null)
-                                                    : (noBgRects?.[pi]?.[tmpl.slots.length + textIdx] || null);
+                                                    : (noBgRects?.[pi]?.[slots.length + textIdx] || null);
                                                 const content = ps.texts?.[textIdx] || "";
                                                 const placeholder = textIdx === 0 ? "Add your story" : "Keep writing";
                                                 const activateEditor = () => handleOpenTextEditor(pi, textIdx, placeholder);
@@ -1360,7 +1600,7 @@ export default function EditorPage(props) {
                                                         className={`text-slot slot${slotPosIndex + 1}`} data-text-index={textIdx}
                                                         ref={(el) => {
                                                             if (!slotRefs.current[pi]) slotRefs.current[pi] = [];
-                                                            slotRefs.current[pi][tmpl.slots.length + textIdx] = el || null;
+                                                            slotRefs.current[pi][slots.length + textIdx] = el || null;
                                                         }}
                                                         dir="ltr"
                                                         style={{
@@ -1388,14 +1628,24 @@ export default function EditorPage(props) {
                                                 );
                                             })}
 
-                                            {pi === 0 && (
+                                            {isCoverPage && (
                                                 <div
                                                     className="title-overlay"
                                                     dir="ltr"
                                                     style={{
                                                         fontFamily: textSettings.fontFamily,
                                                         color: textSettings.color,
-                                                        textAlign: "left",
+                                                        textAlign: "center",
+                                                        left: "12%",
+                                                        width: "76%",
+                                                        padding: 0,
+                                                        alignItems: "center",
+                                                        justifyContent: "center",
+                                                        pointerEvents: "none",
+                                                        gap: "6px",
+                                                        ...(titleOrientation === "bottom"
+                                                            ? { bottom: "9%" }
+                                                            : { top: "9%" }),
                                                     }}
                                                 >
                                                     {title && (
@@ -1437,8 +1687,9 @@ export default function EditorPage(props) {
             {/* hidden pages for PDF generation */}
             <Box style={{ position: "absolute", left: "-9999px", top: 0 }}>
                 {pageSettings.map((ps, pi) => {
-                    const tmpl = pageTemplates.find((t) => t.id === ps.templateId);
-                    if (!tmpl) return null;
+                    const isCoverPage = isCoverPageIndex(pi);
+                    const slots = getSlotsForPageIndex(ps, pi);
+                    const textSlots = getTextSlotsForPageIndex(ps, pi);
                     const exportTitleFontSize = textSettings?.fontSize || DEFAULT_TEXT_SETTINGS.fontSize;
                     const exportTitleLineHeight = computeLineHeight(exportTitleFontSize);
                     const exportSubtitleFontSize = scaleFontSize(exportTitleFontSize, 0.6, 14);
@@ -1464,10 +1715,12 @@ export default function EditorPage(props) {
                                     overflow: "hidden",
                                     borderRadius: "12px",
                                 }}
-                            >
-                                {tmpl.slots.map((slotPosIndex, slotIdx) => {
+                        >
+                                {slots.map((slotPosIndex, slotIdx) => {
                                     // Export with original geometry (background visuals preserved)
-                                    const inlinePos = getSlotRect(slotPosIndex, true); // inline for 0..9, otherwise CSS
+                                    const inlinePos = isCoverPage
+                                        ? coverImageStyle
+                                        : getSlotRect(slotPosIndex, true); // inline for 0..9, otherwise CSS
                                     return (
                                         <Box
                                             key={`${slotPosIndex}-${slotIdx}`}
@@ -1475,7 +1728,7 @@ export default function EditorPage(props) {
                                             style={{
                                                 position: "absolute",
                                                 overflow: "hidden",
-                                                borderRadius: "4px",
+                                                borderRadius: isCoverPage ? "24px" : "4px",
                                                 ...(inlinePos || {}),
                                             }}
                                         >
@@ -1488,7 +1741,7 @@ export default function EditorPage(props) {
                                         </Box>
                                     );
                                 })}
-                                {tmpl.textSlots?.map((slotPosIndex, textIdx) => {
+                                {textSlots.map((slotPosIndex, textIdx) => {
                                     const inlinePos = getSlotRect(slotPosIndex, true);
                                     return (
                                         <div
@@ -1506,13 +1759,23 @@ export default function EditorPage(props) {
                                         />
                                     );
                                 })}
-                                {pi === 0 && (
+                                {isCoverPage && (
                                     <Box
                                         className="title-overlay"
                                         style={{
                                             fontFamily: textSettings.fontFamily,
                                             color: textSettings.color,
-                                            textAlign: "left",
+                                            textAlign: "center",
+                                            left: "12%",
+                                            width: "76%",
+                                            padding: 0,
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            pointerEvents: "none",
+                                            gap: "6px",
+                                            ...(titleOrientation === "bottom"
+                                                ? { bottom: "9%" }
+                                                : { top: "9%" }),
                                         }}
                                     >
                                         {title && (
@@ -1594,6 +1857,38 @@ export default function EditorPage(props) {
                     onClose={() => setShowTitleModal(false)}
                 />
             )}
+            {showOrientationModal && (
+                <Layer
+                    position="center"
+                    responsive={false}
+                    onEsc={() => setShowOrientationModal(false)}
+                    onClickOutside={() => setShowOrientationModal(false)}
+                >
+                    <Box pad="medium" gap="medium" width="medium">
+                        <Heading level={3} margin="none">
+                            Title Position
+                        </Heading>
+                        <RadioButtonGroup
+                            name="title-orientation"
+                            options={[
+                                { label: "Top Center", value: "top" },
+                                { label: "Bottom Center", value: "bottom" },
+                            ]}
+                            value={titleOrientation}
+                            onChange={(event) => {
+                                const next = event?.target?.value;
+                                if (next === "top" || next === "bottom") {
+                                    setTitleOrientation(next);
+                                    setShowOrientationModal(false);
+                                }
+                            }}
+                        />
+                        <Box direction="row" justify="end" gap="small">
+                            <Button label="Close" onClick={() => setShowOrientationModal(false)} />
+                        </Box>
+                    </Box>
+                </Layer>
+            )}
 
             <TextEditorModal
                 open={Boolean(activeTextSlot)}
@@ -1629,6 +1924,7 @@ export default function EditorPage(props) {
                 onOpenThemeModal={() => openThemeModal(null)}
                 onSave={handleSave}
                 onEditTitle={() => setShowTitleModal(true)}
+                onOpenTitleLayout={() => setShowOrientationModal(true)}
                 onAddImages={async (incoming) => {
                     const files = Array.isArray(incoming)
                         ? incoming.filter(Boolean)
@@ -1675,10 +1971,14 @@ export default function EditorPage(props) {
                     }
 
                     // Helper to resolve templates
-                    const getTemplate = (id) =>
-                        pageTemplates.find((t) => t.id === id) || null;
+                    const getTemplate = (id) => findTemplateById(id);
                     const defaultTemplate =
-                        getTemplate(3) || pageTemplates.find((t) => (t.slots?.length ?? 0) > 0) || null;
+                        findTemplateById(1) ||
+                        findTemplateById(3) ||
+                        pageTemplates.find(
+                            (t) => t.id !== COVER_TEMPLATE.id && (t.slots?.length ?? 0) > 0
+                        ) ||
+                        null;
 
                     const target = pendingUploadTarget;
                     let didUpdate = false;
@@ -1708,6 +2008,7 @@ export default function EditorPage(props) {
                         if (!remaining.length) return prev;
 
                         const ensureSlotCapacity = (page, slotCount) => {
+                            if (slotCount <= 0) return;
                             if (page.assignedImages.length < slotCount) {
                                 while (page.assignedImages.length < slotCount) {
                                     page.assignedImages.push(null);
@@ -1720,29 +2021,24 @@ export default function EditorPage(props) {
                             const { pageIdx, slotIdx } = target;
                             const page = next[pageIdx];
                             if (page) {
-                                const tmpl = getTemplate(page.templateId);
-                                const slotCount = Math.max(
-                                    1,
-                                    tmpl?.slots?.length ?? page.assignedImages.length ?? 1
-                                );
-                                ensureSlotCapacity(page, slotCount);
-                                if (remaining.length) {
-                                    page.assignedImages[slotIdx] = remaining.shift();
-                                    page.edits = ensureEditsArray(
-                                        page,
-                                        Math.max(page.assignedImages.length, slotCount)
-                                    );
-                                    didUpdate = true;
+                                const slotCount = getSlotCountForPageIndex(page, pageIdx);
+                                if (slotCount > 0 && slotIdx < slotCount) {
+                                    ensureSlotCapacity(page, slotCount);
+                                    if (remaining.length) {
+                                        page.assignedImages[slotIdx] = remaining.shift();
+                                        page.edits = ensureEditsArray(
+                                            page,
+                                            Math.max(page.assignedImages.length, slotCount)
+                                        );
+                                        didUpdate = true;
+                                    }
                                 }
                             }
                         }
 
-                        const fillPage = (page) => {
-                            const tmpl = getTemplate(page.templateId);
-                            const slotCount = Math.max(
-                                1,
-                                tmpl?.slots?.length ?? page.assignedImages.length ?? 1
-                            );
+                        const fillPage = (page, idx) => {
+                            const slotCount = getSlotCountForPageIndex(page, idx);
+                            if (slotCount <= 0) return;
                             ensureSlotCapacity(page, slotCount);
                             let changed = false;
                             for (let i = 0; i < slotCount && remaining.length; i += 1) {
@@ -1763,17 +2059,28 @@ export default function EditorPage(props) {
                         next.forEach(fillPage);
 
                         const pickTemplateForAppend = () => {
-                            const last = next[next.length - 1];
-                            if (last) {
-                                const tmpl = getTemplate(last.templateId);
-                                if (tmpl && (tmpl.slots?.length ?? 0) > 0) return tmpl;
+                            for (let i = next.length - 1; i >= 0; i -= 1) {
+                                if (i === 0) continue; // cover stays unique
+                                const tmpl = getTemplate(next[i].templateId);
+                                if (
+                                    tmpl &&
+                                    tmpl.id !== COVER_TEMPLATE.id &&
+                                    (tmpl.slots?.length ?? 0) > 0
+                                ) {
+                                    return tmpl;
+                                }
                             }
-                            return defaultTemplate;
+                            if (defaultTemplate && defaultTemplate.id !== COVER_TEMPLATE.id) {
+                                return defaultTemplate;
+                            }
+                            return pageTemplates.find(
+                                (t) => t.id !== COVER_TEMPLATE.id && (t.slots?.length ?? 0) > 0
+                            ) || null;
                         };
 
                         while (remaining.length) {
                             const tmpl = pickTemplateForAppend();
-                            if (!tmpl) break;
+                            if (!tmpl || tmpl.id === COVER_TEMPLATE.id) break;
                             const slotCount = Math.max(1, tmpl.slots?.length ?? 1);
                             const assigned = [];
                             while (assigned.length < slotCount && remaining.length) {
@@ -1952,6 +2259,19 @@ export default function EditorPage(props) {
         </>
     );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

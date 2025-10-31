@@ -10,6 +10,7 @@ export default function SettingsBar({
   onOpenThemeModal,
   onSave,
   onEditTitle,
+  onOpenTitleLayout,
   fileInputRef,
 }) {
   const internalUploadInputRef = useRef(null);
@@ -72,6 +73,11 @@ export default function SettingsBar({
       c1.764,0,3.199,1.435,3.199,3.199V91H17.4z" />
     </svg>
   );
+  const OrientationIcon = () => (
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+      <path fill="#585858" d="M12 2a1 1 0 0 1 .894.553l1.618 3.236 3.57.519a1 1 0 0 1 .554 1.706l-2.584 2.52.61 3.557a1 1 0 0 1-1.451 1.054L12 13.9l-3.211 1.79a1 1 0 0 1-1.451-1.054l.61-3.557-2.584-2.52a1 1 0 0 1 .555-1.706l3.57-.52L11.106 2.553A1 1 0 0 1 12 2Zm0 4.236L10.93 8.36a1 1 0 0 1-.753.547l-2.275.331 1.645 1.602a1 1 0 0 1 .287.885l-.389 2.27 2.04-1.073a1 1 0 0 1 .93 0l2.04 1.073-.389-2.27a1 1 0 0 1 .287-.885l1.645-1.602-2.275-.331a1 1 0 0 1-.752-.547Z" />
+    </svg>
+  );
 
   return (
     <>
@@ -119,6 +125,9 @@ export default function SettingsBar({
         )}
         {onEditTitle && (
           <Button icon={<Edit />} label="Edit Title" onClick={onEditTitle}  className="btn-setting" />
+        )}
+        {onOpenTitleLayout && (
+          <Button icon={<OrientationIcon />} label="Title Position" onClick={onOpenTitleLayout} className="btn-setting" />
         )}
         {onSave && (
           <Button  className="btn-setting" icon={<SavingIcon />} label="Continue" onClick={onSave} />
