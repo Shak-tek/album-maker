@@ -1,12 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Button, Heading, TextInput, Text } from "grommet";
 import axios from "axios";
 import SignupForm from "./components/SignupForm";
 
-export default function LoginPage({ onLogin }) {
-  const [mode, setMode] = useState("login");
+export default function LoginPage({ onLogin, initialMode = "login", message = "" }) {
+  const [mode, setMode] = useState(initialMode);
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    setMode(initialMode);
+    setError("");
+  }, [initialMode]);
 
   const update = (key) => (e) => setForm({ ...form, [key]: e.target.value });
 
@@ -28,6 +33,11 @@ export default function LoginPage({ onLogin }) {
       <Heading level={2} margin="none">
         {mode === 'login' ? 'Login' : 'Sign Up'}
       </Heading>
+      {message && (
+        <Box background="light-2" pad="small" round="xsmall">
+          <Text textAlign="center">{message}</Text>
+        </Box>
+      )}
       {mode === "login" && (
         <>
           <TextInput
@@ -52,8 +62,10 @@ export default function LoginPage({ onLogin }) {
       )}
       {mode === "signup" && (
         <>
-          <SignupForm onSignup={onLogin} />
-          <Button label="Have an account?" onClick={() => setMode("login")} />
+          <SignupForm
+            onSignup={onLogin}
+            onSignIn={() => setMode("login")}
+          />
         </>
       )}
     </Box>

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Box, Button, Form, FormField, TextInput, Text } from 'grommet';
 import axios from 'axios';
 
-export default function SignupForm({ onSignup }) {
+export default function SignupForm({ onSignup, onSignIn }) {
   const [form, setForm] = useState({
     name: '', address: '', postcode: '', phone: '',
     email: '', password: ''
@@ -49,6 +49,12 @@ export default function SignupForm({ onSignup }) {
             <Text>{message}</Text>
           </Box>
         )}
+        <Button
+          type="button"
+          label="Already have an account? Log in"
+          onClick={onSignIn}
+          secondary
+        />
       </Box>
     </Form>
   );
