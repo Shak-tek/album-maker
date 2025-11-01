@@ -213,21 +213,15 @@ function MainApp() {
   const [loadedImages, setLoadedImages] = useState([]);
   const [showPrompt, setShowPrompt] = useState(false);
   const [albumSize, setAlbumSize] = useState(null);
-  const [albumTitle, setAlbumTitle] = useState(
-    localStorage.getItem("albumTitle") || ""
-  );
-  const [albumSubtitle, setAlbumSubtitle] = useState(
-    localStorage.getItem("albumSubtitle") || ""
-  );
+  const [albumTitle, setAlbumTitle] = useState("");
+  const [albumSubtitle, setAlbumSubtitle] = useState("");
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [authMode, setAuthMode] = useState("signup");
   const [pendingView, setPendingView] = useState(null);
   const [authPrompt, setAuthPrompt] = useState("");
   const [authDropOpen, setAuthDropOpen] = useState(false);
   const [, setAuthEmail] = useState("");
-  const [identityId, setIdentityId] = useState(
-    localStorage.getItem("identityId") || null
-  );
+  const [identityId, setIdentityId] = useState(null);
 
   const showAuth = (mode = "signup", prompt = "") => {
     setAuthMode(mode);
@@ -253,7 +247,6 @@ function MainApp() {
       if (!err) {
         const id = AWS.config.credentials.identityId;
         setIdentityId(id);
-        localStorage.setItem("identityId", id);
       }
     });
   }, []);
@@ -264,26 +257,12 @@ function MainApp() {
       if (res.ok) {
         const data = await res.json();
         setSessionId(data.session_id);
-        localStorage.setItem("sessionId", data.session_id);
-        if (data.settings?.albumSize) {
-          setAlbumSize(data.settings.albumSize);
-          localStorage.setItem("albumSize", JSON.stringify(data.settings.albumSize));
-        }
+        setAlbumSize(data.settings?.albumSize ?? null);
         if (data.settings?.identityId) {
           setIdentityId(data.settings.identityId);
-          localStorage.setItem("identityId", data.settings.identityId);
         }
-        if (data.settings?.title) {
-          setAlbumTitle(data.settings.title);
-          localStorage.setItem("albumTitle", data.settings.title);
-        }
-        if (data.settings?.subtitle) {
-          setAlbumSubtitle(data.settings.subtitle);
-          localStorage.setItem("albumSubtitle", data.settings.subtitle);
-        }
-        if (data.settings?.pageSettings) {
-          localStorage.setItem("pageSettings", JSON.stringify(data.settings.pageSettings));
-        }
+        setAlbumTitle(data.settings?.title ?? "");
+        setAlbumSubtitle(data.settings?.subtitle ?? "");
         // check if S3 has uploads for this session
         try {
           const { Contents } = await s3.listObjectsV2({ Prefix: `${data.session_id}/` }).promise();
@@ -294,7 +273,9 @@ function MainApp() {
       } else {
         const sid = Date.now().toString();
         setSessionId(sid);
-        localStorage.setItem("sessionId", sid);
+        setAlbumSize(null);
+        setAlbumTitle("");
+        setAlbumSubtitle("");
         await fetch("/.netlify/functions/session", {
           method: "POST",
           body: JSON.stringify({
@@ -330,6 +311,12 @@ function MainApp() {
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem("user");
+    setSessionId(null);
+    setAlbumSize(null);
+    setAlbumTitle("");
+    setAlbumSubtitle("");
+    setLoadedImages([]);
+    setShowPrompt(false);
     setPendingView(null);
     setAuthMode("signup");
     setAuthDropOpen(false);
@@ -340,11 +327,6 @@ function MainApp() {
   };
 
   useEffect(() => {
-    if (albumSize) {
-      localStorage.setItem("albumSize", JSON.stringify(albumSize));
-    }
-    localStorage.setItem("albumTitle", albumTitle);
-    localStorage.setItem("albumSubtitle", albumSubtitle);
     if (user && sessionId) {
       fetch("/.netlify/functions/session", {
         method: "POST",
@@ -377,12 +359,6 @@ function MainApp() {
       }
     }
     const sid = Date.now().toString();
-    localStorage.setItem("sessionId", sid);
-    localStorage.removeItem("albumSize");
-    localStorage.removeItem("albumTitle");
-    localStorage.removeItem("albumSubtitle");
-    localStorage.removeItem("pageSettings");
-    localStorage.removeItem("textSettings");
     setSessionId(sid);
     setLoadedImages([]);
     setAlbumSize(null);
@@ -416,13 +392,7 @@ function MainApp() {
     });
 
     setLoadedImages(urls);
-    const storedSize = localStorage.getItem("albumSize");
-    if (storedSize) {
-      setAlbumSize(JSON.parse(storedSize));
-      const storedTitle = localStorage.getItem("albumTitle");
-      if (storedTitle) setAlbumTitle(storedTitle);
-      const storedSubtitle = localStorage.getItem("albumSubtitle");
-      if (storedSubtitle) setAlbumSubtitle(storedSubtitle);
+    if (albumSize) {
       navigate("editor");
     } else {
       navigate("products");
@@ -447,30 +417,27 @@ function MainApp() {
         localStorage.removeItem("user");
       }
     }
-
-    const sid = localStorage.getItem("sessionId");
-    if (sid) {
-      setSessionId(sid);
-      const storedSize = localStorage.getItem("albumSize");
-      if (storedSize) setAlbumSize(JSON.parse(storedSize));
-      const storedTitle = localStorage.getItem("albumTitle");
-      if (storedTitle) setAlbumTitle(storedTitle);
-      const storedSubtitle = localStorage.getItem("albumSubtitle");
-      if (storedSubtitle) setAlbumSubtitle(storedSubtitle);
-      s3.listObjectsV2({ Prefix: `${sid}/` })
-        .promise()
-        .then(({ Contents }) => {
-          if (Contents.length) setShowPrompt(true);
-        })
-        .catch(console.error);
-    } else {
-      const newSid = Date.now().toString();
-      localStorage.setItem("sessionId", newSid);
-      setSessionId(newSid);
-      setLoadedImages([]);
-      setShowPrompt(false);
-    }
   }, [loadSessionFromDb]);
+
+  useEffect(() => {
+    if (!sessionId) {
+      setShowPrompt(false);
+      return;
+    }
+    s3
+      .listObjectsV2({ Prefix: `${sessionId}/` })
+      .promise()
+      .then(({ Contents }) => {
+        setShowPrompt(Array.isArray(Contents) && Contents.length > 0);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }, [sessionId, s3]);
+
+  useEffect(() => {
+    setLoadedImages([]);
+  }, [sessionId]);
 
   if (view === "login") {
     return (

@@ -4,7 +4,8 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import ColorThief from "color-thief-browser";
 import { Box, Button, Layer, Text, Spinner, Meter, Heading, RadioButtonGroup } from "grommet";
 import { Template as TemplateIcon, Brush, Add, Directions } from "grommet-icons"; // NEW: Add
-import Cropper from "react-easy-crop";
+import Croppie from "croppie";
+import "croppie/croppie.css";
 import TemplateModal from "./TemplateModal";
 import ThemeModal from "./ThemeModal";
 import SettingsBar from "./SettingsBar";
@@ -418,51 +419,8 @@ export default function EditorPage(props) {
         setSubtitle,
     } = props;
 
-    // --- Synchronous restore from localStorage to prevent a "random" first render ---
-    const _initialFromStorage = (() => {
-        try {
-            const raw = localStorage.getItem("pageSettings");
-            if (!raw) return null;
-            const parsed = JSON.parse(raw);
-            if (!Array.isArray(parsed)) return null;
-            // normalize edits array shape
-            return parsed.map((ps) => ({
-                ...ps,
-                edits: Array.isArray(ps.edits) ? ps.edits : [],
-                texts: Array.isArray(ps.texts) ? ps.texts : [],
-            }));
-        } catch {
-            return null;
-        }
-    })();
-    const _storedTextSettings = (() => {
-        try {
-            const raw = localStorage.getItem("textSettings");
-            if (!raw) return null;
-            const parsed = JSON.parse(raw);
-            if (!parsed || typeof parsed !== "object") return null;
-            const { fontFamily, fontSize, color } = parsed;
-            return {
-                fontFamily: typeof fontFamily === "string" ? fontFamily : DEFAULT_TEXT_SETTINGS.fontFamily,
-                fontSize: typeof fontSize === "string" ? fontSize : DEFAULT_TEXT_SETTINGS.fontSize,
-                color: typeof color === "string" ? color : DEFAULT_TEXT_SETTINGS.color,
-            };
-        } catch {
-            return null;
-        }
-    })();
-    const _storedTitleOrientation = (() => {
-        try {
-            const raw = localStorage.getItem("titleOrientation");
-            if (raw === "top" || raw === "bottom") return raw;
-            return DEFAULT_TITLE_ORIENTATION;
-        } catch {
-            return DEFAULT_TITLE_ORIENTATION;
-        }
-    })();
-    const [pageSettings, setPageSettings] = useState(_initialFromStorage || []);
-    // Remember whether we actually restored something so we don't auto-generate
-    const [restoredFromStorage] = useState(Boolean(_initialFromStorage));
+    const [pageSettings, setPageSettings] = useState([]);
+    const [restoredSessionId, setRestoredSessionId] = useState(null);
     const [showTemplateModal, setShowTemplateModal] = useState(false);
     const [templateModalPage, setTemplateModalPage] = useState(null);
     const [showThemeModal, setShowThemeModal] = useState(false);
@@ -480,6 +438,17 @@ export default function EditorPage(props) {
     // NEW: pending target for an upload into a specific slot
     const [pendingUploadTarget, setPendingUploadTarget] = useState(null); // { pageIdx, slotIdx } | null
     const prevImages = usePrevious(images);
+    const previousSessionIdRef = useRef();
+
+    useEffect(() => {
+        if (previousSessionIdRef.current === sessionId) return;
+        previousSessionIdRef.current = sessionId;
+        setPageSettings([]);
+        setTextSettings({ ...DEFAULT_TEXT_SETTINGS });
+        setTitleOrientation(DEFAULT_TITLE_ORIENTATION);
+        setImagesWarm(false);
+        setRestoredSessionId(null);
+    }, [sessionId]);
 
     // dynamic normalized rects when background is disabled
     // shape: { [pageIdx]: Array<{top,left,width,height} | null> }
@@ -514,12 +483,16 @@ export default function EditorPage(props) {
     // ---------------- Cropper state ----------------
     const [cropOpen, setCropOpen] = useState(false);
     const [cropTarget, setCropTarget] = useState({ pageIdx: null, slotIdx: null, aspect: 1 });
-    const [cropState, setCropState] = useState({ crop: { x: 0, y: 0 }, zoom: 1, rotation: 0 });
+    const [cropState, setCropState] = useState({ zoom: 1, rotation: 0 });
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+    const [croppiePoints, setCroppiePoints] = useState(null);
     const [cropSource, setCropSource] = useState(null);
     const [cropImageMeta, setCropImageMeta] = useState({ width: null, height: null });
+    const [cropInitialParams, setCropInitialParams] = useState(null);
     const cropSourceRef = useRef(null);
     const cropperContainerRef = useRef(null);
+    const croppieElementRef = useRef(null);
+    const croppieInstanceRef = useRef(null);
     const [cropAutoZoom, setCropAutoZoom] = useState({
         fit: MIN_CROPPER_ZOOM,
         fill: MIN_CROPPER_ZOOM,
@@ -531,10 +504,8 @@ export default function EditorPage(props) {
     };
 
     // force LTR + text style
-    const [textSettings, setTextSettings] = useState(_storedTextSettings || { ...DEFAULT_TEXT_SETTINGS });
-    const [titleOrientation, setTitleOrientation] = useState(
-        _storedTitleOrientation || DEFAULT_TITLE_ORIENTATION
-    );
+    const [textSettings, setTextSettings] = useState({ ...DEFAULT_TEXT_SETTINGS });
+    const [titleOrientation, setTitleOrientation] = useState(DEFAULT_TITLE_ORIENTATION);
     const [activeTextSlot, setActiveTextSlot] = useState(null); // { pageIdx, textIdx, placeholder }
     const defaultTitleFontSize = textSettings?.fontSize || DEFAULT_TEXT_SETTINGS.fontSize;
     const defaultTextBoxFontSize = scaleFontSize(defaultTitleFontSize, 0.65, 14);
@@ -550,32 +521,45 @@ export default function EditorPage(props) {
         : "";
 
 
-    // ----------------- OPTIONAL: try restoring from server (Netlify) if nothing in localStorage -----------------
+    // Restore session state from Neon-backed endpoint
     useEffect(() => {
-        if (restoredFromStorage || pageSettings.length) return;
         if (!user || !sessionId) return;
+        if (restoredSessionId === sessionId) return;
         let cancelled = false;
         (async () => {
             try {
-                const res = await fetch(`/.netlify/functions/session?sessionId=${encodeURIComponent(sessionId)}&userId=${encodeURIComponent(user.id)}`);
+                const res = await fetch(
+                    `/.netlify/functions/session?sessionId=${encodeURIComponent(sessionId)}&userId=${encodeURIComponent(user.id)}`
+                );
                 if (!res.ok) return;
                 const data = await res.json();
                 const remote = data?.settings?.pageSettings;
                 const remoteTextSettings = data?.settings?.textSettings;
-                if (Array.isArray(remote) && !cancelled) {
-                    setPageSettings(
-                        remote.map((ps) => ({
-                            ...ps,
-                            edits: Array.isArray(ps.edits) ? ps.edits : [],
-                            texts: Array.isArray(ps.texts) ? ps.texts : [],
-                        }))
-                    );
-                    setImagesWarm(false);
+                if (!cancelled) {
+                    if (Array.isArray(remote)) {
+                        setPageSettings(
+                            remote.map((ps) => ({
+                                ...ps,
+                                edits: Array.isArray(ps.edits) ? ps.edits : [],
+                                texts: Array.isArray(ps.texts) ? ps.texts : [],
+                            }))
+                        );
+                        setImagesWarm(false);
+                    }
                     if (remoteTextSettings) {
                         setTextSettings({
-                            fontFamily: typeof remoteTextSettings.fontFamily === "string" ? remoteTextSettings.fontFamily : DEFAULT_TEXT_SETTINGS.fontFamily,
-                            fontSize: typeof remoteTextSettings.fontSize === "string" ? remoteTextSettings.fontSize : DEFAULT_TEXT_SETTINGS.fontSize,
-                            color: typeof remoteTextSettings.color === "string" ? remoteTextSettings.color : DEFAULT_TEXT_SETTINGS.color,
+                            fontFamily:
+                                typeof remoteTextSettings.fontFamily === "string"
+                                    ? remoteTextSettings.fontFamily
+                                    : DEFAULT_TEXT_SETTINGS.fontFamily,
+                            fontSize:
+                                typeof remoteTextSettings.fontSize === "string"
+                                    ? remoteTextSettings.fontSize
+                                    : DEFAULT_TEXT_SETTINGS.fontSize,
+                            color:
+                                typeof remoteTextSettings.color === "string"
+                                    ? remoteTextSettings.color
+                                    : DEFAULT_TEXT_SETTINGS.color,
                         });
                     }
                     const remoteOrientation = data?.settings?.titleOrientation;
@@ -584,16 +568,23 @@ export default function EditorPage(props) {
                     }
                 }
             } catch {
-                // ignore; fall back to local init below
+                // ignore, allow defaults/init to take over
+            } finally {
+                if (!cancelled) {
+                    setRestoredSessionId(sessionId);
+                }
             }
         })();
-        return () => { cancelled = true; };
-    }, [restoredFromStorage, pageSettings.length, user, sessionId]);
+        return () => {
+            cancelled = true;
+        };
+    }, [user, sessionId, restoredSessionId]);
     // initialize per-page assignments whenever `images` changes
+    const canGenerateInitialPages = !user || !sessionId || restoredSessionId === sessionId;
+
     useEffect(() => {
-        // Only auto-generate if we truly have nothing restored (no local, no remote)
         if (pageSettings.length) return;
-        if (restoredFromStorage) return;
+        if (!canGenerateInitialPages) return;
 
         const remaining = images.slice();
         const createIntroPage = () => ({
@@ -646,7 +637,7 @@ export default function EditorPage(props) {
 
         setPageSettings(pages);
         setImagesWarm(false);
-    }, [images, pageSettings.length, restoredFromStorage]);
+    }, [images, pageSettings.length, canGenerateInitialPages]);
 
     useEffect(() => {
         if (!pageSettings.length) return;
@@ -656,22 +647,30 @@ export default function EditorPage(props) {
         }
     }, [pageSettings]);
 
-    // persist to localStorage & DB
+    // persist session state to the Neon-backed endpoint
     useEffect(() => {
-        localStorage.setItem("pageSettings", JSON.stringify(pageSettings));
-        localStorage.setItem("textSettings", JSON.stringify(textSettings));
-        localStorage.setItem("titleOrientation", titleOrientation);
-        if (user && sessionId) {
-            fetch("/.netlify/functions/session", {
-                method: "POST",
-                body: JSON.stringify({
-                    userId: user.id,
-                    sessionId,
-                    settings: { albumSize, identityId, pageSettings, user, title, subtitle, textSettings, titleOrientation },
-                }),
-            }).catch(console.error);
-        }
-    }, [pageSettings, textSettings, titleOrientation, albumSize, identityId, user, sessionId, title, subtitle]);
+        if (!user || !sessionId) return;
+        if (restoredSessionId !== sessionId) return;
+        fetch("/.netlify/functions/session", {
+            method: "POST",
+            body: JSON.stringify({
+                userId: user.id,
+                sessionId,
+                settings: { albumSize, identityId, pageSettings, user, title, subtitle, textSettings, titleOrientation },
+            }),
+        }).catch(console.error);
+    }, [
+        pageSettings,
+        textSettings,
+        titleOrientation,
+        albumSize,
+        identityId,
+        user,
+        sessionId,
+        title,
+        subtitle,
+        restoredSessionId,
+    ]);
 
     useEffect(() => {
         if (!activeTextSlot) return;
@@ -1340,32 +1339,52 @@ export default function EditorPage(props) {
             if (r.width && r.height) aspect = r.width / r.height;
         }
 
-        const prev = edit?.params;
-        const initialZoom = Math.min(
-            MAX_CROPPER_ZOOM,
-            Math.max(MIN_CROPPER_ZOOM, prev?.zoom || 1)
-        );
-        setCropState(
+        const prev = edit?.params || null;
+        const prevZoom = typeof prev?.zoom === "number" ? prev.zoom : null;
+        const prevPoints = Array.isArray(prev?.points) ? prev.points.slice() : null;
+        const fallbackPoints = (() => {
+            const pixels = prev?.croppedAreaPixels;
+            if (!pixels) return null;
+            const x = Number(pixels.x);
+            const y = Number(pixels.y);
+            const width = Number(pixels.width);
+            const height = Number(pixels.height);
+            if (![x, y, width, height].every((value) => Number.isFinite(value))) return null;
+            return [x, y, x + width, y + height];
+        })();
+        const initialPoints = prevPoints || fallbackPoints || null;
+        const initialZoom = prevZoom
+            ? Math.min(MAX_CROPPER_ZOOM, Math.max(MIN_CROPPER_ZOOM, prevZoom))
+            : 1;
+        const initialRotation = prev?.rotation || 0;
+        setCropState({ zoom: initialZoom, rotation: initialRotation });
+        setCroppedAreaPixels(prev?.croppedAreaPixels ?? null);
+        setCroppiePoints(initialPoints ? initialPoints.slice() : null);
+        setCropInitialParams(
             prev
                 ? {
-                      crop: { ...(prev.crop || { x: 0, y: 0 }) },
-                      zoom: initialZoom,
-                      rotation: prev.rotation || 0,
+                      zoom: prevZoom != null ? initialZoom : null,
+                      points: initialPoints ? initialPoints.slice() : null,
                   }
-                : { crop: { x: 0, y: 0 }, zoom: initialZoom, rotation: 0 }
+                : null
         );
-        setCroppedAreaPixels(prev?.croppedAreaPixels ?? null);
         setCropSource(normalizedSource);
         setCropTarget({ pageIdx: pi, slotIdx, aspect });
         setCropOpen(true);
     };
 
     const closeCropper = () => {
+        croppieInstanceRef.current = null;
+        if (croppieElementRef.current) {
+            croppieElementRef.current.innerHTML = "";
+        }
         setCropOpen(false);
         setCropTarget({ pageIdx: null, slotIdx: null, aspect: 1 });
         setCroppedAreaPixels(null);
+        setCroppiePoints(null);
         setCropSource(null);
         setCropImageMeta({ width: null, height: null });
+        setCropInitialParams(null);
         setCropAutoZoom({ fit: MIN_CROPPER_ZOOM, fill: MIN_CROPPER_ZOOM });
         cropSourceRef.current = null;
     };
@@ -1375,56 +1394,65 @@ export default function EditorPage(props) {
         return Math.max(0.01, value);
     }, []);
 
-    const computeAutoZoom = useCallback(
-        (mode) => {
-            const container = cropperContainerRef.current;
-            const rawWidth = cropImageMeta.width;
-            const rawHeight = cropImageMeta.height;
-            if (!container || !rawWidth || !rawHeight) return null;
-
-            const rotation = cropState.rotation || 0;
-            const { width: rotatedWidth, height: rotatedHeight } = getRotatedSize(rawWidth, rawHeight, rotation);
-            if (!rotatedWidth || !rotatedHeight) return null;
-
-            const containerWidth = container.offsetWidth;
-            const containerHeight = container.offsetHeight;
-            if (!containerWidth || !containerHeight) return null;
-
-            const ratioX = containerWidth / rotatedWidth;
-            const ratioY = containerHeight / rotatedHeight;
-            if (!Number.isFinite(ratioX) || !Number.isFinite(ratioY)) return null;
-
-            const zoomValue = mode === "fill" ? Math.max(ratioX, ratioY) : Math.min(ratioX, ratioY);
-            return sanitizeAutoZoom(zoomValue);
-        },
-        [cropImageMeta.width, cropImageMeta.height, cropState.rotation, sanitizeAutoZoom]
-    );
-
-    const updateCropAutoZoom = useCallback(() => {
-        const fitZoom = computeAutoZoom("fit");
-        const fillZoom = computeAutoZoom("fill");
-        if (fitZoom == null && fillZoom == null) return;
+    const updateCroppieMetrics = useCallback(() => {
+        const instance = croppieInstanceRef.current;
+        if (!instance) return;
+        const { points = [], zoom } = instance.get() || {};
+        if (Array.isArray(points) && points.length === 4) {
+            const width = Math.max(1, Math.round(points[2] - points[0]));
+            const height = Math.max(1, Math.round(points[3] - points[1]));
+            setCroppedAreaPixels({
+                x: points[0],
+                y: points[1],
+                width,
+                height,
+            });
+            setCroppiePoints(points.slice());
+        }
+        if (Number.isFinite(zoom)) {
+            setCropState((prev) => {
+                if (Math.abs((prev.zoom || 0) - zoom) < 0.0001) return prev;
+                return { ...prev, zoom };
+            });
+        }
+        const rawWidth = cropImageMeta.width;
+        const rawHeight = cropImageMeta.height;
+        const viewport = instance?.options?.viewport;
+        if (!viewport || !rawWidth || !rawHeight) return;
+        const rotation = cropState.rotation || 0;
+        const { width: rotatedWidth, height: rotatedHeight } = getRotatedSize(rawWidth, rawHeight, rotation);
+        if (!rotatedWidth || !rotatedHeight) return;
+        const fit = sanitizeAutoZoom(Math.min(viewport.width / rotatedWidth, viewport.height / rotatedHeight));
+        const fill = sanitizeAutoZoom(Math.max(viewport.width / rotatedWidth, viewport.height / rotatedHeight));
+        if (fit == null && fill == null) return;
         setCropAutoZoom((prev) => {
-            const nextFit = fitZoom ?? prev.fit;
-            const nextFill = fillZoom ?? prev.fill;
-            const fitChanged = Math.abs(nextFit - prev.fit) > 0.0001;
-            const fillChanged = Math.abs(nextFill - prev.fill) > 0.0001;
-            if (!fitChanged && !fillChanged) return prev;
+            const nextFit = fit ?? prev.fit;
+            const nextFill = fill ?? prev.fill;
+            if (Math.abs(nextFit - prev.fit) < 0.0001 && Math.abs(nextFill - prev.fill) < 0.0001) {
+                return prev;
+            }
             return { fit: nextFit, fill: nextFill };
         });
-    }, [computeAutoZoom]);
-
-    const onCropComplete = (_, areaPixels) => setCroppedAreaPixels(areaPixels);
+    }, [cropImageMeta.width, cropImageMeta.height, cropState.rotation, sanitizeAutoZoom]);
 
     const saveCrop = async () => {
         const { pageIdx, slotIdx } = cropTarget;
         if (pageIdx == null || slotIdx == null) return;
         const ps = pageSettings[pageIdx];
         const rawSrc = cropSource || ps.assignedImages[slotIdx];
-        if (!rawSrc || !croppedAreaPixels) return;
+        if (!rawSrc || !croppiePoints || croppiePoints.length !== 4) return;
         const normalizedSrc = getCropBaseSrc(rawSrc);
         if (!normalizedSrc) return;
-        const dataUrl = await getCroppedDataUrl(normalizedSrc, croppedAreaPixels, cropState.rotation);
+        const pixelCrop = {
+            x: croppiePoints[0],
+            y: croppiePoints[1],
+            width: croppiePoints[2] - croppiePoints[0],
+            height: croppiePoints[3] - croppiePoints[1],
+        };
+        if (!Number.isFinite(pixelCrop.width) || !Number.isFinite(pixelCrop.height) || pixelCrop.width <= 0 || pixelCrop.height <= 0) {
+            return;
+        }
+        const dataUrl = await getCroppedDataUrl(normalizedSrc, pixelCrop, cropState.rotation);
 
         setPageSettings((prev) => {
             const next = prev.map((p) => ({ ...p }));
@@ -1432,7 +1460,13 @@ export default function EditorPage(props) {
             edits[slotIdx] = {
                 originalSrc: normalizedSrc,
                 previewDataUrl: dataUrl,
-                params: { ...cropState, aspect: cropTarget.aspect, croppedAreaPixels },
+                params: {
+                    zoom: cropState.zoom,
+                    rotation: cropState.rotation,
+                    points: croppiePoints.slice(),
+                    aspect: cropTarget.aspect,
+                    croppedAreaPixels,
+                },
             };
             next[pageIdx].edits = edits;
             return next;
@@ -1473,30 +1507,96 @@ export default function EditorPage(props) {
     }, [cropSource, cropOpen]);
 
     useEffect(() => {
-        if (!cropOpen) return;
-        let raf1 = 0;
-        let raf2 = 0;
-        const schedule = () => {
-            if (raf1) cancelAnimationFrame(raf1);
-            if (raf2) cancelAnimationFrame(raf2);
-            raf1 = requestAnimationFrame(() => {
-                raf2 = requestAnimationFrame(() => {
-                    updateCropAutoZoom();
-                });
+        if (!cropOpen || !cropSource) return;
+        const containerEl = croppieElementRef.current;
+        if (!containerEl) return;
+
+        if (croppieInstanceRef.current) {
+            croppieInstanceRef.current.destroy();
+            croppieInstanceRef.current = null;
+            containerEl.innerHTML = "";
+        }
+
+        const container = cropperContainerRef.current;
+        const containerRect = container?.getBoundingClientRect();
+        const boundaryWidth = Math.max(320, Math.round(containerRect?.width || 480));
+        const boundaryHeight = Math.max(320, Math.round(containerRect?.height || 480));
+        const aspect =
+            cropTarget?.aspect && Number.isFinite(cropTarget.aspect) && cropTarget.aspect > 0
+                ? cropTarget.aspect
+                : 1;
+        const viewportBase = Math.min(boundaryWidth, boundaryHeight) - 40;
+        const clampedBase = Math.max(200, viewportBase);
+        const viewportWidth = aspect >= 1 ? clampedBase : clampedBase * aspect;
+        const viewportHeight = aspect >= 1 ? clampedBase / aspect : clampedBase;
+
+        const instance = new Croppie(containerEl, {
+            viewport: {
+                width: Math.round(viewportWidth),
+                height: Math.round(viewportHeight),
+                type: "square",
+            },
+            boundary: {
+                width: boundaryWidth,
+                height: boundaryHeight,
+            },
+            enableZoom: true,
+            enableOrientation: true,
+            enforceBoundary: false,
+            showZoomer: false,
+        });
+
+        instance.options.update = () => updateCroppieMetrics();
+
+        croppieInstanceRef.current = instance;
+
+        const bindOptions = { url: cropSource };
+        if (cropInitialParams?.points) {
+            bindOptions.points = cropInitialParams.points.slice();
+        }
+        if (typeof cropInitialParams?.zoom === "number") {
+            bindOptions.zoom = cropInitialParams.zoom;
+        }
+
+        instance
+            .bind(bindOptions)
+            .then(() => {
+                const normalizedRotation = ((cropState.rotation % 360) + 360) % 360;
+                if (normalizedRotation) {
+                    const steps = Math.floor(normalizedRotation / 90);
+                    for (let i = 0; i < steps; i += 1) {
+                        instance.rotate(90);
+                    }
+                }
+                updateCroppieMetrics();
+            })
+            .catch(() => {
+                updateCroppieMetrics();
             });
-        };
-        schedule();
-        window.addEventListener("resize", updateCropAutoZoom);
+
         return () => {
-            if (raf1) cancelAnimationFrame(raf1);
-            if (raf2) cancelAnimationFrame(raf2);
-            window.removeEventListener("resize", updateCropAutoZoom);
+            instance.destroy();
+            croppieInstanceRef.current = null;
+            containerEl.innerHTML = "";
         };
-    }, [cropOpen, cropTarget.aspect, updateCropAutoZoom]);
+    }, [cropOpen, cropSource, cropTarget?.aspect, cropInitialParams, cropState.rotation, updateCroppieMetrics]);
+
+    useEffect(() => {
+        if (!cropOpen) return;
+        updateCroppieMetrics();
+    }, [cropOpen, cropImageMeta.width, cropImageMeta.height, updateCroppieMetrics]);
 
     useEffect(() => {
         if (!cropOpen) return;
         const minZoom = Math.min(cropAutoZoom.fit ?? MIN_CROPPER_ZOOM, MAX_CROPPER_ZOOM);
+        const instance = croppieInstanceRef.current;
+        if (instance) {
+            const current = instance.get();
+            const currentZoom = Number.isFinite(current?.zoom) ? current.zoom : null;
+            if (currentZoom != null && currentZoom + 0.0001 < minZoom) {
+                instance.setZoom(minZoom);
+            }
+        }
         setCropState((prev) => {
             if (prev.zoom >= minZoom) return prev;
             return { ...prev, zoom: minZoom };
@@ -1510,12 +1610,10 @@ export default function EditorPage(props) {
             return;
         }
         if (cropSourceRef.current && cropSourceRef.current !== cropSource) {
-            setCropState({
-                crop: { x: 0, y: 0 },
-                zoom: Math.min(MAX_CROPPER_ZOOM, Math.max(MIN_CROPPER_ZOOM, 1)),
-                rotation: 0,
-            });
+            setCropState({ zoom: 1, rotation: 0 });
             setCroppedAreaPixels(null);
+            setCroppiePoints(null);
+            setCropInitialParams(null);
         }
         cropSourceRef.current = cropSource;
     }, [cropSource, cropOpen]);
@@ -1525,40 +1623,47 @@ export default function EditorPage(props) {
         if (Number.isNaN(nextZoom)) return;
         const minZoom = Math.min(cropAutoZoom.fit ?? MIN_CROPPER_ZOOM, MAX_CROPPER_ZOOM);
         const clampedZoom = Math.min(Math.max(nextZoom, minZoom), MAX_CROPPER_ZOOM);
+        const instance = croppieInstanceRef.current;
+        if (instance) {
+            instance.setZoom(clampedZoom);
+        }
         setCropState((prev) => ({ ...prev, zoom: clampedZoom }));
-        setCroppedAreaPixels(null);
     };
 
     const handleRotateClick = () => {
+        const instance = croppieInstanceRef.current;
+        if (instance) {
+            instance.rotate(90);
+            updateCroppieMetrics();
+        }
         setCropState((prev) => ({
             ...prev,
             rotation: ((prev.rotation || 0) + 90) % 360,
         }));
-        setCroppedAreaPixels(null);
     };
 
     const handleFitClick = () => {
-        const computedFit = computeAutoZoom("fit") ?? cropAutoZoom.fit ?? MIN_CROPPER_ZOOM;
-        const minZoom = Math.min(cropAutoZoom.fit ?? computedFit ?? MIN_CROPPER_ZOOM, MAX_CROPPER_ZOOM);
-        const clampedZoom = Math.min(Math.max(computedFit, minZoom), MAX_CROPPER_ZOOM);
-        setCropState((prev) => ({
-            ...prev,
-            crop: { x: 0, y: 0 },
-            zoom: clampedZoom,
-        }));
-        setCroppedAreaPixels(null);
+        const fitZoom = sanitizeAutoZoom(cropAutoZoom.fit ?? cropAutoZoom.fill ?? MIN_CROPPER_ZOOM) ?? MIN_CROPPER_ZOOM;
+        const targetZoom = Math.min(fitZoom, MAX_CROPPER_ZOOM);
+        const instance = croppieInstanceRef.current;
+        if (instance) {
+            instance.setZoom(targetZoom);
+            updateCroppieMetrics();
+        }
+        setCropState((prev) => ({ ...prev, zoom: targetZoom }));
     };
 
     const handleFillClick = () => {
-        const computedFill = computeAutoZoom("fill") ?? cropAutoZoom.fill ?? MIN_CROPPER_ZOOM;
-        const minZoom = Math.min(cropAutoZoom.fit ?? MIN_CROPPER_ZOOM, MAX_CROPPER_ZOOM);
-        const clampedZoom = Math.min(Math.max(computedFill, minZoom), MAX_CROPPER_ZOOM);
-        setCropState((prev) => ({
-            ...prev,
-            crop: { x: 0, y: 0 },
-            zoom: clampedZoom,
-        }));
-        setCroppedAreaPixels(null);
+        const fitZoom = sanitizeAutoZoom(cropAutoZoom.fit ?? MIN_CROPPER_ZOOM) ?? MIN_CROPPER_ZOOM;
+        const fillZoom = sanitizeAutoZoom(cropAutoZoom.fill ?? fitZoom) ?? fitZoom;
+        const minZoom = Math.min(fitZoom, MAX_CROPPER_ZOOM);
+        const targetZoom = Math.min(Math.max(fillZoom, minZoom), MAX_CROPPER_ZOOM);
+        const instance = croppieInstanceRef.current;
+        if (instance) {
+            instance.setZoom(targetZoom);
+            updateCroppieMetrics();
+        }
+        setCropState((prev) => ({ ...prev, zoom: targetZoom }));
     };
 
     const handleReplaceImage = () => {
@@ -1645,7 +1750,7 @@ export default function EditorPage(props) {
         return Math.min(10, Math.max(1, Math.round(minSide / 200)));
     })();
     const printQualityLabel = printQualityScore ? `${printQualityScore}/10` : "N/A";
-    const isCropActionsDisabled = !cropSource;
+    const isCropActionsDisabled = !cropSource || !croppieInstanceRef.current;
     const zoomSliderId = "cropper-zoom-slider";
     const cropperStyle = useMemo(() => {
         const aspect =
@@ -2436,28 +2541,9 @@ export default function EditorPage(props) {
                                         ref={cropperContainerRef}
                                         style={cropperStyle}
                                     >
-                                        <Cropper
-                                            image={cropSource}
-                                            crop={cropState.crop}
-                                            zoom={normalizedZoom}
-                                            rotation={cropState.rotation}
-                                            aspect={cropTarget.aspect}
-                                            onCropChange={(crop) => setCropState((p) => ({ ...p, crop }))}
-                                            onZoomChange={(zoom) => {
-                                                const clampedZoom = Math.min(
-                                                    Math.max(zoom, MIN_CROPPER_ZOOM),
-                                                    MAX_CROPPER_ZOOM
-                                                );
-                                                setCropState((p) => ({ ...p, zoom: clampedZoom }));
-                                                setCroppedAreaPixels(null);
-                                            }}
-                                            onRotationChange={(rotation) => {
-                                                setCropState((p) => ({ ...p, rotation }));
-                                                setCroppedAreaPixels(null);
-                                            }}
-                                            onCropComplete={onCropComplete}
-                                            restrictPosition
-                                            showGrid
+                                        <div
+                                            ref={croppieElementRef}
+                                            style={{ width: "100%", height: "100%" }}
                                         />
                                     </div>
                                 ) : (
