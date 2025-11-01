@@ -427,7 +427,7 @@ export default function EditorPage(props) {
     const [themeModalPage, setThemeModalPage] = useState(null);
     const [showTitleModal, setShowTitleModal] = useState(false);
     const [showOrientationModal, setShowOrientationModal] = useState(false);
-    
+
     const [backgroundEnabled, setBackgroundEnabled] = useState(true);
     const [imagesWarm, setImagesWarm] = useState(false);
     const [dynamicPalette, setDynamicPalette] = useState([]);
@@ -1264,17 +1264,17 @@ export default function EditorPage(props) {
                     },
                     headingStyle: headingStyle
                         ? {
-                              fontSize: headingStyle.fontSize,
-                              fontWeight: headingStyle.fontWeight,
-                              lineHeight: headingStyle.lineHeight,
-                          }
+                            fontSize: headingStyle.fontSize,
+                            fontWeight: headingStyle.fontWeight,
+                            lineHeight: headingStyle.lineHeight,
+                        }
                         : null,
                     subheadingStyle: subheadingStyle
                         ? {
-                              fontSize: subheadingStyle.fontSize,
-                              fontWeight: subheadingStyle.fontWeight,
-                              lineHeight: subheadingStyle.lineHeight,
-                          }
+                            fontSize: subheadingStyle.fontSize,
+                            fontWeight: subheadingStyle.fontWeight,
+                            lineHeight: subheadingStyle.lineHeight,
+                        }
                         : null,
                 };
             }
@@ -1291,14 +1291,14 @@ export default function EditorPage(props) {
                 assignedImages: Array.isArray(ps?.assignedImages) ? [...ps.assignedImages] : [],
                 edits: Array.isArray(ps?.edits)
                     ? ps.edits.map((edit) =>
-                          edit
-                              ? {
-                                    originalSrc: edit.originalSrc || null,
-                                    previewDataUrl: edit.previewDataUrl || null,
-                                    params: edit.params || null,
-                                }
-                              : null,
-                      )
+                        edit
+                            ? {
+                                originalSrc: edit.originalSrc || null,
+                                previewDataUrl: edit.previewDataUrl || null,
+                                params: edit.params || null,
+                            }
+                            : null,
+                    )
                     : [],
                 texts: Array.isArray(ps?.texts) ? [...ps.texts] : [],
                 layout,
@@ -1378,9 +1378,9 @@ export default function EditorPage(props) {
         setCropInitialParams(
             prev
                 ? {
-                      zoom: prevZoom != null ? initialZoom : null,
-                      points: initialPoints ? initialPoints.slice() : null,
-                  }
+                    zoom: prevZoom != null ? initialZoom : null,
+                    points: initialPoints ? initialPoints.slice() : null,
+                }
                 : null
         );
         setCropSource(normalizedSource);
@@ -1463,8 +1463,8 @@ export default function EditorPage(props) {
             instancePoints && instancePoints.length === 4
                 ? instancePoints
                 : croppiePoints && croppiePoints.length === 4
-                ? croppiePoints
-                : null;
+                    ? croppiePoints
+                    : null;
         if (!points) return;
 
         const width = points[2] - points[0];
@@ -1866,20 +1866,20 @@ export default function EditorPage(props) {
                                                         className="btn-ico"
                                                         onClick={() => openTemplateModal(pi)}
                                                     />
-                                            )}
-                                            {canChangeTheme && (
-                                                <Button icon={<Brush />} color="black" className="btn-ico" onClick={() => openThemeModal(pi)} />
-                                            )}
-                                            {isIntroPage && (
-                                                <Button
-                                                    icon={<Directions />}
-                                                    color="black"
-                                                    className="btn-ico"
-                                                    onClick={() => setShowOrientationModal(true)}
-                                                    title="Adjust title position"
-                                                    aria-label="Adjust title position"
-                                                />
-                                            )}
+                                                )}
+                                                {canChangeTheme && (
+                                                    <Button icon={<Brush />} color="black" className="btn-ico" onClick={() => openThemeModal(pi)} />
+                                                )}
+                                                {isIntroPage && (
+                                                    <Button
+                                                        icon={<Directions />}
+                                                        color="black"
+                                                        className="btn-ico"
+                                                        onClick={() => setShowOrientationModal(true)}
+                                                        title="Adjust title position"
+                                                        aria-label="Adjust title position"
+                                                    />
+                                                )}
                                             </Box>
                                         )}
 
@@ -2119,7 +2119,7 @@ export default function EditorPage(props) {
                                     overflow: "hidden",
                                     borderRadius: "12px",
                                 }}
-                        >
+                            >
                                 {slots.map((slotPosIndex, slotIdx) => {
                                     // Export with original geometry (background visuals preserved)
                                     const inlinePos = isCoverPage
