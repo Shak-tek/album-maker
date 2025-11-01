@@ -520,6 +520,10 @@ export default function EditorPage(props) {
     const [cropImageMeta, setCropImageMeta] = useState({ width: null, height: null });
     const cropSourceRef = useRef(null);
     const cropperContainerRef = useRef(null);
+    const [cropAutoZoom, setCropAutoZoom] = useState({
+        fit: MIN_CROPPER_ZOOM,
+        fill: MIN_CROPPER_ZOOM,
+    });
 
     const getSlotSrc = (ps, slotIdx) => {
         const edit = ps.edits?.[slotIdx];
@@ -1362,8 +1366,53 @@ export default function EditorPage(props) {
         setCroppedAreaPixels(null);
         setCropSource(null);
         setCropImageMeta({ width: null, height: null });
+        setCropAutoZoom({ fit: MIN_CROPPER_ZOOM, fill: MIN_CROPPER_ZOOM });
         cropSourceRef.current = null;
     };
+
+    const sanitizeAutoZoom = useCallback((value) => {
+        if (!Number.isFinite(value) || value <= 0) return null;
+        return Math.max(0.01, value);
+    }, []);
+
+    const computeAutoZoom = useCallback(
+        (mode) => {
+            const container = cropperContainerRef.current;
+            const rawWidth = cropImageMeta.width;
+            const rawHeight = cropImageMeta.height;
+            if (!container || !rawWidth || !rawHeight) return null;
+
+            const rotation = cropState.rotation || 0;
+            const { width: rotatedWidth, height: rotatedHeight } = getRotatedSize(rawWidth, rawHeight, rotation);
+            if (!rotatedWidth || !rotatedHeight) return null;
+
+            const containerWidth = container.offsetWidth;
+            const containerHeight = container.offsetHeight;
+            if (!containerWidth || !containerHeight) return null;
+
+            const ratioX = containerWidth / rotatedWidth;
+            const ratioY = containerHeight / rotatedHeight;
+            if (!Number.isFinite(ratioX) || !Number.isFinite(ratioY)) return null;
+
+            const zoomValue = mode === "fill" ? Math.max(ratioX, ratioY) : Math.min(ratioX, ratioY);
+            return sanitizeAutoZoom(zoomValue);
+        },
+        [cropImageMeta.width, cropImageMeta.height, cropState.rotation, sanitizeAutoZoom]
+    );
+
+    const updateCropAutoZoom = useCallback(() => {
+        const fitZoom = computeAutoZoom("fit");
+        const fillZoom = computeAutoZoom("fill");
+        if (fitZoom == null && fillZoom == null) return;
+        setCropAutoZoom((prev) => {
+            const nextFit = fitZoom ?? prev.fit;
+            const nextFill = fillZoom ?? prev.fill;
+            const fitChanged = Math.abs(nextFit - prev.fit) > 0.0001;
+            const fillChanged = Math.abs(nextFill - prev.fill) > 0.0001;
+            if (!fitChanged && !fillChanged) return prev;
+            return { fit: nextFit, fill: nextFill };
+        });
+    }, [computeAutoZoom]);
 
     const onCropComplete = (_, areaPixels) => setCroppedAreaPixels(areaPixels);
 
@@ -1425,6 +1474,37 @@ export default function EditorPage(props) {
 
     useEffect(() => {
         if (!cropOpen) return;
+        let raf1 = 0;
+        let raf2 = 0;
+        const schedule = () => {
+            if (raf1) cancelAnimationFrame(raf1);
+            if (raf2) cancelAnimationFrame(raf2);
+            raf1 = requestAnimationFrame(() => {
+                raf2 = requestAnimationFrame(() => {
+                    updateCropAutoZoom();
+                });
+            });
+        };
+        schedule();
+        window.addEventListener("resize", updateCropAutoZoom);
+        return () => {
+            if (raf1) cancelAnimationFrame(raf1);
+            if (raf2) cancelAnimationFrame(raf2);
+            window.removeEventListener("resize", updateCropAutoZoom);
+        };
+    }, [cropOpen, cropTarget.aspect, updateCropAutoZoom]);
+
+    useEffect(() => {
+        if (!cropOpen) return;
+        const minZoom = Math.min(cropAutoZoom.fit ?? MIN_CROPPER_ZOOM, MAX_CROPPER_ZOOM);
+        setCropState((prev) => {
+            if (prev.zoom >= minZoom) return prev;
+            return { ...prev, zoom: minZoom };
+        });
+    }, [cropAutoZoom.fit, cropOpen]);
+
+    useEffect(() => {
+        if (!cropOpen) return;
         if (!cropSource) {
             cropSourceRef.current = null;
             return;
@@ -1443,7 +1523,8 @@ export default function EditorPage(props) {
     const handleZoomSliderChange = (event) => {
         const nextZoom = Number(event.target.value);
         if (Number.isNaN(nextZoom)) return;
-        const clampedZoom = Math.min(Math.max(nextZoom, MIN_CROPPER_ZOOM), MAX_CROPPER_ZOOM);
+        const minZoom = Math.min(cropAutoZoom.fit ?? MIN_CROPPER_ZOOM, MAX_CROPPER_ZOOM);
+        const clampedZoom = Math.min(Math.max(nextZoom, minZoom), MAX_CROPPER_ZOOM);
         setCropState((prev) => ({ ...prev, zoom: clampedZoom }));
         setCroppedAreaPixels(null);
     };
@@ -1456,27 +1537,27 @@ export default function EditorPage(props) {
         setCroppedAreaPixels(null);
     };
 
+    const handleFitClick = () => {
+        const computedFit = computeAutoZoom("fit") ?? cropAutoZoom.fit ?? MIN_CROPPER_ZOOM;
+        const minZoom = Math.min(cropAutoZoom.fit ?? computedFit ?? MIN_CROPPER_ZOOM, MAX_CROPPER_ZOOM);
+        const clampedZoom = Math.min(Math.max(computedFit, minZoom), MAX_CROPPER_ZOOM);
+        setCropState((prev) => ({
+            ...prev,
+            crop: { x: 0, y: 0 },
+            zoom: clampedZoom,
+        }));
+        setCroppedAreaPixels(null);
+    };
+
     const handleFillClick = () => {
-        const container = cropperContainerRef.current;
-        const { width, height } = cropImageMeta;
-        if (container && width && height) {
-            const nextZoom = Math.max(
-                MIN_CROPPER_ZOOM,
-                Math.max(container.offsetWidth / width, container.offsetHeight / height)
-            );
-            const clampedZoom = Math.min(nextZoom, MAX_CROPPER_ZOOM);
-            setCropState((prev) => ({
-                ...prev,
-                crop: { x: 0, y: 0 },
-                zoom: clampedZoom,
-            }));
-        } else {
-            setCropState((prev) => ({
-                ...prev,
-                crop: { x: 0, y: 0 },
-                zoom: Math.max(prev.zoom, MIN_CROPPER_ZOOM),
-            }));
-        }
+        const computedFill = computeAutoZoom("fill") ?? cropAutoZoom.fill ?? MIN_CROPPER_ZOOM;
+        const minZoom = Math.min(cropAutoZoom.fit ?? MIN_CROPPER_ZOOM, MAX_CROPPER_ZOOM);
+        const clampedZoom = Math.min(Math.max(computedFill, minZoom), MAX_CROPPER_ZOOM);
+        setCropState((prev) => ({
+            ...prev,
+            crop: { x: 0, y: 0 },
+            zoom: clampedZoom,
+        }));
         setCroppedAreaPixels(null);
     };
 
@@ -1553,7 +1634,8 @@ export default function EditorPage(props) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [backgroundEnabled, pageSettings]);
 
-    const normalizedZoom = Math.min(Math.max(cropState.zoom, MIN_CROPPER_ZOOM), MAX_CROPPER_ZOOM);
+    const minAllowedZoom = Math.min(cropAutoZoom.fit ?? MIN_CROPPER_ZOOM, MAX_CROPPER_ZOOM);
+    const normalizedZoom = Math.min(Math.max(cropState.zoom, minAllowedZoom), MAX_CROPPER_ZOOM);
     const zoomPercent = Math.round(normalizedZoom * 100);
     const printQualityScore = (() => {
         const width = croppedAreaPixels?.width || cropImageMeta.width;
@@ -2436,7 +2518,7 @@ export default function EditorPage(props) {
                                     <input
                                         id={zoomSliderId}
                                         type="range"
-                                        min={MIN_CROPPER_ZOOM}
+                                        min={minAllowedZoom}
                                         max={MAX_CROPPER_ZOOM}
                                         step={CROPPER_ZOOM_STEP}
                                         value={normalizedZoom}
@@ -2445,6 +2527,24 @@ export default function EditorPage(props) {
                                     />
                                 </div>
                                 <div className="image-editor-actions">
+                                    <button
+                                        type="button"
+                                        className="image-editor-action"
+                                        onClick={handleFitClick}
+                                        disabled={isCropActionsDisabled}
+                                    >
+                                        <span className="image-editor-action-icon" aria-hidden="true">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                                                <path
+                                                    fill="#374151"
+                                                    fillRule="evenodd"
+                                                    d="M5.6 4A1.6 1.6 0 0 0 4 5.6v3.8a.6.6 0 0 0 .6.6h.8a.6.6 0 0 0 .6-.6V7.414l2.619 2.62a.6.6 0 1 0 .848-.848L6.848 6.6H9.4a.6.6 0 0 0 .6-.6v-.8A.6.6 0 0 0 9.4 4zm12.8 16A1.6 1.6 0 0 0 20 18.4v-3.8a.6.6 0 0 0-.6-.6h-.8a.6.6 0 0 0-.6.6v2.386l-2.619-2.62a.6.6 0 1 0-.848.848l2.614 2.615H14.6a.6.6 0 0 0-.6.6v.8a.6.6 0 0 0 .6.6zM4 14.6a.6.6 0 0 1 .6-.6h.8a.6.6 0 0 1 .6.6v2.386l2.619-2.62a.6.6 0 1 1 .848.848l-2.614 2.615H9.4a.6.6 0 0 1 .6.6v.8a.6.6 0 0 1-.6.6H5.6A1.6 1.6 0 0 1 4 18.4zm16-9.2a.6.6 0 0 1-.6.6h-.8a.6.6 0 0 1-.6-.6V7.014l-2.619 2.62a.6.6 0 1 1-.848-.848l2.614-2.615H14.6a.6.6 0 0 1-.6-.6v-.8a.6.6 0 0 1 .6-.6h3.8A1.6 1.6 0 0 1 20 5.6z"
+                                                    clipRule="evenodd"
+                                                />
+                                            </svg>
+                                        </span>
+                                        <span className="image-editor-action-label">Fit</span>
+                                    </button>
                                     <button
                                         type="button"
                                         className="image-editor-action"
