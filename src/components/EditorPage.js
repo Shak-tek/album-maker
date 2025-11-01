@@ -1,6 +1,6 @@
 // src/components/EditorPage.js
 import "./EditorPage.css";
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import ColorThief from "color-thief-browser";
 import { Box, Button, Layer, Text, Spinner, Meter, Heading, RadioButtonGroup } from "grommet";
 import { Template as TemplateIcon, Brush, Add, Directions } from "grommet-icons"; // NEW: Add
@@ -18,6 +18,47 @@ const IK_URL_ENDPOINT = process.env.REACT_APP_IMAGEKIT_URL_ENDPOINT || "";
 // helper to build a resized ImageKit URL with cache-busting
 const getResizedUrl = (key, width = 1200) =>
     `${IK_URL_ENDPOINT}/${encodeURI(key)}?tr=w-${width},fo-face&v=${Date.now()}`;
+
+const stripImageKitFaceFocus = (src) => {
+    if (!src || typeof src !== "string" || !src.includes("tr=")) return src;
+    try {
+        const [base, query = ""] = src.split("?");
+        const params = new URLSearchParams(query);
+        const tr = params.get("tr");
+        if (!tr) return src;
+        const filtered = tr
+            .split(",")
+            .map((token) => token.trim())
+            .filter((token) => token && !token.startsWith("fo-"));
+        if (filtered.length) {
+            params.set("tr", filtered.join(","));
+        } else {
+            params.delete("tr");
+        }
+        const rebuilt = params.toString();
+        return rebuilt ? `${base}?${rebuilt}` : base;
+    } catch {
+        const withoutFace = src.replace(/([?&]tr=)[^&#]*/i, (match, prefix) => {
+            const value = match.slice(prefix.length);
+            const filtered = value
+                .split(",")
+                .filter((token) => token && !token.startsWith("fo-"));
+            if (!filtered.length) return "";
+            return `${prefix}${filtered.join(",")}`;
+        });
+        return withoutFace
+            .replace(/\?&/g, "?")
+            .replace(/&&/g, "&")
+            .replace(/\?$/, "")
+            .replace(/&$/, "");
+    }
+};
+
+const getCropBaseSrc = (src) => {
+    if (!src || typeof src !== "string") return src;
+    if (src.startsWith("data:")) return src;
+    return stripImageKitFaceFocus(src);
+};
 
 const parseFontSize = (size) => {
     if (typeof size === "number" && !Number.isNaN(size)) {
@@ -466,8 +507,8 @@ export default function EditorPage(props) {
         (ps) => Array.isArray(ps.assignedImages) && ps.assignedImages.some(Boolean)
     );
 
-    const MIN_CROPPER_ZOOM = 1;
-    const MAX_CROPPER_ZOOM = 4;
+    const MIN_CROPPER_ZOOM = 0.3;
+    const MAX_CROPPER_ZOOM = 5;
     const CROPPER_ZOOM_STEP = 0.01;
 
     // ---------------- Cropper state ----------------
@@ -475,8 +516,9 @@ export default function EditorPage(props) {
     const [cropTarget, setCropTarget] = useState({ pageIdx: null, slotIdx: null, aspect: 1 });
     const [cropState, setCropState] = useState({ crop: { x: 0, y: 0 }, zoom: 1, rotation: 0 });
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+    const [cropSource, setCropSource] = useState(null);
     const [cropImageMeta, setCropImageMeta] = useState({ width: null, height: null });
-    const activeCropSourceRef = useRef(null);
+    const cropSourceRef = useRef(null);
     const cropperContainerRef = useRef(null);
 
     const getSlotSrc = (ps, slotIdx) => {
@@ -1274,7 +1316,12 @@ export default function EditorPage(props) {
     // ---------------- OPEN/CLOSE CROP MODAL ----------------
     const openCropper = (pi, slotIdx) => {
         const ps = pageSettings[pi];
-        if (!ps?.assignedImages?.[slotIdx]) return;
+        if (!ps) return;
+        const edit = ps.edits?.[slotIdx] || null;
+        const rawSrc = edit?.originalSrc || ps.assignedImages?.[slotIdx];
+        if (!rawSrc) return;
+        const normalizedSource = getCropBaseSrc(rawSrc);
+        if (!normalizedSource) return;
 
         // Aspect from the REAL DOM slot (works for any slot index)
         let aspect = 1;
@@ -1284,11 +1331,22 @@ export default function EditorPage(props) {
             if (r.width && r.height) aspect = r.width / r.height;
         }
 
-        const prev = ps.edits?.[slotIdx]?.params;
+        const prev = edit?.params;
+        const initialZoom = Math.min(
+            MAX_CROPPER_ZOOM,
+            Math.max(MIN_CROPPER_ZOOM, prev?.zoom || 1)
+        );
         setCropState(
-            prev ? { crop: prev.crop, zoom: prev.zoom, rotation: prev.rotation || 0 } : { crop: { x: 0, y: 0 }, zoom: 1, rotation: 0 }
+            prev
+                ? {
+                      crop: { ...(prev.crop || { x: 0, y: 0 }) },
+                      zoom: initialZoom,
+                      rotation: prev.rotation || 0,
+                  }
+                : { crop: { x: 0, y: 0 }, zoom: initialZoom, rotation: 0 }
         );
         setCroppedAreaPixels(prev?.croppedAreaPixels ?? null);
+        setCropSource(normalizedSource);
         setCropTarget({ pageIdx: pi, slotIdx, aspect });
         setCropOpen(true);
     };
@@ -1297,8 +1355,9 @@ export default function EditorPage(props) {
         setCropOpen(false);
         setCropTarget({ pageIdx: null, slotIdx: null, aspect: 1 });
         setCroppedAreaPixels(null);
+        setCropSource(null);
         setCropImageMeta({ width: null, height: null });
-        activeCropSourceRef.current = null;
+        cropSourceRef.current = null;
     };
 
     const onCropComplete = (_, areaPixels) => setCroppedAreaPixels(areaPixels);
@@ -1307,16 +1366,17 @@ export default function EditorPage(props) {
         const { pageIdx, slotIdx } = cropTarget;
         if (pageIdx == null || slotIdx == null) return;
         const ps = pageSettings[pageIdx];
-        const originalSrc = ps.assignedImages[slotIdx];
-        if (!originalSrc || !croppedAreaPixels) return;
-
-        const dataUrl = await getCroppedDataUrl(originalSrc, croppedAreaPixels, cropState.rotation);
+        const rawSrc = cropSource || ps.assignedImages[slotIdx];
+        if (!rawSrc || !croppedAreaPixels) return;
+        const normalizedSrc = getCropBaseSrc(rawSrc);
+        if (!normalizedSrc) return;
+        const dataUrl = await getCroppedDataUrl(normalizedSrc, croppedAreaPixels, cropState.rotation);
 
         setPageSettings((prev) => {
             const next = prev.map((p) => ({ ...p }));
             const edits = ensureEditsArray(next[pageIdx], next[pageIdx].assignedImages.length);
             edits[slotIdx] = {
-                originalSrc,
+                originalSrc: normalizedSrc,
                 previewDataUrl: dataUrl,
                 params: { ...cropState, aspect: cropTarget.aspect, croppedAreaPixels },
             };
@@ -1335,18 +1395,13 @@ export default function EditorPage(props) {
         });
     };
 
-    const activeCropSrc =
-        cropOpen && cropTarget.pageIdx != null && cropTarget.slotIdx != null
-            ? pageSettings[cropTarget.pageIdx]?.assignedImages?.[cropTarget.slotIdx] || null
-            : null;
-
     useEffect(() => {
-        if (!cropOpen || !activeCropSrc) {
+        if (!cropOpen || !cropSource) {
             setCropImageMeta({ width: null, height: null });
             return;
         }
         let cancelled = false;
-        createImageEl(activeCropSrc)
+        createImageEl(cropSource)
             .then((img) => {
                 if (cancelled) return;
                 const width = img.naturalWidth || img.width || null;
@@ -1361,20 +1416,24 @@ export default function EditorPage(props) {
         return () => {
             cancelled = true;
         };
-    }, [activeCropSrc, cropOpen]);
+    }, [cropSource, cropOpen]);
 
     useEffect(() => {
         if (!cropOpen) return;
-        if (!activeCropSrc) {
-            activeCropSourceRef.current = null;
+        if (!cropSource) {
+            cropSourceRef.current = null;
             return;
         }
-        if (activeCropSourceRef.current && activeCropSourceRef.current !== activeCropSrc) {
-            setCropState({ crop: { x: 0, y: 0 }, zoom: MIN_CROPPER_ZOOM, rotation: 0 });
+        if (cropSourceRef.current && cropSourceRef.current !== cropSource) {
+            setCropState({
+                crop: { x: 0, y: 0 },
+                zoom: Math.min(MAX_CROPPER_ZOOM, Math.max(MIN_CROPPER_ZOOM, 1)),
+                rotation: 0,
+            });
             setCroppedAreaPixels(null);
         }
-        activeCropSourceRef.current = activeCropSrc;
-    }, [activeCropSrc, cropOpen]);
+        cropSourceRef.current = cropSource;
+    }, [cropSource, cropOpen]);
 
     const handleZoomSliderChange = (event) => {
         const nextZoom = Number(event.target.value);
@@ -1499,8 +1558,23 @@ export default function EditorPage(props) {
         return Math.min(10, Math.max(1, Math.round(minSide / 200)));
     })();
     const printQualityLabel = printQualityScore ? `${printQualityScore}/10` : "N/A";
-    const isCropActionsDisabled = !activeCropSrc;
+    const isCropActionsDisabled = !cropSource;
     const zoomSliderId = "cropper-zoom-slider";
+    const cropperStyle = useMemo(() => {
+        const aspect =
+            cropTarget?.aspect && Number.isFinite(cropTarget.aspect) && cropTarget.aspect > 0
+                ? cropTarget.aspect
+                : 1;
+        const isLandscape = aspect >= 1;
+        return {
+            width: "100%",
+            maxWidth: `${isLandscape ? 520 : 420}px`,
+            aspectRatio: `${aspect}`,
+            maxHeight: `${isLandscape ? 520 : 640}px`,
+            minHeight: "280px",
+            margin: "0 auto",
+        };
+    }, [cropTarget?.aspect]);
 
     const trimmedTitle = typeof title === "string" ? title.trim() : "";
     const trimmedSubtitle = typeof subtitle === "string" ? subtitle.trim() : "";
@@ -2269,10 +2343,14 @@ export default function EditorPage(props) {
                         </div>
                         <div className="image-editor-body">
                             <div className="image-editor-preview">
-                                {activeCropSrc ? (
-                                    <div className="image-editor-cropper" ref={cropperContainerRef}>
+                                {cropSource ? (
+                                    <div
+                                        className="image-editor-cropper"
+                                        ref={cropperContainerRef}
+                                        style={cropperStyle}
+                                    >
                                         <Cropper
-                                            image={activeCropSrc}
+                                            image={cropSource}
                                             crop={cropState.crop}
                                             zoom={normalizedZoom}
                                             rotation={cropState.rotation}
