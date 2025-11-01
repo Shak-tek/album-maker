@@ -10,7 +10,6 @@ import {
   Box,
   Menu,
   DropButton,
-  TextInput,
 } from "grommet";
 import { deepMerge } from "grommet/utils";
 import ImageUploader from "./components/ImageUploader";
