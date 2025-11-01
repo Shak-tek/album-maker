@@ -614,13 +614,18 @@ export default function EditorPage(props) {
 
             if (!candidates.length) break;
 
-            const templateId = (() => {
-                const preferTwoUp = candidates.find((t) => t.id === 1);
-                if (contentPageIndex < 2 && preferTwoUp) return preferTwoUp.id;
+            let templateId;
+            const preferTwoUp = candidates.find((t) => t.id === 1);
+            if (contentPageIndex < 2 && preferTwoUp) {
+                templateId = preferTwoUp.id;
+            } else {
                 const preferFull = candidates.find((t) => t.id === 3);
-                if (contentPageIndex === 0 && preferFull) return preferFull.id;
-                return candidates[contentPageIndex % candidates.length].id;
-            })();
+                if (contentPageIndex === 0 && preferFull) {
+                    templateId = preferFull.id;
+                } else {
+                    templateId = candidates[contentPageIndex % candidates.length].id;
+                }
+            }
             const tmpl = candidates.find((t) => t.id === templateId) || candidates[0];
             const slotsCount = Math.max(1, tmpl.slots?.length ?? 1);
             const assigned = remaining.splice(0, slotsCount);

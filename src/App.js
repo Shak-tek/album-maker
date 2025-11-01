@@ -224,7 +224,7 @@ function MainApp() {
   const [pendingView, setPendingView] = useState(null);
   const [authPrompt, setAuthPrompt] = useState("");
   const [authDropOpen, setAuthDropOpen] = useState(false);
-  const [authEmail, setAuthEmail] = useState("");
+  const [, setAuthEmail] = useState("");
   const [identityId, setIdentityId] = useState(
     localStorage.getItem("identityId") || null
   );
