@@ -1,4 +1,4 @@
-﻿// src/components/EditorPage.js
+// src/components/EditorPage.js
 import "./EditorPage.css";
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import ColorThief from "color-thief-browser";
