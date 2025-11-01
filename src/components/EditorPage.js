@@ -493,6 +493,21 @@ export default function EditorPage(props) {
     const cropperContainerRef = useRef(null);
     const croppieElementRef = useRef(null);
     const croppieInstanceRef = useRef(null);
+
+    const destroyCroppieInstance = useCallback(() => {
+        const existing = croppieInstanceRef.current;
+        if (!existing) return;
+        try {
+            existing.destroy();
+        } catch (error) {
+            // ignore if Croppie was already destroyed externally
+        }
+        croppieInstanceRef.current = null;
+        const host = croppieElementRef.current;
+        if (host) {
+            host.innerHTML = "";
+        }
+    }, []);
     const [cropAutoZoom, setCropAutoZoom] = useState({
         fit: MIN_CROPPER_ZOOM,
         fill: MIN_CROPPER_ZOOM,
@@ -1374,7 +1389,7 @@ export default function EditorPage(props) {
     };
 
     const closeCropper = () => {
-        croppieInstanceRef.current = null;
+        destroyCroppieInstance();
         setCropOpen(false);
         setCropTarget({ pageIdx: null, slotIdx: null, aspect: 1 });
         setCroppedAreaPixels(null);
@@ -1437,19 +1452,40 @@ export default function EditorPage(props) {
         if (pageIdx == null || slotIdx == null) return;
         const ps = pageSettings[pageIdx];
         const rawSrc = cropSource || ps.assignedImages[slotIdx];
-        if (!rawSrc || !croppiePoints || croppiePoints.length !== 4) return;
+        if (!rawSrc) return;
         const normalizedSrc = getCropBaseSrc(rawSrc);
         if (!normalizedSrc) return;
-        const pixelCrop = {
-            x: croppiePoints[0],
-            y: croppiePoints[1],
-            width: croppiePoints[2] - croppiePoints[0],
-            height: croppiePoints[3] - croppiePoints[1],
-        };
-        if (!Number.isFinite(pixelCrop.width) || !Number.isFinite(pixelCrop.height) || pixelCrop.width <= 0 || pixelCrop.height <= 0) {
+
+        const instance = croppieInstanceRef.current;
+        const croppieData = typeof instance?.get === "function" ? instance.get() : null;
+        const instancePoints = Array.isArray(croppieData?.points) ? croppieData.points : null;
+        const points =
+            instancePoints && instancePoints.length === 4
+                ? instancePoints
+                : croppiePoints && croppiePoints.length === 4
+                ? croppiePoints
+                : null;
+        if (!points) return;
+
+        const width = points[2] - points[0];
+        const height = points[3] - points[1];
+        if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
             return;
         }
-        const dataUrl = await getCroppedDataUrl(normalizedSrc, pixelCrop, cropState.rotation);
+        const pixelCrop = {
+            x: points[0],
+            y: points[1],
+            width,
+            height,
+        };
+
+        const rotation = cropState.rotation || 0;
+        const fallbackZoom = Math.min(Math.max(cropState.zoom, MIN_CROPPER_ZOOM), MAX_CROPPER_ZOOM);
+        const resolvedZoom = Number.isFinite(croppieData?.zoom)
+            ? Math.min(Math.max(croppieData.zoom, MIN_CROPPER_ZOOM), MAX_CROPPER_ZOOM)
+            : fallbackZoom;
+
+        const dataUrl = await getCroppedDataUrl(normalizedSrc, pixelCrop, rotation);
 
         setPageSettings((prev) => {
             const next = prev.map((p) => ({ ...p }));
@@ -1458,11 +1494,11 @@ export default function EditorPage(props) {
                 originalSrc: normalizedSrc,
                 previewDataUrl: dataUrl,
                 params: {
-                    zoom: cropState.zoom,
-                    rotation: cropState.rotation,
-                    points: croppiePoints.slice(),
+                    zoom: resolvedZoom,
+                    rotation,
+                    points: points.slice(),
                     aspect: cropTarget.aspect,
-                    croppedAreaPixels,
+                    croppedAreaPixels: { ...pixelCrop },
                 },
             };
             next[pageIdx].edits = edits;
@@ -1508,10 +1544,7 @@ export default function EditorPage(props) {
         const containerEl = croppieElementRef.current;
         if (!containerEl) return;
 
-        if (croppieInstanceRef.current) {
-            croppieInstanceRef.current.destroy();
-            croppieInstanceRef.current = null;
-        }
+        destroyCroppieInstance();
 
         const container = cropperContainerRef.current;
         const containerRect = container?.getBoundingClientRect();
@@ -1554,10 +1587,12 @@ export default function EditorPage(props) {
             bindOptions.zoom = cropInitialParams.zoom;
         }
 
+        const initialRotation = cropInitialParams?.rotation ?? cropState.rotation ?? 0;
+
         instance
             .bind(bindOptions)
             .then(() => {
-                const normalizedRotation = ((cropState.rotation % 360) + 360) % 360;
+                const normalizedRotation = ((initialRotation % 360) + 360) % 360;
                 if (normalizedRotation) {
                     const steps = Math.floor(normalizedRotation / 90);
                     for (let i = 0; i < steps; i += 1) {
@@ -1571,10 +1606,9 @@ export default function EditorPage(props) {
             });
 
         return () => {
-            instance.destroy();
-            croppieInstanceRef.current = null;
+            destroyCroppieInstance();
         };
-    }, [cropOpen, cropSource, cropTarget?.aspect, cropInitialParams, cropState.rotation, updateCroppieMetrics]);
+    }, [cropOpen, cropSource, cropTarget?.aspect, cropInitialParams, updateCroppieMetrics, destroyCroppieInstance]);
 
     useEffect(() => {
         if (!cropOpen) return;
@@ -1635,30 +1669,6 @@ export default function EditorPage(props) {
             ...prev,
             rotation: ((prev.rotation || 0) + 90) % 360,
         }));
-    };
-
-    const handleFitClick = () => {
-        const fitZoom = sanitizeAutoZoom(cropAutoZoom.fit ?? cropAutoZoom.fill ?? MIN_CROPPER_ZOOM) ?? MIN_CROPPER_ZOOM;
-        const targetZoom = Math.min(fitZoom, MAX_CROPPER_ZOOM);
-        const instance = croppieInstanceRef.current;
-        if (instance) {
-            instance.setZoom(targetZoom);
-            updateCroppieMetrics();
-        }
-        setCropState((prev) => ({ ...prev, zoom: targetZoom }));
-    };
-
-    const handleFillClick = () => {
-        const fitZoom = sanitizeAutoZoom(cropAutoZoom.fit ?? MIN_CROPPER_ZOOM) ?? MIN_CROPPER_ZOOM;
-        const fillZoom = sanitizeAutoZoom(cropAutoZoom.fill ?? fitZoom) ?? fitZoom;
-        const minZoom = Math.min(fitZoom, MAX_CROPPER_ZOOM);
-        const targetZoom = Math.min(Math.max(fillZoom, minZoom), MAX_CROPPER_ZOOM);
-        const instance = croppieInstanceRef.current;
-        if (instance) {
-            instance.setZoom(targetZoom);
-            updateCroppieMetrics();
-        }
-        setCropState((prev) => ({ ...prev, zoom: targetZoom }));
     };
 
     const handleReplaceImage = () => {
@@ -2608,42 +2618,6 @@ export default function EditorPage(props) {
                                     />
                                 </div>
                                 <div className="image-editor-actions">
-                                    <button
-                                        type="button"
-                                        className="image-editor-action"
-                                        onClick={handleFitClick}
-                                        disabled={isCropActionsDisabled}
-                                    >
-                                        <span className="image-editor-action-icon" aria-hidden="true">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                                                <path
-                                                    fill="#374151"
-                                                    fillRule="evenodd"
-                                                    d="M5.6 4A1.6 1.6 0 0 0 4 5.6v3.8a.6.6 0 0 0 .6.6h.8a.6.6 0 0 0 .6-.6V7.414l2.619 2.62a.6.6 0 1 0 .848-.848L6.848 6.6H9.4a.6.6 0 0 0 .6-.6v-.8A.6.6 0 0 0 9.4 4zm12.8 16A1.6 1.6 0 0 0 20 18.4v-3.8a.6.6 0 0 0-.6-.6h-.8a.6.6 0 0 0-.6.6v2.386l-2.619-2.62a.6.6 0 1 0-.848.848l2.614 2.615H14.6a.6.6 0 0 0-.6.6v.8a.6.6 0 0 0 .6.6zM4 14.6a.6.6 0 0 1 .6-.6h.8a.6.6 0 0 1 .6.6v2.386l2.619-2.62a.6.6 0 1 1 .848.848l-2.614 2.615H9.4a.6.6 0 0 1 .6.6v.8a.6.6 0 0 1-.6.6H5.6A1.6 1.6 0 0 1 4 18.4zm16-9.2a.6.6 0 0 1-.6.6h-.8a.6.6 0 0 1-.6-.6V7.014l-2.619 2.62a.6.6 0 1 1-.848-.848l2.614-2.615H14.6a.6.6 0 0 1-.6-.6v-.8a.6.6 0 0 1 .6-.6h3.8A1.6 1.6 0 0 1 20 5.6z"
-                                                    clipRule="evenodd"
-                                                />
-                                            </svg>
-                                        </span>
-                                        <span className="image-editor-action-label">Fit</span>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className="image-editor-action"
-                                        onClick={handleFillClick}
-                                        disabled={isCropActionsDisabled}
-                                    >
-                                        <span className="image-editor-action-icon" aria-hidden="true">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                                                <path
-                                                    fill="#374151"
-                                                    fillRule="evenodd"
-                                                    d="M22 3.6A1.6 1.6 0 0 0 20.4 2h-3.8a.6.6 0 0 0-.6.6v.8a.6.6 0 0 0 .6.6h1.971l-4.647 4.647a.6.6 0 0 0 0 .848l.566.566a.6.6 0 0 0 .848 0L20 5.4v2a.6.6 0 0 0 .6.6h.8a.6.6 0 0 0 .6-.6zM4 5.414V7.4a.6.6 0 0 1-.6.6h-.8a.6.6 0 0 1-.6-.6V3.6A1.6 1.6 0 0 1 3.6 2h3.8a.6.6 0 0 1 .6.6v.8a.6.6 0 0 1-.6.6H5.414l4.647 4.647a.6.6 0 0 1 0 .848l-.566.566a.6.6 0 0 1-.848 0zM20.4 22a1.6 1.6 0 0 0 1.6-1.6v-3.8a.6.6 0 0 0-.6-.6h-.8a.6.6 0 0 0-.6.6v1.986l-4.661-4.662a.6.6 0 0 0-.85 0l-.565.566a.6.6 0 0 0 0 .848L18.586 20H16.6a.6.6 0 0 0-.6.6v.8a.6.6 0 0 0 .6.6zM8.647 13.924a.6.6 0 0 1 .848 0l.566.566a.6.6 0 0 1 0 .848L5.399 20H7.4a.6.6 0 0 1 .6.6v.8a.6.6 0 0 0-.6.6H3.6A1.6 1.6 0 0 1 2 20.4v-3.8a.6.6 0 0 1 .6-.6h.8a.6.6 0 0 1 .6.6v1.971z"
-                                                    clipRule="evenodd"
-                                                />
-                                            </svg>
-                                        </span>
-                                        <span className="image-editor-action-label">Fill</span>
-                                    </button>
                                     <button
                                         type="button"
                                         className="image-editor-action"
