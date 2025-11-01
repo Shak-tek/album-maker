@@ -1375,9 +1375,6 @@ export default function EditorPage(props) {
 
     const closeCropper = () => {
         croppieInstanceRef.current = null;
-        if (croppieElementRef.current) {
-            croppieElementRef.current.innerHTML = "";
-        }
         setCropOpen(false);
         setCropTarget({ pageIdx: null, slotIdx: null, aspect: 1 });
         setCroppedAreaPixels(null);
@@ -1514,7 +1511,6 @@ export default function EditorPage(props) {
         if (croppieInstanceRef.current) {
             croppieInstanceRef.current.destroy();
             croppieInstanceRef.current = null;
-            containerEl.innerHTML = "";
         }
 
         const container = cropperContainerRef.current;
@@ -1577,7 +1573,6 @@ export default function EditorPage(props) {
         return () => {
             instance.destroy();
             croppieInstanceRef.current = null;
-            containerEl.innerHTML = "";
         };
     }, [cropOpen, cropSource, cropTarget?.aspect, cropInitialParams, cropState.rotation, updateCroppieMetrics]);
 
