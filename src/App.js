@@ -433,7 +433,7 @@ function MainApp() {
       .catch((err) => {
         console.error(err);
       });
-  }, [sessionId, s3]);
+  }, [sessionId]);
 
   useEffect(() => {
     setLoadedImages([]);
