@@ -1,4 +1,4 @@
-// src/components/EditorPage.js
+﻿// src/components/EditorPage.js
 import "./EditorPage.css";
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import ColorThief from "color-thief-browser";
@@ -1608,7 +1608,7 @@ export default function EditorPage(props) {
         return () => {
             destroyCroppieInstance();
         };
-    }, [cropOpen, cropSource, cropTarget?.aspect, cropInitialParams, updateCroppieMetrics, destroyCroppieInstance]);
+    }, [cropOpen, cropSource, cropTarget?.aspect, cropInitialParams, cropState.rotation, updateCroppieMetrics, destroyCroppieInstance]);
 
     useEffect(() => {
         if (!cropOpen) return;
