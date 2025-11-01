@@ -466,11 +466,18 @@ export default function EditorPage(props) {
         (ps) => Array.isArray(ps.assignedImages) && ps.assignedImages.some(Boolean)
     );
 
+    const MIN_CROPPER_ZOOM = 1;
+    const MAX_CROPPER_ZOOM = 4;
+    const CROPPER_ZOOM_STEP = 0.01;
+
     // ---------------- Cropper state ----------------
     const [cropOpen, setCropOpen] = useState(false);
     const [cropTarget, setCropTarget] = useState({ pageIdx: null, slotIdx: null, aspect: 1 });
     const [cropState, setCropState] = useState({ crop: { x: 0, y: 0 }, zoom: 1, rotation: 0 });
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+    const [cropImageMeta, setCropImageMeta] = useState({ width: null, height: null });
+    const activeCropSourceRef = useRef(null);
+    const cropperContainerRef = useRef(null);
 
     const getSlotSrc = (ps, slotIdx) => {
         const edit = ps.edits?.[slotIdx];
@@ -1290,6 +1297,8 @@ export default function EditorPage(props) {
         setCropOpen(false);
         setCropTarget({ pageIdx: null, slotIdx: null, aspect: 1 });
         setCroppedAreaPixels(null);
+        setCropImageMeta({ width: null, height: null });
+        activeCropSourceRef.current = null;
     };
 
     const onCropComplete = (_, areaPixels) => setCroppedAreaPixels(areaPixels);
@@ -1324,6 +1333,117 @@ export default function EditorPage(props) {
             next[pi].edits[slotIdx] = null;
             return next;
         });
+    };
+
+    const activeCropSrc =
+        cropOpen && cropTarget.pageIdx != null && cropTarget.slotIdx != null
+            ? pageSettings[cropTarget.pageIdx]?.assignedImages?.[cropTarget.slotIdx] || null
+            : null;
+
+    useEffect(() => {
+        if (!cropOpen || !activeCropSrc) {
+            setCropImageMeta({ width: null, height: null });
+            return;
+        }
+        let cancelled = false;
+        createImageEl(activeCropSrc)
+            .then((img) => {
+                if (cancelled) return;
+                const width = img.naturalWidth || img.width || null;
+                const height = img.naturalHeight || img.height || null;
+                setCropImageMeta({ width, height });
+            })
+            .catch(() => {
+                if (!cancelled) {
+                    setCropImageMeta({ width: null, height: null });
+                }
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, [activeCropSrc, cropOpen]);
+
+    useEffect(() => {
+        if (!cropOpen) return;
+        if (!activeCropSrc) {
+            activeCropSourceRef.current = null;
+            return;
+        }
+        if (activeCropSourceRef.current && activeCropSourceRef.current !== activeCropSrc) {
+            setCropState({ crop: { x: 0, y: 0 }, zoom: MIN_CROPPER_ZOOM, rotation: 0 });
+            setCroppedAreaPixels(null);
+        }
+        activeCropSourceRef.current = activeCropSrc;
+    }, [activeCropSrc, cropOpen]);
+
+    const handleZoomSliderChange = (event) => {
+        const nextZoom = Number(event.target.value);
+        if (Number.isNaN(nextZoom)) return;
+        const clampedZoom = Math.min(Math.max(nextZoom, MIN_CROPPER_ZOOM), MAX_CROPPER_ZOOM);
+        setCropState((prev) => ({ ...prev, zoom: clampedZoom }));
+        setCroppedAreaPixels(null);
+    };
+
+    const handleRotateClick = () => {
+        setCropState((prev) => ({
+            ...prev,
+            rotation: ((prev.rotation || 0) + 90) % 360,
+        }));
+        setCroppedAreaPixels(null);
+    };
+
+    const handleFillClick = () => {
+        const container = cropperContainerRef.current;
+        const { width, height } = cropImageMeta;
+        if (container && width && height) {
+            const nextZoom = Math.max(
+                MIN_CROPPER_ZOOM,
+                Math.max(container.offsetWidth / width, container.offsetHeight / height)
+            );
+            const clampedZoom = Math.min(nextZoom, MAX_CROPPER_ZOOM);
+            setCropState((prev) => ({
+                ...prev,
+                crop: { x: 0, y: 0 },
+                zoom: clampedZoom,
+            }));
+        } else {
+            setCropState((prev) => ({
+                ...prev,
+                crop: { x: 0, y: 0 },
+                zoom: Math.max(prev.zoom, MIN_CROPPER_ZOOM),
+            }));
+        }
+        setCroppedAreaPixels(null);
+    };
+
+    const handleReplaceImage = () => {
+        const { pageIdx, slotIdx } = cropTarget;
+        if (pageIdx == null || slotIdx == null) return;
+        handleUploadToSlot(pageIdx, slotIdx);
+        closeCropper();
+    };
+
+    const handleRemoveImage = () => {
+        const { pageIdx, slotIdx } = cropTarget;
+        if (pageIdx == null || slotIdx == null) return;
+        setPageSettings((prev) =>
+            prev.map((page, index) => {
+                if (index !== pageIdx) return page;
+                const assignedImages = Array.isArray(page.assignedImages) ? [...page.assignedImages] : [];
+                if (slotIdx >= assignedImages.length) return page;
+                if (assignedImages[slotIdx] == null) return page;
+                assignedImages[slotIdx] = null;
+                const edits = ensureEditsArray(page, Math.max(assignedImages.length, slotIdx + 1));
+                edits[slotIdx] = null;
+                return {
+                    ...page,
+                    assignedImages,
+                    edits,
+                };
+            })
+        );
+        setImagesWarm(false);
+        closeCropper();
     };
 
     // ---------------- NORMALIZATION (remove background) ----------------
@@ -1368,6 +1488,19 @@ export default function EditorPage(props) {
         return () => window.removeEventListener("resize", onResize);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [backgroundEnabled, pageSettings]);
+
+    const normalizedZoom = Math.min(Math.max(cropState.zoom, MIN_CROPPER_ZOOM), MAX_CROPPER_ZOOM);
+    const zoomPercent = Math.round(normalizedZoom * 100);
+    const printQualityScore = (() => {
+        const width = croppedAreaPixels?.width || cropImageMeta.width;
+        const height = croppedAreaPixels?.height || cropImageMeta.height;
+        if (!width || !height) return null;
+        const minSide = Math.min(width, height);
+        return Math.min(10, Math.max(1, Math.round(minSide / 200)));
+    })();
+    const printQualityLabel = printQualityScore ? `${printQualityScore}/10` : "N/A";
+    const isCropActionsDisabled = !activeCropSrc;
+    const zoomSliderId = "cropper-zoom-slider";
 
     const trimmedTitle = typeof title === "string" ? title.trim() : "";
     const trimmedSubtitle = typeof subtitle === "string" ? subtitle.trim() : "";
@@ -2114,128 +2247,215 @@ export default function EditorPage(props) {
 
             {/* CROPPER MODAL */}
             {cropOpen && (
-                <Layer onEsc={closeCropper} onClickOutside={closeCropper} modal responsive={false} position="center" className="editModal">
-                    <Box width="large" className="editModal-frame">
-                        <Box pad="small" border={{ side: "bottom" }} direction="row" justify="between" align="center" className="editModal-header">
-                            <Text weight="bold">Edit photo</Text>
-                            <Button label="x" className="btn-close" onClick={closeCropper} />
-                        </Box>
-                        <Box className="modal-content">
-                            <Box className="photo-area">
-                                {(() => {
-                                    const { pageIdx, slotIdx } = cropTarget;
-                                    const src =
-                                        pageIdx != null && slotIdx != null
-                                            ? pageSettings[pageIdx]?.assignedImages?.[slotIdx]
-                                            : null;
-                                    if (!src) return null;
-                                    return (
+                <Layer
+                    onEsc={closeCropper}
+                    onClickOutside={closeCropper}
+                    modal
+                    responsive={false}
+                    position="center"
+                    className="editModal image-editor-layer"
+                >
+                    <div className="image-editor-card">
+                        <div className="image-editor-header">
+                            <h2>Edit Photo</h2>
+                            <button
+                                type="button"
+                                className="image-editor-icon-button"
+                                onClick={closeCropper}
+                                aria-label="Close editor"
+                            >
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div className="image-editor-body">
+                            <div className="image-editor-preview">
+                                {activeCropSrc ? (
+                                    <div className="image-editor-cropper" ref={cropperContainerRef}>
                                         <Cropper
-                                            image={src}
+                                            image={activeCropSrc}
                                             crop={cropState.crop}
-                                            zoom={cropState.zoom}
+                                            zoom={normalizedZoom}
                                             rotation={cropState.rotation}
                                             aspect={cropTarget.aspect}
                                             onCropChange={(crop) => setCropState((p) => ({ ...p, crop }))}
-                                            onZoomChange={(zoom) => setCropState((p) => ({ ...p, zoom }))}
-                                            onRotationChange={(rotation) => setCropState((p) => ({ ...p, rotation }))}
+                                            onZoomChange={(zoom) => {
+                                                const clampedZoom = Math.min(
+                                                    Math.max(zoom, MIN_CROPPER_ZOOM),
+                                                    MAX_CROPPER_ZOOM
+                                                );
+                                                setCropState((p) => ({ ...p, zoom: clampedZoom }));
+                                                setCroppedAreaPixels(null);
+                                            }}
+                                            onRotationChange={(rotation) => {
+                                                setCropState((p) => ({ ...p, rotation }));
+                                                setCroppedAreaPixels(null);
+                                            }}
                                             onCropComplete={onCropComplete}
                                             restrictPosition
                                             showGrid
                                         />
-                                    );
-                                })()}
-                            </Box>
-                            <Box className="options-area" pad="small" gap="small" direction="row" align="center" border={{ side: "top" }}>
-                                <div className="print-quality">
-                                    <div className="print-area">
-                                        <div className="print-area-inner"></div>
-                                        <div className="print-text">
-                                            <span>Print Quality</span>
-                                            <span>2/10</span>
-                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="image-editor-empty">
+                                        <p>No image selected.</p>
+                                        <button
+                                            type="button"
+                                            className="image-editor-link"
+                                            onClick={handleReplaceImage}
+                                        >
+                                            Select an image
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                            <aside className="image-editor-sidebar">
+                                <div className="image-editor-quality">
+                                    <div className="image-editor-quality-icon" aria-hidden="true">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                                            <path
+                                                d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2m0 18a8 8 0 1 1 8-8 8.009 8.009 0 0 1-8 8"
+                                                fill="#047857"
+                                            />
+                                            <path
+                                                d="m16.707 9.293-4.95 4.95-2.464-2.465a1 1 0 0 0-1.414 1.414l3.172 3.172a1 1 0 0 0 1.414 0l5.657-5.657a1 1 0 1 0-1.414-1.414"
+                                                fill="#047857"
+                                            />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p className="image-editor-quality-title">Print Quality</p>
+                                        <p className="image-editor-quality-score">{printQualityLabel}</p>
                                     </div>
                                 </div>
-                                <div className="photo-info">
-                                    <div className="info-item">
-                                        <span>Scale</span>
-                                        <span>100%</span>
+                                <div className="image-editor-tips">
+                                    <div className="image-editor-tips-icon" aria-hidden="true">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
+                                            <path
+                                                d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2m.75 15a.75.75 0 0 1-1.5 0v-1.5a.75.75 0 0 1 1.5 0Zm2.4-6.6-.72.744a1.5 1.5 0 0 0-.43 1.044V12a.75.75 0 0 1-1.5 0v-.312a2.99 2.99 0 0 1 .86-2.088l.84-.864a1.5 1.5 0 0 0-1.07-2.556h-.48a1.5 1.5 0 0 0-1.5 1.5.75.75 0 0 1-1.5 0 3 3 0 0 1 3-3h.48a3 3 0 0 1 2.1 5.124Z"
+                                                fill="#1d4ed8"
+                                            />
+                                        </svg>
                                     </div>
-                                    <div className="info-item">
-                                        <span>Dimensions</span>
-                                        <span>512 x 512</span>
-                                    </div>
-                                    <div className="info-item">
-                                        <span>Source</span>
-                                        <span>Device</span>
+                                    <div>
+                                        <p className="image-editor-tips-title">Quick Tips</p>
+                                        <ul className="image-editor-tips-list">
+                                            <li>Drag the image to reposition.</li>
+                                            <li>Use the slider to zoom in or out.</li>
+                                            <li>Use the buttons for other actions.</li>
+                                        </ul>
                                     </div>
                                 </div>
-                                <Box width="medium" className="input-range">
-                                    <Text size="small">Zoom ({cropState.zoom.toFixed(2)}×)</Text>
+                                <div className="image-editor-slider">
+                                    <div className="image-editor-slider-label">
+                                        <label htmlFor={zoomSliderId}>Zoom</label>
+                                        <span>{`${zoomPercent}%`}</span>
+                                    </div>
                                     <input
+                                        id={zoomSliderId}
                                         type="range"
-                                        min={1}
-                                        max={4}
-                                        step={0.01}
-                                        value={cropState.zoom}
-                                        onChange={(e) => setCropState((p) => ({ ...p, zoom: Number(e.target.value) }))}
-                                        style={{ width: "100%" }}
+                                        min={MIN_CROPPER_ZOOM}
+                                        max={MAX_CROPPER_ZOOM}
+                                        step={CROPPER_ZOOM_STEP}
+                                        value={normalizedZoom}
+                                        onChange={handleZoomSliderChange}
+                                        disabled={isCropActionsDisabled}
                                     />
-                                </Box>
-                                <Box width="medium" className="input-range">
-                                    <Text size="small">Rotation ({Math.round(cropState.rotation)}°)</Text>
-                                    <input
-                                        type="range"
-                                        min={-180}
-                                        max={180}
-                                        step={1}
-                                        value={cropState.rotation}
-                                        onChange={(e) => setCropState((p) => ({ ...p, rotation: Number(e.target.value) }))}
-                                        style={{ width: "100%" }}
-                                    />
-                                </Box>
-                                <ul className="btnsListing">
-                                    <li>
-                                        <button className="btnListItem">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" width="24" height="24"><path fill="#585858" fill-rule="evenodd" d="M22 3.6A1.6 1.6 0 0 0 20.4 2h-3.8a.6.6 0 0 0-.6.6v.8a.6.6 0 0 0 .6.6h1.971l-4.647 4.647a.6.6 0 0 0 0 .848l.566.566a.6.6 0 0 0 .848 0L20 5.4v2a.6.6 0 0 0 .6.6h.8a.6.6 0 0 0 .6-.6zM4 5.414V7.4a.6.6 0 0 1-.6.6h-.8a.6.6 0 0 1-.6-.6V3.6A1.6 1.6 0 0 1 3.6 2h3.8a.6.6 0 0 1 .6.6v.8a.6.6 0 0 1-.6.6H5.414l4.647 4.647a.6.6 0 0 1 0 .848l-.566.566a.6.6 0 0 1-.848 0zM20.4 22a1.6 1.6 0 0 0 1.6-1.6v-3.8a.6.6 0 0 0-.6-.6h-.8a.6.6 0 0 0-.6.6v1.986l-4.661-4.662a.6.6 0 0 0-.85 0l-.565.566a.6.6 0 0 0 0 .848L18.586 20H16.6a.6.6 0 0 0-.6.6v.8a.6.6 0 0 0 .6.6zM8.647 13.924a.6.6 0 0 1 .848 0l.566.566a.6.6 0 0 1 0 .848L5.399 20H7.4a.6.6 0 0 1 .6.6v.8a.6.6 0 0 1-.6.6H3.6A1.6 1.6 0 0 1 2 20.4v-3.8a.6.6 0 0 1 .6-.6h.8a.6.6 0 0 1 .6.6v1.971z" clip-rule="evenodd"></path></svg>
-                                            <span>Fill</span>
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <button className="btnListItem">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" width="24" height="24"><path fill="#585858" fill-rule="evenodd" d="M8.4 14a1.6 1.6 0 0 1 1.6 1.6v3.8a.6.6 0 0 1-.6.6h-.8a.6.6 0 0 1-.6-.6v-2L3.588 21.81a.6.6 0 0 1-.848 0l-.566-.566a.6.6 0 0 1 0-.848L6.571 16H4.6a.6.6 0 0 1-.6-.6v-.8a.6.6 0 0 1 .6-.6zm11 0a.6.6 0 0 1 .6.6v.8a.6.6 0 0 1-.6.6h-1.983l4.397 4.397a.6.6 0 0 1 0 .848l-.566.566a.6.6 0 0 1-.848 0l-4.4-4.4V19.4a.6.6 0 0 1-.6.6h-.8a.6.6 0 0 1-.6-.6v-3.8a1.6 1.6 0 0 1 1.6-1.6zM3.588 2.174 8 6.586V4.6a.6.6 0 0 1 .6-.6h.8a.6.6 0 0 1 .6.6v3.8A1.6 1.6 0 0 1 8.4 10H4.6a.6.6 0 0 1-.6-.6v-.8a.6.6 0 0 1 .6-.6h1.986L2.174 3.588a.6.6 0 0 1 0-.848l.566-.566a.6.6 0 0 1 .848 0m17.66 0 .566.566a.6.6 0 0 1 0 .848L17.4 8H19.4a.6.6 0 0 1 .6.6v.8a.6.6 0 0 1-.6.6h-3.8A1.6 1.6 0 0 1 14 8.4V4.6a.6.6 0 0 1 .6-.6h.8a.6.6 0 0 1 .6.6v1.974l4.4-4.4a.6.6 0 0 1 .848 0" clip-rule="evenodd"></path></svg>
-                                        <span>Fit</span>
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <button className="btnListItem">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" width="24" height="24"><path fill="#585858" fill-rule="evenodd" d="M1.6 5.003C1 6.18 1 7.72 1 10.8v2.4c0 3.08 0 4.62.6 5.797A5.5 5.5 0 0 0 4.002 21.4C5.18 22 6.72 22 9.8 22h4.4c3.08 0 4.62 0 5.797-.6a5.5 5.5 0 0 0 2.404-2.403C23 17.82 23 16.28 23 13.2v-2.4c0-3.08 0-4.62-.6-5.797a5.5 5.5 0 0 0-2.403-2.404C18.82 2 17.28 2 14.2 2H9.8c-3.08 0-4.62 0-5.797.6a5.5 5.5 0 0 0-2.404 2.403m1.781.908C3 6.66 3 7.64 3 9.6v4.8c0 1.882 0 2.86.337 3.598l5.538-5.537a1.6 1.6 0 0 1 2.262 0l.727.758c.023.024-.534 1.263-.534 1.263l.922-.906 3.379-3.378a1.6 1.6 0 0 1 2.262 0L21 13.305V9.6c0-1.96 0-2.94-.381-3.689a3.5 3.5 0 0 0-1.53-1.53C18.34 4 17.36 4 15.4 4H8.6c-1.96 0-2.94 0-3.689.381a3.5 3.5 0 0 0-1.53 1.53m1.53 13.708a4 4 0 0 1-.235-.132l5.33-5.33 1.292 1.293.22.22-1 2.483 1.734-1.749 4.51-4.51 4.222 4.223c-.03.895-.116 1.483-.366 1.972a3.5 3.5 0 0 1-1.529 1.53C18.34 20 17.36 20 15.4 20H8.6c-1.96 0-2.94 0-3.689-.381M9 8.5C9 7.673 8.327 7 7.5 7S6 7.673 6 8.5 6.673 10 7.5 10 9 9.327 9 8.5" clip-rule="evenodd"></path></svg>
-                                        <span>Replace</span>
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <button className="btnListItem">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" width="24" height="24"><path fill="#585858" fill-rule="evenodd" d="M9.4 2a.4.4 0 0 0-.4.4v.5a.1.1 0 0 1-.1.1H5.3A1.3 1.3 0 0 0 4 4.3v.3c0 .22.18.4.4.4h.599v12.5a3.5 3.5 0 0 0 3.5 3.5h7a3.5 3.5 0 0 0 3.5-3.5V5h.601a.4.4 0 0 0 .4-.4v-.3A1.3 1.3 0 0 0 18.7 3h-3.6a.1.1 0 0 1-.1-.1v-.5a.4.4 0 0 0-.4-.4zM6.999 17.5V5H17v12.5a1.5 1.5 0 0 1-1.5 1.5H8.499a1.5 1.5 0 0 1-1.5-1.5M9 7.64c0-.224 0-.336.044-.422a.4.4 0 0 1 .174-.174C9.304 7 9.416 7 9.64 7h.72c.224 0 .336 0 .422.044a.4.4 0 0 1 .174.174c.044.086.044.198.044.422v8.72c0 .224 0 .336-.044.422a.4.4 0 0 1-.174.174c-.086.044-.198.044-.422.044h-.72c-.224 0-.336 0-.422-.044a.4.4 0 0 1-.174-.174C9 16.696 9 16.584 9 16.36zm4.044-.422C13 7.304 13 7.416 13 7.64v8.72c0 .224 0 .336.044.422a.4.4 0 0 0 .174.174c.086.044.198.044.422.044h.72c.224 0 .336 0 .422-.044a.4.4 0 0 0 .174-.174c.044-.086.044-.198.044-.422V7.64c0-.224 0-.336-.044-.422a.4.4 0 0 0-.174-.174C14.696 7 14.584 7 14.36 7h-.72c-.224 0-.336 0-.422.044a.4.4 0 0 0-.174.174" clip-rule="evenodd"></path></svg>
-                                        <span>Remove</span>
-                                        </button>
-                                    </li>
-                                </ul>
-                                <Box direction="row" gap="small" margin={{ left: "auto" }}>
-                                    <Button
-                                        label="Reset"
-                                        onClick={() => {
-                                            setCropState({ crop: { x: 0, y: 0 }, zoom: 1, rotation: 0 });
-                                            setCroppedAreaPixels(null);
-                                        }}
-                                    />
-                                    <Button primary label="Save Settings" onClick={saveCrop} disabled={!croppedAreaPixels} />
-                                </Box>
-                            </Box>
-                        </Box>
-                    </Box>
+                                </div>
+                                <div className="image-editor-actions">
+                                    <button
+                                        type="button"
+                                        className="image-editor-action"
+                                        onClick={handleFillClick}
+                                        disabled={isCropActionsDisabled}
+                                    >
+                                        <span className="image-editor-action-icon" aria-hidden="true">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                                                <path
+                                                    fill="#374151"
+                                                    fillRule="evenodd"
+                                                    d="M22 3.6A1.6 1.6 0 0 0 20.4 2h-3.8a.6.6 0 0 0-.6.6v.8a.6.6 0 0 0 .6.6h1.971l-4.647 4.647a.6.6 0 0 0 0 .848l.566.566a.6.6 0 0 0 .848 0L20 5.4v2a.6.6 0 0 0 .6.6h.8a.6.6 0 0 0 .6-.6zM4 5.414V7.4a.6.6 0 0 1-.6.6h-.8a.6.6 0 0 1-.6-.6V3.6A1.6 1.6 0 0 1 3.6 2h3.8a.6.6 0 0 1 .6.6v.8a.6.6 0 0 1-.6.6H5.414l4.647 4.647a.6.6 0 0 1 0 .848l-.566.566a.6.6 0 0 1-.848 0zM20.4 22a1.6 1.6 0 0 0 1.6-1.6v-3.8a.6.6 0 0 0-.6-.6h-.8a.6.6 0 0 0-.6.6v1.986l-4.661-4.662a.6.6 0 0 0-.85 0l-.565.566a.6.6 0 0 0 0 .848L18.586 20H16.6a.6.6 0 0 0-.6.6v.8a.6.6 0 0 0 .6.6zM8.647 13.924a.6.6 0 0 1 .848 0l.566.566a.6.6 0 0 1 0 .848L5.399 20H7.4a.6.6 0 0 1 .6.6v.8a.6.6 0 0 0-.6.6H3.6A1.6 1.6 0 0 1 2 20.4v-3.8a.6.6 0 0 1 .6-.6h.8a.6.6 0 0 1 .6.6v1.971z"
+                                                    clipRule="evenodd"
+                                                />
+                                            </svg>
+                                        </span>
+                                        <span className="image-editor-action-label">Fill</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="image-editor-action"
+                                        onClick={handleRotateClick}
+                                        disabled={isCropActionsDisabled}
+                                    >
+                                        <span className="image-editor-action-icon" aria-hidden="true">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                                                <path
+                                                    fill="#374151"
+                                                    fillRule="evenodd"
+                                                    d="M8.4 14a1.6 1.6 0 0 1 1.6 1.6v3.8a.6.6 0 0 1-.6.6h-.8a.6.6 0 0 1-.6-.6v-2L3.588 21.81a.6.6 0 0 1-.848 0l-.566-.566a.6.6 0 0 1 0-.848L6.571 16H4.6a.6.6 0 0 1-.6-.6v-.8a.6.6 0 0 1 .6-.6zm11 0a.6.6 0 0 1 .6.6v.8a.6.6 0 0 1-.6.6h-1.983l4.397 4.397a.6.6 0 0 1 0 .848l-.566.566a.6.6 0 0 1-.848 0l-4.4-4.4V19.4a.6.6 0 0 1-.6.6h-.8a.6.6 0 0 1-.6-.6v-3.8a1.6 1.6 0 0 1 1.6-1.6zM3.588 2.174 8 6.586V4.6a.6.6 0 0 1 .6-.6h.8a.6.6 0 0 1 .6.6v3.8A1.6 1.6 0 0 1 8.4 10H4.6a.6.6 0 0 1-.6-.6v-.8a.6.6 0 0 1 .6-.6h1.986L2.174 3.588a.6.6 0 0 1 0-.848l.566-.566a.6.6 0 0 1 .848 0m17.66 0 .566.566a.6.6 0 0 1 0 .848L17.4 8H19.4a.6.6 0 0 1 .6.6v.8a.6.6 0 0 1-.6.6h-3.8A1.6 1.6 0 0 1 14 8.4V4.6a.6.6 0 0 1 .6-.6h.8a.6.6 0 0 1 .6.6v1.974l4.4-4.4a.6.6 0 0 1 .848 0"
+                                                    clipRule="evenodd"
+                                                />
+                                            </svg>
+                                        </span>
+                                        <span className="image-editor-action-label">Rotate</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="image-editor-action"
+                                        onClick={handleReplaceImage}
+                                    >
+                                        <span className="image-editor-action-icon" aria-hidden="true">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                                                <path
+                                                    fill="#374151"
+                                                    fillRule="evenodd"
+                                                    d="M1.6 5.003C1 6.18 1 7.72 1 10.8v2.4c0 3.08 0 4.62.6 5.797A5.5 5.5 0 0 0 4.002 21.4C5.18 22 6.72 22 9.8 22h4.4c3.08 0 4.62 0 5.797-.6a5.5 5.5 0 0 0 2.404-2.403C23 17.82 23 16.28 23 13.2v-2.4c0-3.08 0-4.62-.6-5.797a5.5 5.5 0 0 0-2.403-2.404C18.82 2 17.28 2 14.2 2H9.8c-3.08 0-4.62 0-5.797.6a5.5 5.5 0 0 0-2.404 2.403m1.781.908C3 6.66 3 7.64 3 9.6v4.8c0 1.882 0 2.86.337 3.598l5.538-5.537a1.6 1.6 0 0 1 2.262 0l.727.758c.023.024-.534 1.263-.534 1.263l.922-.906 3.379-3.378a1.6 1.6 0 0 1 2.262 0L21 13.305V9.6c0-1.96 0-2.94-.381-3.689a3.5 3.5 0 0 0-1.53-1.53C18.34 4 17.36 4 15.4 4H8.6c-1.96 0-2.94 0-3.689.381a3.5 3.5 0 0 0-1.53 1.53m1.53 13.708a4 4 0 0 1-.235-.132l5.33-5.33 1.292 1.293.22.22-1 2.483 1.734-1.749 4.51-4.51 4.222 4.223c-.03.895-.116 1.483-.366 1.972a3.5 3.5 0 0 1-1.529 1.53C18.34 20 17.36 20 15.4 20H8.6c-1.96 0-2.94 0-3.689-.381M9 8.5C9 7.673 8.327 7 7.5 7S6 7.673 6 8.5 6.673 10 7.5 10 9 9.327 9 8.5"
+                                                    clipRule="evenodd"
+                                                />
+                                            </svg>
+                                        </span>
+                                        <span className="image-editor-action-label">Replace</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="image-editor-action"
+                                        onClick={handleRemoveImage}
+                                        disabled={isCropActionsDisabled}
+                                    >
+                                        <span className="image-editor-action-icon" aria-hidden="true">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                                                <path
+                                                    fill="#374151"
+                                                    fillRule="evenodd"
+                                                    d="M9.4 2a.4.4 0 0 0-.4.4v.5a.1.1 0 0 1-.1.1H5.3A1.3 1.3 0 0 0 4 4.3v.3c0 .22.18.4.4.4h.599v12.5a3.5 3.5 0 0 0 3.5 3.5h7a3.5 3.5 0 0 0 3.5-3.5V5h.601a.4.4 0 0 0 .4-.4v-.3A1.3 1.3 0 0 0 18.7 3h-3.6a.1.1 0 0 1-.1-.1v-.5a.4.4 0 0 0-.4-.4zM6.999 17.5V5H17v12.5a1.5 1.5 0 0 1-1.5 1.5H8.499a1.5 1.5 0 0 1-1.5-1.5M9 7.64c0-.224 0-.336.044-.422a.4.4 0 0 1 .174-.174C9.304 7 9.416 7 9.64 7h.72c.224 0 .336 0 .422.044a.4.4 0 0 1 .174.174c.044.086.044.198.044.422v8.72c0 .224 0 .336-.044.422a.4.4 0 0 1-.174.174c-.086.044-.198.044-.422.044h-.72c-.224 0-.336 0-.422-.044a.4.4 0 0 1-.174-.174C9 16.696 9 16.584 9 16.36zm4.044-.422C13 7.304 13 7.416 13 7.64v8.72c0 .224 0 .336.044.422a.4.4 0 0 0 .174.174c.086.044.198.044.422.044h.72c.224 0 .336 0 .422-.044a.4.4 0 0 0 .174-.174c.044-.086.044-.198.044-.422V7.64c0-.224 0-.336-.044-.422a.4.4 0 0 0-.174-.174"
+                                                    clipRule="evenodd"
+                                                />
+                                            </svg>
+                                        </span>
+                                        <span className="image-editor-action-label">Remove</span>
+                                    </button>
+                                </div>
+                            </aside>
+                        </div>
+                        <div className="image-editor-footer">
+                            <button
+                                type="button"
+                                className="image-editor-button image-editor-button--secondary"
+                                onClick={closeCropper}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                className="image-editor-button image-editor-button--primary"
+                                onClick={saveCrop}
+                                disabled={!croppedAreaPixels}
+                            >
+                                Save
+                            </button>
+                        </div>
+                    </div>
                 </Layer>
             )}
-
             {uploading && (
                 <Layer plain>
                     <Box
@@ -2259,6 +2479,7 @@ export default function EditorPage(props) {
         </>
     );
 }
+
 
 
 
