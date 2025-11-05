@@ -23,10 +23,11 @@ export default function SignupForm({ onSignup, onSignIn }) {
   };
 
   return (
+    <div className='signupForm'>
     <Form value={form} onChange={(next) => setForm(next)} onSubmit={handleSubmit}>
       <FormField name="name" label="Full Name" required>
         <TextInput name="name" value={form.name} onChange={handleChange('name')} />
-      </FormField>
+      </FormField> 
       <FormField name="address" label="Address">
         <TextInput name="address" value={form.address} onChange={handleChange('address')} />
       </FormField>
@@ -56,6 +57,8 @@ export default function SignupForm({ onSignup, onSignIn }) {
           primary
         />
       </Box>
+
     </Form>
+    </div>
   );
 }

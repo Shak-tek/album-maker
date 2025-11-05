@@ -1,10 +1,12 @@
 :root {
     --brand: #2e2e2e;
+    --brand: #1f2937;
     --text: #585858;
     --surface: #f9f9f9;
     --accent: #df3b3b;
+    --tw-border-opacity: 1;
     /*--family: "Inter", Times;*/
-    --family: -apple-system, BlinkMacSystemFont, SFUI, HelveticaNeue, Helvetica, Arial, sans-serif;
+    --family: ui-sans-serif, "Sharp Sans", system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --h1: 44px;
     --h2: 30px;
     --h3: 24px;
@@ -74,7 +76,7 @@ h4,
 h5,
 h6 {
     color: var(--brand);
-    font-family: "Sharp Sans", serif;
+    /*font-family: ui-sans-serif, "Sharp Sans", system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";*/
     line-height: 1.2 !important;
     font-weight: 700 !important;
 }

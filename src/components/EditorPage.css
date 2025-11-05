@@ -7,7 +7,7 @@
 .editor-page .container {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 40px 2px;
+    gap: 40px 0;
     align-items: start;
 }
 
@@ -45,21 +45,25 @@
 
 .image-editor-card {
     display: flex;
-    flex-direction: column;
-    max-height: 90vh;
+    flex-flow: column nowrap;
     width: 100%;
     background: #ffffff;
     border-radius: 20px;
     box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
-    overflow: hidden;
+    overflow-y: auto;
+    max-height: 90vh;
 }
 
 .image-editor-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 24px 32px;
+    padding: 20px;
     border-bottom: 1px solid #e5e7eb;
+
+    h2 {
+        font-size: 18px !important;
+    }
 }
 
 .image-editor-icon-button {
@@ -68,9 +72,11 @@
     color: #6b7280;
     border-radius: 9999px;
     font-size: 24px;
-    line-height: 1;
+    line-height: .9;
     padding: 4px 10px;
     cursor: pointer;
+    display: inline-block;
+    vertical-align: top;
     transition: background 0.2s ease, color 0.2s ease;
 }
 
@@ -82,25 +88,25 @@
 .image-editor-body {
     display: flex;
     flex-direction: column;
-    gap: 24px;
-    padding: 24px;
-    background: #f9fafb;
-    flex: 1;
-    overflow-y: auto;
+    
+    background:rgb(249 250 251);
+    flex-grow: 1;
+    overflow: hidden;
+    flex-shrink: 0;
 }
 
 @media (min-width: 900px) {
     .image-editor-body {
         flex-direction: row;
         align-items: stretch;
-        gap: 32px;
-        padding: 32px;
+        
     }
 }
 
 .image-editor-preview {
     flex: 1;
     display: flex;
+    padding: 20px;
     justify-content: center;
     align-items: center;
 }
@@ -111,8 +117,11 @@
     min-height: 280px;
     border-radius: 16px;
     overflow: hidden;
-    background: #cb6854;
-    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+    background: #fef7f5;
+    aspect-ratio: 1 / 1;
+    
+    border: 20px solid #fef7f5;
+    box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.15);
 }
 
 .image-editor-cropper .croppie-container {
@@ -158,10 +167,13 @@
 
 .image-editor-sidebar {
     width: 100%;
-    max-width: 340px;
+    flex-shrink: 0;
+    width: 330px;
     display: flex;
     flex-direction: column;
     gap: 20px;
+    background: #fff;
+    padding: 21px;
 }
 
 @media (max-width: 899px) {
@@ -173,69 +185,63 @@
 .image-editor-quality,
 .image-editor-tips {
     display: flex;
-    gap: 12px;
-    padding: 16px;
-    border-radius: 14px;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 12px;
+     svg {
+        width: 17px;
+        display: block;
+        stroke-color: currentColor;
+    }
+
 }
 
 .image-editor-quality {
     background: #ecfdf5;
     align-items: center;
+    color: rgb(22 163 74);
+    
 }
 
-.image-editor-quality-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 9999px;
-    background: #d1fae5;
-}
 
-.image-editor-quality-title {
+   
+
+.image-editor-quality-title,
+.image-editor-tips-title {
     margin: 0;
     font-weight: 600;
-    font-size: 0.9rem;
-    color: #047857;
+    font-size: 12px;
 }
 
 .image-editor-quality-score {
-    margin: 4px 0 0;
-    font-weight: 700;
-    color: #047857;
-    font-size: 0.95rem;
+    
 }
 
 .image-editor-tips {
     background: #eff6ff;
     align-items: flex-start;
+    padding: 14px;
 }
 
 .image-editor-tips-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 9999px;
-    background: #dbeafe;
+    svg {
+        color: rgb(59 130 246);
+    }
 }
 
 .image-editor-tips-title {
-    margin: 0 0 6px;
-    font-weight: 600;
-    color: #1d4ed8;
-    font-size: 0.95rem;
+   
 }
 
 .image-editor-tips-list {
-    margin: 0;
-    padding-left: 18px;
-    color: #475569;
-    font-size: 0.9rem;
-    display: grid;
+    list-style: inside;
     gap: 4px;
+    display: flex;
+    color: rgb(75 85 99);
+    padding: 4px 0 0;
+    flex-flow: column nowrap;
+
 }
 
 .image-editor-slider {
@@ -249,7 +255,7 @@
     justify-content: space-between;
     align-items: center;
     font-weight: 600;
-    color: #374151;
+    font-size: 12px;
 }
 
 .image-editor-slider input[type="range"] {
@@ -294,8 +300,8 @@
 
 .image-editor-actions {
     display: grid;
-    grid-template-columns: repeat(4, minmax(72px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(4, minmax(65px, 1fr));
+    gap: 8px;
 }
 
 @media (max-width: 600px) {
@@ -306,16 +312,17 @@
 
 .image-editor-action {
     border: 1px solid #e5e7eb;
+        border-color: rgb(229 231 235 / var(--tw-border-opacity, 1));
     background: #ffffff;
-    border-radius: 14px;
-    padding: 12px 8px;
+    border-radius: 10px;
+    padding: 7px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
-    font-weight: 600;
-    font-size: 0.85rem;
-    color: #1f2937;
+    gap: 4px;
+    font-weight: 400;
+    font-size: 10.5px;
+    color: rgb(55 65 81 / var(--tw-text-opacity, 1));
     cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
@@ -333,20 +340,15 @@
     box-shadow: none;
 }
 
-.image-editor-action-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 9999px;
-    background: #f1f5f9;
+.image-editor-action-icon svg {
+    width: 21px;
+    display: block;
+    color: inherit;
+    height: auto;
+    color: rgb(55 65 81 / var(--tw-text-opacity, 1));
+    stroke-width: 1.5;
 }
 
-.image-editor-action svg {
-    width: 24px;
-    height: 24px;
-}
 
 .image-editor-footer {
     display: flex;
@@ -553,12 +555,21 @@
 /* wrap each page + toolbar together */
 .page-wrapper {
     position: relative;
-    /* needed for clipping context */
     overflow: hidden;
-    /* <-- clips the scaled .photo-page */
-    border-radius: 12px;
-    /* nice rounded corners */
+    border-radius: 8px;
+    background: none;
     display: block;
+    outline: none !important;
+    box-shadow: 0 0 12px 0 rgba(0,0,0,0.15);
+
+    &:nth-child(odd) {
+        border-bottom-right-radius: 0;
+        border-top-right-radius: 0;
+    }
+    &:nth-child(even) {
+        border-bottom-left-radius: 0;
+        border-top-left-radius: 0;
+    }
 }
 
 /* toolbar */
@@ -2431,7 +2442,7 @@
 
 
 .editModal {
-    color: rgb(46, 46, 46) !important;
+    color: var(--brand) !important;
     border-radius: 15px !important;
     max-width: 1000px !important;
     overflow: hidden;

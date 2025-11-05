@@ -2546,10 +2546,13 @@ export default function EditorPage(props) {
                                         ref={cropperContainerRef}
                                         style={cropperStyle}
                                     >
-                                        <div
-                                            ref={croppieElementRef}
-                                            style={{ width: "100%", height: "100%" }}
+                                        <div>
+                                            <div
+                                                ref={croppieElementRef}
+                                                style={{ width: "100%", height: "100%" }}
+                                        
                                         />
+                                        </div>
                                     </div>
                                 ) : (
                                     <div className="image-editor-empty">
@@ -2567,34 +2570,20 @@ export default function EditorPage(props) {
                             <aside className="image-editor-sidebar">
                                 <div className="image-editor-quality">
                                     <div className="image-editor-quality-icon" aria-hidden="true">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                                            <path
-                                                d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2m0 18a8 8 0 1 1 8-8 8.009 8.009 0 0 1-8 8"
-                                                fill="#047857"
-                                            />
-                                            <path
-                                                d="m16.707 9.293-4.95 4.95-2.464-2.465a1 1 0 0 0-1.414 1.414l3.172 3.172a1 1 0 0 0 1.414 0l5.657-5.657a1 1 0 1 0-1.414-1.414"
-                                                fill="#047857"
-                                            />
-                                        </svg>
+                                        <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                     </div>
                                     <div>
-                                        <p className="image-editor-quality-title">Print Quality</p>
-                                        <p className="image-editor-quality-score">{printQualityLabel}</p>
+                                        <p className="image-editor-quality-title">Print Quality <span className="image-editor-quality-score">{printQualityLabel}</span></p>
+                                        
                                     </div>
                                 </div>
                                 <div className="image-editor-tips">
                                     <div className="image-editor-tips-icon" aria-hidden="true">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
-                                            <path
-                                                d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2m.75 15a.75.75 0 0 1-1.5 0v-1.5a.75.75 0 0 1 1.5 0Zm2.4-6.6-.72.744a1.5 1.5 0 0 0-.43 1.044V12a.75.75 0 0 1-1.5 0v-.312a2.99 2.99 0 0 1 .86-2.088l.84-.864a1.5 1.5 0 0 0-1.07-2.556h-.48a1.5 1.5 0 0 0-1.5 1.5.75.75 0 0 1-1.5 0 3 3 0 0 1 3-3h.48a3 3 0 0 1 2.1 5.124Z"
-                                                fill="#1d4ed8"
-                                            />
-                                        </svg>
+                                        <svg class="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                     </div>
                                     <div>
                                         <p className="image-editor-tips-title">Quick Tips</p>
-                                        <ul className="image-editor-tips-list">
+                                        <ul className="image-editor-tips-list list-disc list-inside space-y-1">
                                             <li>Drag the image to reposition.</li>
                                             <li>Use the slider to zoom in or out.</li>
                                             <li>Use the buttons for other actions.</li>
@@ -2625,14 +2614,7 @@ export default function EditorPage(props) {
                                         disabled={isCropActionsDisabled}
                                     >
                                         <span className="image-editor-action-icon" aria-hidden="true">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                                                <path
-                                                    fill="#374151"
-                                                    fillRule="evenodd"
-                                                    d="M8.4 14a1.6 1.6 0 0 1 1.6 1.6v3.8a.6.6 0 0 1-.6.6h-.8a.6.6 0 0 1-.6-.6v-2L3.588 21.81a.6.6 0 0 1-.848 0l-.566-.566a.6.6 0 0 1 0-.848L6.571 16H4.6a.6.6 0 0 1-.6-.6v-.8a.6.6 0 0 1 .6-.6zm11 0a.6.6 0 0 1 .6.6v.8a.6.6 0 0 1-.6.6h-1.983l4.397 4.397a.6.6 0 0 1 0 .848l-.566.566a.6.6 0 0 1-.848 0l-4.4-4.4V19.4a.6.6 0 0 1-.6.6h-.8a.6.6 0 0 1-.6-.6v-3.8a1.6 1.6 0 0 1 1.6-1.6zM3.588 2.174 8 6.586V4.6a.6.6 0 0 1 .6-.6h.8a.6.6 0 0 1 .6.6v3.8A1.6 1.6 0 0 1 8.4 10H4.6a.6.6 0 0 1-.6-.6v-.8a.6.6 0 0 1 .6-.6h1.986L2.174 3.588a.6.6 0 0 1 0-.848l.566-.566a.6.6 0 0 1 .848 0m17.66 0 .566.566a.6.6 0 0 1 0 .848L17.4 8H19.4a.6.6 0 0 1 .6.6v.8a.6.6 0 0 1-.6.6h-3.8A1.6 1.6 0 0 1 14 8.4V4.6a.6.6 0 0 1 .6-.6h.8a.6.6 0 0 1 .6.6v1.974l4.4-4.4a.6.6 0 0 1 .848 0"
-                                                    clipRule="evenodd"
-                                                />
-                                            </svg>
+                                            <svg class="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 15l6-6m0 0l-6-6m6 6H9a6 6 0 000 12h3"></path></svg>
                                         </span>
                                         <span className="image-editor-action-label">Rotate</span>
                                     </button>
@@ -2642,14 +2624,7 @@ export default function EditorPage(props) {
                                         onClick={handleReplaceImage}
                                     >
                                         <span className="image-editor-action-icon" aria-hidden="true">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                                                <path
-                                                    fill="#374151"
-                                                    fillRule="evenodd"
-                                                    d="M1.6 5.003C1 6.18 1 7.72 1 10.8v2.4c0 3.08 0 4.62.6 5.797A5.5 5.5 0 0 0 4.002 21.4C5.18 22 6.72 22 9.8 22h4.4c3.08 0 4.62 0 5.797-.6a5.5 5.5 0 0 0 2.404-2.403C23 17.82 23 16.28 23 13.2v-2.4c0-3.08 0-4.62-.6-5.797a5.5 5.5 0 0 0-2.403-2.404C18.82 2 17.28 2 14.2 2H9.8c-3.08 0-4.62 0-5.797.6a5.5 5.5 0 0 0-2.404 2.403m1.781.908C3 6.66 3 7.64 3 9.6v4.8c0 1.882 0 2.86.337 3.598l5.538-5.537a1.6 1.6 0 0 1 2.262 0l.727.758c.023.024-.534 1.263-.534 1.263l.922-.906 3.379-3.378a1.6 1.6 0 0 1 2.262 0L21 13.305V9.6c0-1.96 0-2.94-.381-3.689a3.5 3.5 0 0 0-1.53-1.53C18.34 4 17.36 4 15.4 4H8.6c-1.96 0-2.94 0-3.689.381a3.5 3.5 0 0 0-1.53 1.53m1.53 13.708a4 4 0 0 1-.235-.132l5.33-5.33 1.292 1.293.22.22-1 2.483 1.734-1.749 4.51-4.51 4.222 4.223c-.03.895-.116 1.483-.366 1.972a3.5 3.5 0 0 1-1.529 1.53C18.34 20 17.36 20 15.4 20H8.6c-1.96 0-2.94 0-3.689-.381M9 8.5C9 7.673 8.327 7 7.5 7S6 7.673 6 8.5 6.673 10 7.5 10 9 9.327 9 8.5"
-                                                    clipRule="evenodd"
-                                                />
-                                            </svg>
+                                            <svg class="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.158 0a.079.079 0 11-1.98 0 .079.079 0 011.98 0zm-1.07 1.07a.079.079 0 11-1.98 0 .079.079 0 011.98 0z"></path></svg>
                                         </span>
                                         <span className="image-editor-action-label">Replace</span>
                                     </button>
@@ -2660,14 +2635,7 @@ export default function EditorPage(props) {
                                         disabled={isCropActionsDisabled}
                                     >
                                         <span className="image-editor-action-icon" aria-hidden="true">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                                                <path
-                                                    fill="#374151"
-                                                    fillRule="evenodd"
-                                                    d="M9.4 2a.4.4 0 0 0-.4.4v.5a.1.1 0 0 1-.1.1H5.3A1.3 1.3 0 0 0 4 4.3v.3c0 .22.18.4.4.4h.599v12.5a3.5 3.5 0 0 0 3.5 3.5h7a3.5 3.5 0 0 0 3.5-3.5V5h.601a.4.4 0 0 0 .4-.4v-.3A1.3 1.3 0 0 0 18.7 3h-3.6a.1.1 0 0 1-.1-.1v-.5a.4.4 0 0 0-.4-.4zM6.999 17.5V5H17v12.5a1.5 1.5 0 0 1-1.5 1.5H8.499a1.5 1.5 0 0 1-1.5-1.5M9 7.64c0-.224 0-.336.044-.422a.4.4 0 0 1 .174-.174C9.304 7 9.416 7 9.64 7h.72c.224 0 .336 0 .422.044a.4.4 0 0 1 .174.174c.044.086.044.198.044.422v8.72c0 .224 0 .336-.044.422a.4.4 0 0 1-.174.174c-.086.044-.198.044-.422.044h-.72c-.224 0-.336 0-.422-.044a.4.4 0 0 1-.174-.174C9 16.696 9 16.584 9 16.36zm4.044-.422C13 7.304 13 7.416 13 7.64v8.72c0 .224 0 .336.044.422a.4.4 0 0 0 .174.174c.086.044.198.044.422.044h.72c.224 0 .336 0 .422-.044a.4.4 0 0 0 .174-.174c.044-.086.044-.198.044-.422V7.64c0-.224 0-.336-.044-.422a.4.4 0 0 0-.174-.174"
-                                                    clipRule="evenodd"
-                                                />
-                                            </svg>
+                                            <svg class="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.134-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.067-2.09 1.02-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"></path></svg>
                                         </span>
                                         <span className="image-editor-action-label">Remove</span>
                                     </button>

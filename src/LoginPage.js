@@ -29,6 +29,7 @@ export default function LoginPage({ onLogin, initialMode = "login", message = ""
   };
 
   return (
+    <div className="formsPage">
     <Box pad="large" gap="medium" align="center" width="medium">
       <Heading level={2} margin="none">
         {mode === 'login' ? 'Login' : 'Sign Up'}
@@ -69,5 +70,6 @@ export default function LoginPage({ onLogin, initialMode = "login", message = ""
         </>
       )}
     </Box>
+    </div>
   );
 }
