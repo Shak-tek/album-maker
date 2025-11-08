@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS sessions (
     settings JSONB DEFAULT '{}'::jsonb,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    UNIQUE(user_id)
+    UNIQUE(user_id, session_id)
 );
 
 CREATE TABLE IF NOT EXISTS album_jobs (

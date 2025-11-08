@@ -950,8 +950,12 @@ export default function EditorPage(props) {
                 );
                 if (!res.ok) return;
                 const data = await res.json();
-                const remote = data?.settings?.pageSettings;
-                const remoteTextSettings = data?.settings?.textSettings;
+                const sessionSettings =
+                    data?.session?.settings ||
+                    data?.settings ||
+                    {};
+                const remote = sessionSettings?.pageSettings;
+                const remoteTextSettings = sessionSettings?.textSettings;
                 if (!cancelled) {
                     if (Array.isArray(remote)) {
                         setPageSettings(
@@ -979,7 +983,7 @@ export default function EditorPage(props) {
                                     : DEFAULT_TEXT_SETTINGS.color,
                         });
                     }
-                    const remoteOrientation = data?.settings?.titleOrientation;
+                    const remoteOrientation = sessionSettings?.titleOrientation;
                     if (remoteOrientation === "top" || remoteOrientation === "bottom") {
                         setTitleOrientation(remoteOrientation);
                     }

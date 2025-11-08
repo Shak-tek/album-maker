@@ -205,6 +205,7 @@ const getResizedUrl = (key, width = 1000) =>
   `${IK_URL_ENDPOINT}/${encodeURI(key)}?tr=w-${width},fo-face`;
 
 const PROTECTED_VIEWS = new Set(["profile", "albums", "upload", "title", "editor"]);
+const MAX_ALBUMS_PER_USER = 10;
 
 function MainApp() {
   const [sessionId, setSessionId] = useState(null);
@@ -222,6 +223,14 @@ function MainApp() {
   const [authDropOpen, setAuthDropOpen] = useState(false);
   const [, setAuthEmail] = useState("");
   const [identityId, setIdentityId] = useState(null);
+  const [albums, setAlbums] = useState([]);
+  const [albumsLoading, setAlbumsLoading] = useState(false);
+  const [albumLimitMessage, setAlbumLimitMessage] = useState("");
+  const canCreateMoreAlbums = albums.length < MAX_ALBUMS_PER_USER;
+  const latestAlbum = albums.length ? albums[0] : null;
+  const [pendingDeleteAlbum, setPendingDeleteAlbum] = useState(null);
+  const [deleteAlbumLoading, setDeleteAlbumLoading] = useState(false);
+  const [deleteAlbumError, setDeleteAlbumError] = useState("");
 
   const showAuth = (mode = "signup", prompt = "") => {
     setAuthMode(mode);
@@ -251,51 +260,152 @@ function MainApp() {
     });
   }, []);
 
-  const loadSessionFromDb = useCallback(async (userId) => {
-    try {
-      const res = await fetch(`/.netlify/functions/session?userId=${userId}`);
-      if (res.ok) {
-        const data = await res.json();
-        setSessionId(data.session_id);
-        setAlbumSize(data.settings?.albumSize ?? null);
-        if (data.settings?.identityId) {
-          setIdentityId(data.settings.identityId);
-        }
-        setAlbumTitle(data.settings?.title ?? "");
-        setAlbumSubtitle(data.settings?.subtitle ?? "");
-        // check if S3 has uploads for this session
-        try {
-          const { Contents } = await s3.listObjectsV2({ Prefix: `${data.session_id}/` }).promise();
-          if (Contents.length) setShowPrompt(true);
-        } catch (err) {
-          console.error(err);
-        }
-      } else {
-        const sid = Date.now().toString();
-        setSessionId(sid);
-        setAlbumSize(null);
-        setAlbumTitle("");
-        setAlbumSubtitle("");
-        await fetch("/.netlify/functions/session", {
+  const hydrateAlbumFromSettings = useCallback((album) => {
+    if (!album) return;
+    const settings = album.settings || {};
+    setSessionId(album.session_id);
+    setAlbumSize(settings.albumSize ?? null);
+    setAlbumTitle(settings.title ?? "");
+    setAlbumSubtitle(settings.subtitle ?? "");
+    if (settings.identityId) {
+      setIdentityId(settings.identityId);
+    }
+  }, []);
+
+  const createAlbumRecord = useCallback(
+    async (userId, newSessionId, extraSettings = {}) => {
+      if (!userId || !newSessionId) return null;
+      try {
+        const res = await fetch("/.netlify/functions/session", {
           method: "POST",
           body: JSON.stringify({
             userId,
-            sessionId: sid,
-            settings: { identityId },
+            sessionId: newSessionId,
+            settings: extraSettings,
           }),
         });
+        if (!res.ok) {
+          let payload = {};
+          try {
+            payload = await res.json();
+          } catch {
+            // ignore body parse failures
+          }
+          if (res.status === 409 || payload?.error === "MAX_ALBUMS_REACHED") {
+            setAlbumLimitMessage(`You can create up to ${MAX_ALBUMS_PER_USER} albums.`);
+          } else {
+            setAlbumLimitMessage("We couldn't create a new album right now. Please try again.");
+          }
+          return null;
+        }
+        setAlbumLimitMessage("");
+        return newSessionId;
+      } catch (err) {
+        console.error(err);
+        setAlbumLimitMessage("We couldn't create a new album right now. Please try again.");
+        return null;
       }
-    } catch (err) {
-      console.error(err);
-    }
-  }, [identityId]);
+    },
+    [setAlbumLimitMessage]
+  );
 
+  const loadAlbumsFromDb = useCallback(
+    async (userId, options = {}) => {
+      if (!userId) return;
+      const execute = async (preferredSessionId, attempt = 0) => {
+        const res = await fetch(`/.netlify/functions/session?userId=${userId}`);
+        if (!res.ok) {
+          throw new Error(await res.text());
+        }
+        let payload = {};
+        try {
+          payload = await res.json();
+        } catch {
+          payload = {};
+        }
+        const list = Array.isArray(payload.sessions)
+          ? payload.sessions
+          : payload.session
+          ? [payload.session]
+          : [];
+        if (!list.length) {
+          if (attempt > 0) {
+            setAlbums([]);
+            setSessionId(null);
+            return;
+          }
+          const seedSessionId = Date.now().toString();
+          const created = await createAlbumRecord(userId, seedSessionId, { identityId });
+          if (created) {
+            await execute(created, attempt + 1);
+          }
+          return;
+        }
+        setAlbums(list);
+        setAlbumLimitMessage("");
+        const nextAlbum =
+          list.find((album) => album.session_id === preferredSessionId) || list[0];
+        hydrateAlbumFromSettings(nextAlbum);
+      };
+
+      setAlbumsLoading(true);
+      try {
+        await execute(options.preferredSessionId ?? null, options.attempt ?? 0);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setAlbumsLoading(false);
+      }
+    },
+    [createAlbumRecord, hydrateAlbumFromSettings, identityId]
+  );
+
+  const deleteAlbum = useCallback(
+    async (album) => {
+      if (!album || !user) return false;
+      const prefix = `${album.session_id}/`;
+      try {
+        const { Contents } = await s3.listObjectsV2({ Prefix: prefix }).promise();
+        if (Array.isArray(Contents) && Contents.length) {
+          await s3
+            .deleteObjects({
+              Delete: { Objects: Contents.map((object) => ({ Key: object.Key })) },
+            })
+            .promise();
+        }
+      } catch (err) {
+        console.error("Unable to delete album assets", err);
+      }
+
+      try {
+        await fetch(
+          `/.netlify/functions/session?userId=${encodeURIComponent(
+            user.id
+          )}&sessionId=${encodeURIComponent(album.session_id)}`,
+          { method: "DELETE" }
+        );
+      } catch (err) {
+        console.error("Unable to delete album record", err);
+        return false;
+      }
+
+      await loadAlbumsFromDb(user.id);
+      if (sessionId === album.session_id) {
+        setLoadedImages([]);
+        setAlbumSize(null);
+        setAlbumTitle("");
+        setAlbumSubtitle("");
+      }
+      return true;
+    },
+    [user, loadAlbumsFromDb, sessionId]
+  );
 
   const handleLogin = (authUser) => {
     if (!authUser) return;
     setUser(authUser);
     localStorage.setItem("user", JSON.stringify(authUser));
-    loadSessionFromDb(authUser.id);
+    loadAlbumsFromDb(authUser.id);
     setAuthDropOpen(false);
     setAuthEmail("");
     setAuthPrompt("");
@@ -317,6 +427,8 @@ function MainApp() {
     setAlbumSubtitle("");
     setLoadedImages([]);
     setShowPrompt(false);
+    setAlbums([]);
+    setAlbumLimitMessage("");
     setPendingView(null);
     setAuthMode("signup");
     setAuthDropOpen(false);
@@ -346,53 +458,47 @@ function MainApp() {
 
   // create-new-session fn (used by the "New Session" button)
   const createNewSession = async () => {
-    if (sessionId) {
-      const { Contents } = await s3
-        .listObjectsV2({ Prefix: `${sessionId}/` })
-        .promise();
-      if (Contents.length) {
-        await s3
-          .deleteObjects({
-            Delete: { Objects: Contents.map((o) => ({ Key: o.Key })) },
-          })
-          .promise();
-      }
+    if (!user) {
+      showAuth("signup", "Sign up or log in to create a new album.");
+      return;
+    }
+    if (!canCreateMoreAlbums) {
+      setAlbumLimitMessage(`You can create up to ${MAX_ALBUMS_PER_USER} albums.`);
+      return;
     }
     const sid = Date.now().toString();
-    setSessionId(sid);
+    const created = await createAlbumRecord(user.id, sid, { identityId });
+    if (!created) return;
+    await loadAlbumsFromDb(user.id, { preferredSessionId: sid });
     setLoadedImages([]);
     setAlbumSize(null);
     setAlbumTitle("");
     setAlbumSubtitle("");
-    navigate("products");
     setShowPrompt(false);
-    if (user) {
-      fetch("/.netlify/functions/session", {
-        method: "POST",
-        body: JSON.stringify({
-          userId: user.id,
-          sessionId: sid,
-          settings: { identityId },
-          reset: true,
-        }),
-      }).catch(console.error);
-    }
+    navigate("products");
   };
 
   // continue-session fn (used by the "Continue" button)
-  const continueSession = async () => {
+  const continueSession = async (albumOverride = null) => {
+    const targetAlbum =
+      albumOverride ||
+      albums.find((album) => album.session_id === sessionId);
+    const targetSessionId = albumOverride?.session_id || sessionId;
+    if (!targetSessionId) return;
+
+    if (targetAlbum) {
+      hydrateAlbumFromSettings(targetAlbum);
+    }
+
     const { Contents } = await s3
-      .listObjectsV2({ Prefix: `${sessionId}/` })
+      .listObjectsV2({ Prefix: `${targetSessionId}/` })
       .promise();
 
-    // map each key into the ImageKit URL
-    const urls = Contents.map((o) => {
-      const key = o.Key; // e.g. "1612345678901/myImage.jpg"
-      return getResizedUrl(key, 1000);
-    });
+    const urls = Contents.map((o) => getResizedUrl(o.Key, 1000));
 
     setLoadedImages(urls);
-    if (albumSize) {
+    const sizeToUse = targetAlbum?.settings?.albumSize ?? albumSize;
+    if (sizeToUse) {
       navigate("editor");
     } else {
       navigate("products");
@@ -408,7 +514,7 @@ function MainApp() {
         const u = JSON.parse(storedUser);
         if (u && u.id) {
           setUser(u);
-          loadSessionFromDb(u.id);
+          loadAlbumsFromDb(u.id);
         } else {
           localStorage.removeItem("user");
         }
@@ -417,7 +523,7 @@ function MainApp() {
         localStorage.removeItem("user");
       }
     }
-  }, [loadSessionFromDb]);
+  }, [loadAlbumsFromDb]);
 
   useEffect(() => {
     if (!sessionId) {
@@ -438,6 +544,69 @@ function MainApp() {
   useEffect(() => {
     setLoadedImages([]);
   }, [sessionId]);
+
+  useEffect(() => {
+    if (view !== "albums" || !user) return;
+    loadAlbumsFromDb(user.id);
+  }, [view, user, loadAlbumsFromDb]);
+
+  useEffect(() => {
+    if (!sessionId) return;
+    setAlbums((prev) => {
+      if (!prev.length) return prev;
+      let changed = false;
+      const next = prev.map((album) => {
+        if (album.session_id !== sessionId) return album;
+        const existingSettings = album.settings || {};
+        const nextSettings = {
+          ...existingSettings,
+          albumSize,
+          title: albumTitle,
+          subtitle: albumSubtitle,
+        };
+        if (
+          nextSettings.albumSize === existingSettings.albumSize &&
+          nextSettings.title === existingSettings.title &&
+          nextSettings.subtitle === existingSettings.subtitle
+        ) {
+          return album;
+        }
+        changed = true;
+        return { ...album, settings: nextSettings };
+      });
+      return changed ? next : prev;
+    });
+  }, [sessionId, albumSize, albumTitle, albumSubtitle]);
+
+  const promptDeleteAlbum = useCallback((album) => {
+    setDeleteAlbumError("");
+    setPendingDeleteAlbum(album);
+  }, []);
+
+  const cancelDeleteAlbum = useCallback(() => {
+    if (deleteAlbumLoading) return;
+    setPendingDeleteAlbum(null);
+    setDeleteAlbumError("");
+  }, [deleteAlbumLoading]);
+
+  const confirmDeleteAlbum = useCallback(async () => {
+    if (!pendingDeleteAlbum) return;
+    setDeleteAlbumLoading(true);
+    setDeleteAlbumError("");
+    try {
+      const removed = await deleteAlbum(pendingDeleteAlbum);
+      if (removed) {
+        setPendingDeleteAlbum(null);
+      } else {
+        setDeleteAlbumError("We couldn't delete this album. Please try again.");
+      }
+    } catch (err) {
+      console.error(err);
+      setDeleteAlbumError("We couldn't delete this album. Please try again.");
+    } finally {
+      setDeleteAlbumLoading(false);
+    }
+  }, [deleteAlbum, pendingDeleteAlbum]);
 
   if (view === "login") {
     return (
@@ -508,7 +677,12 @@ function MainApp() {
                 <Text>You already have an album in session.</Text>
                 <Text>Would you like to continue or make a new one?</Text>
                 <Box direction="row" gap="small" wrap>
-                  <Button label="Continue" primary onClick={continueSession} />
+                  <Button
+                    label="Continue"
+                    primary
+                    onClick={() => continueSession(latestAlbum)}
+                    disabled={!latestAlbum}
+                  />
                   <Button primary 
                     label="Show Previous Album"
                     onClick={() => {
@@ -516,7 +690,52 @@ function MainApp() {
                       navigate('albums');
                     }}
                   />
-                  <Button primary label="New Session" onClick={createNewSession} />
+                  <Button
+                    primary
+                    label="New Session"
+                    onClick={createNewSession}
+                    disabled={!canCreateMoreAlbums}
+                  />
+                </Box>
+                {!canCreateMoreAlbums && (
+                  <Text size="small" color="status-critical">
+                    {albumLimitMessage || `You can create up to ${MAX_ALBUMS_PER_USER} albums.`}
+                  </Text>
+                )}
+              </Box>
+            </Layer>
+          )}
+          {pendingDeleteAlbum && (
+            <Layer
+              position="center"
+              responsive={false}
+              onEsc={cancelDeleteAlbum}
+              onClickOutside={cancelDeleteAlbum}
+            >
+              <Box pad="medium" gap="small" width="medium">
+                <Text weight="bold">Delete this album?</Text>
+                <Text size="small">
+                  {`"${pendingDeleteAlbum.settings?.title?.trim() || "Untitled Album"}"`} and all of its
+                  photos will be permanently removed.
+                </Text>
+                {deleteAlbumError && (
+                  <Text size="small" color="status-critical">
+                    {deleteAlbumError}
+                  </Text>
+                )}
+                <Box direction="row" gap="small" justify="end">
+                  <Button
+                    label="Cancel"
+                    onClick={cancelDeleteAlbum}
+                    disabled={deleteAlbumLoading}
+                  />
+                  <Button
+                    primary
+                    color="status-critical"
+                    label={deleteAlbumLoading ? "Deleting..." : "Delete"}
+                    onClick={confirmDeleteAlbum}
+                    disabled={deleteAlbumLoading}
+                  />
                 </Box>
               </Box>
             </Layer>
@@ -531,7 +750,17 @@ function MainApp() {
           ) : view === "profile" ? (
             <ProfilePage user={user} />
           ) : view === "albums" ? (
-            <AlbumsPage sessionId={sessionId} onOpen={continueSession} />
+            <AlbumsPage
+              albums={albums}
+              activeSessionId={sessionId}
+              onOpen={continueSession}
+              onCreate={createNewSession}
+              onDelete={promptDeleteAlbum}
+              canCreateMore={canCreateMoreAlbums}
+              loading={albumsLoading}
+              error={albumLimitMessage}
+              maxAlbums={MAX_ALBUMS_PER_USER}
+            />
           ) : view === "products" ? (
             <ProductsPage onSelect={(p) => { setSelectedProduct(p); navigate("productDetail"); }} />
           ) : view === "productDetail" ? (
