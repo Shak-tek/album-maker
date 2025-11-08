@@ -297,7 +297,6 @@ function computeNormalizedRects(slotEls) {
 
             const segment = segments[idx - 1];
             const startEdge = edges[idx - 1];
-            const endEdge = edges[idx];
             const startCum = cumulative[idx - 1];
             const endCum = cumulative[idx];
 
