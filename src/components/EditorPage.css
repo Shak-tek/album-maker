@@ -1,40 +1,217 @@
 /* src/components/EditorPage.css */
 
 .editor-page {
-    padding: 60px 0;
+    padding: 90px 0 60px;
+    background: #f9fafb;
+    min-height: 100vh;
 }
 
 .editor-page .container {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 40px 0;
+    gap: 40px 20px;
     align-items: start;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
 }
 
-.editor-header {
-    margin: 0 0 24px;
-    padding: 0 8px;
+/* Floating Header */
+.editor-floating-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 24px;
+    height: 64px;
+}
+
+.editor-back-button {
+    border: none;
+    background: transparent;
+    padding: 8px;
+    cursor: pointer;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+
+.editor-back-button:hover {
+    background: #f3f4f6;
+}
+
+.editor-header-content {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
+    min-width: 0;
 }
 
-.editor-header__title {
+.editor-floating-header__title {
     margin: 0;
-    font-size: 2.25rem;
-    font-weight: 700;
-    color: #1F2933;
+    font-size: 20px;
+    font-weight: 600;
+    color: #111827;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.editor-header__subtitle {
+.editor-floating-header__subtitle {
     margin: 0;
-    font-size: 1.05rem;
-    color: rgba(31, 41, 55, 0.72);
+    font-size: 14px;
+    color: #6b7280;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.editor-continue-button {
+    background: #111827;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 28px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.editor-continue-button:hover {
+    background: #1f2937;
+    transform: translateY(-1px);
+}
+
+.editor-continue-button:active {
+    transform: translateY(0);
+}
+
+/* Theme Indicator */
+.theme-indicator {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.theme-indicator--rainbow {
+    background: linear-gradient(135deg,
+        #ff0000 0%,
+        #ff7f00 16.67%,
+        #ffff00 33.33%,
+        #00ff00 50%,
+        #0000ff 66.67%,
+        #4b0082 83.33%,
+        #9400d3 100%);
+}
+
+.btn-ico--theme {
+    padding: 0 !important;
+}
+
+.btn-ico--theme > div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Bottom Toolbar */
+.page-toolbar-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 20px 16px;
+    position: relative;
+    background: #ffffff;
+}
+
+.page-number {
+    font-size: 15px;
+    color: #6b7280;
+    font-weight: 500;
+    position: absolute;
+    left: 20px;
+}
+
+.page-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.page-action-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.page-action-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    transform: scale(1.05);
+}
+
+.page-action-btn:active {
+    transform: scale(0.95);
+}
+
+.page-action-btn svg {
+    display: block;
+    width: 20px;
+    height: 20px;
+}
+
+.page-action-btn .theme-indicator {
+    width: 24px;
+    height: 24px;
 }
 
 @media (max-width: 767px) {
     .editor-page .container {
         grid-template-columns: repeat(1, 1fr);
+    }
+
+    .editor-floating-header {
+        padding: 8px 16px;
+        height: 56px;
+    }
+
+    .editor-floating-header__title {
+        font-size: 16px;
+    }
+
+    .editor-floating-header__subtitle {
+        font-size: 12px;
+    }
+
+    .editor-continue-button {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+
+    .editor-page {
+        padding: 70px 0 60px;
     }
 }
 
@@ -585,19 +762,19 @@
 .page-wrapper {
     position: relative;
     overflow: hidden;
-    border-radius: 8px;
-    background: none;
+    border-radius: 12px;
+    background: #ffffff;
     display: block;
     outline: none !important;
-    box-shadow: 0 0 12px 0 rgba(0,0,0,0.15);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
     &:nth-child(odd) {
-        border-bottom-right-radius: 0;
-        border-top-right-radius: 0;
+        border-bottom-right-radius: 12px;
+        border-top-right-radius: 12px;
     }
     &:nth-child(even) {
-        border-bottom-left-radius: 0;
-        border-top-left-radius: 0;
+        border-bottom-left-radius: 12px;
+        border-top-left-radius: 12px;
     }
 }
 

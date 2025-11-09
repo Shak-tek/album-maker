@@ -3,7 +3,7 @@ import "./EditorPage.css";
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import ColorThief from "color-thief-browser";
 import { Box, Button, Layer, Text, Spinner, Meter, Heading, RadioButtonGroup } from "grommet";
-import { Template as TemplateIcon, Brush, Add, Directions } from "grommet-icons"; // NEW: Add
+import { Add } from "grommet-icons";
 import Croppie from "croppie";
 import "croppie/croppie.css";
 import TemplateModal from "./TemplateModal";
@@ -2193,13 +2193,42 @@ export default function EditorPage(props) {
     }, [cropTarget?.aspect]);
 
     const trimmedTitle = typeof title === "string" ? title.trim() : "";
-    const trimmedSubtitle = typeof subtitle === "string" ? subtitle.trim() : "";
+    const albumSizeLabel = albumSize?.label || albumSize || "Hardcover Photo Book";
+    const lastModified = new Date().toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+    });
     const headerNode = (
-        <div className="editor-header">
-            <h1 className="editor-header__title">{trimmedTitle || "Untitled Album"}</h1>
-            {trimmedSubtitle ? (
-                <p className="editor-header__subtitle">{trimmedSubtitle}</p>
-            ) : null}
+        <div className="editor-floating-header">
+            <button
+                className="editor-back-button"
+                onClick={() => window.history.back()}
+                aria-label="Go back"
+            >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <div className="editor-header-content">
+                <h1 className="editor-floating-header__title">{trimmedTitle || "Untitled Album"}</h1>
+                <p className="editor-floating-header__subtitle">
+                    {albumSizeLabel} last edited on {lastModified}
+                </p>
+            </div>
+            <button
+                className="editor-continue-button"
+                onClick={() => {
+                    // TODO: Navigate to next page or submit
+                    console.log('Continue clicked');
+                }}
+            >
+                Continue
+            </button>
         </div>
     );
 
@@ -2266,7 +2295,6 @@ export default function EditorPage(props) {
                                 const wrapperClassName = `page-wrapper${isIntroPage ? " intro-page" : ""}`;
                                 const canChangeTemplate = pi >= INTRO_PAGES;
                                 const canChangeTheme = pi !== 1;
-                                const showToolbar = canChangeTemplate || canChangeTheme || isIntroPage;
 
                                 const titleFontSize = textSettings?.fontSize || '32px';
                                 const titleLineHeight = computeLineHeight(titleFontSize);
@@ -2295,32 +2323,6 @@ export default function EditorPage(props) {
 
                                 return (
                                     <div key={pi} className={wrapperClassName} style={wrapperStyle}>
-                                        {showToolbar && (
-                                            <Box className="toolbar" direction="row" gap="small" align="center">
-                                                {canChangeTemplate && (
-                                                    <Button
-                                                        icon={<TemplateIcon />}
-                                                        color="black"
-                                                        className="btn-ico"
-                                                        onClick={() => openTemplateModal(pi)}
-                                                    />
-                                                )}
-                                                {canChangeTheme && (
-                                                    <Button icon={<Brush />} color="black" className="btn-ico" onClick={() => openThemeModal(pi)} />
-                                                )}
-                                                {isIntroPage && (
-                                                    <Button
-                                                        icon={<Directions />}
-                                                        color="black"
-                                                        className="btn-ico"
-                                                        onClick={() => setShowOrientationModal(true)}
-                                                        title="Adjust title position"
-                                                        aria-label="Adjust title position"
-                                                    />
-                                                )}
-                                            </Box>
-                                        )}
-
                                         <div
                                             className={`photo-page ${!backgroundEnabled ? "zoomed" : ""} ${isCoverPage ? "cover-page-layout" : ""}`}
                                             style={photoPageStyle}
@@ -2520,6 +2522,100 @@ export default function EditorPage(props) {
                                                     )}
                                                 </div>
                                             )}
+                                        </div>
+
+                                        {/* Bottom Toolbar */}
+                                        <div className="page-toolbar-bottom">
+                                            <div className="page-number">{pi + 1} / {pageSettings.length}</div>
+                                            <div className="page-actions">
+                                                {/* Theme Color */}
+                                                {canChangeTheme && (
+                                                    <button
+                                                        className="page-action-btn"
+                                                        onClick={() => openThemeModal(pi)}
+                                                        title="Theme colours"
+                                                        aria-label="Theme colours"
+                                                    >
+                                                        {ps.theme.image ? (
+                                                            <div className="theme-indicator theme-indicator--rainbow" />
+                                                        ) : (
+                                                            <div
+                                                                className="theme-indicator"
+                                                                style={{ backgroundColor: ps.theme.color || '#3b82f6' }}
+                                                            />
+                                                        )}
+                                                    </button>
+                                                )}
+
+                                                {/* Remove Borders */}
+                                                <button
+                                                    className="page-action-btn"
+                                                    onClick={() => setBackgroundEnabled(!backgroundEnabled)}
+                                                    title="Remove borders"
+                                                    aria-label="Remove borders"
+                                                >
+                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+                                                    </svg>
+                                                </button>
+
+                                                {/* Change Template */}
+                                                {canChangeTemplate && (
+                                                    <button
+                                                        className="page-action-btn"
+                                                        onClick={() => openTemplateModal(pi)}
+                                                        title="Change template"
+                                                        aria-label="Change template"
+                                                    >
+                                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                            <rect x="3" y="3" width="7" height="7"></rect>
+                                                            <rect x="14" y="3" width="7" height="7"></rect>
+                                                            <rect x="14" y="14" width="7" height="7"></rect>
+                                                            <rect x="3" y="14" width="7" height="7"></rect>
+                                                        </svg>
+                                                    </button>
+                                                )}
+
+                                                {/* Change Font */}
+                                                <button
+                                                    className="page-action-btn"
+                                                    onClick={() => setShowTitleModal(true)}
+                                                    title="Change font"
+                                                    aria-label="Change font"
+                                                >
+                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                        <path d="M4 7V4h16v3M9 20h6M12 4v16"></path>
+                                                    </svg>
+                                                </button>
+
+                                                {/* Add Page */}
+                                                {!isCoverPage && (
+                                                    <button
+                                                        className="page-action-btn"
+                                                        title="Add page"
+                                                        aria-label="Add page"
+                                                    >
+                                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                                                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                                                        </svg>
+                                                    </button>
+                                                )}
+
+                                                {/* Delete Page */}
+                                                {!isCoverPage && (
+                                                    <button
+                                                        className="page-action-btn"
+                                                        title="Delete page"
+                                                        aria-label="Delete page"
+                                                    >
+                                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                        </svg>
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 );
