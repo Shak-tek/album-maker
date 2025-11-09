@@ -879,7 +879,6 @@ export default function EditorPage(props) {
 
     const MIN_CROPPER_ZOOM = 0.3;
     const MAX_CROPPER_ZOOM = 5;
-    const CROPPER_ZOOM_STEP = 0.01;
 
     // ---------------- Cropper state ----------------
     const [cropOpen, setCropOpen] = useState(false);
@@ -960,7 +959,17 @@ export default function EditorPage(props) {
                         setPageSettings(
                             remote.map((ps) => ({
                                 ...ps,
-                                edits: Array.isArray(ps.edits) ? ps.edits : [],
+                                edits: Array.isArray(ps.edits)
+                                    ? ps.edits.map(edit => {
+                                        if (!edit?.params) return edit;
+                                        // Clean up old crop format from database
+                                        const { crop, ...cleanParams } = edit.params;
+                                        return {
+                                            ...edit,
+                                            params: cleanParams
+                                        };
+                                    })
+                                    : [],
                                 texts: Array.isArray(ps.texts) ? ps.texts : [],
                             }))
                         );
@@ -1762,15 +1771,30 @@ export default function EditorPage(props) {
         const prev = edit?.params || null;
         const prevZoom = typeof prev?.zoom === "number" ? prev.zoom : null;
         const prevPoints = Array.isArray(prev?.points) ? prev.points.slice() : null;
+
+        // Backwards compatibility: handle old "crop" format and new "croppedAreaPixels" format
         const fallbackPoints = (() => {
+            // Try new format first
             const pixels = prev?.croppedAreaPixels;
-            if (!pixels) return null;
-            const x = Number(pixels.x);
-            const y = Number(pixels.y);
-            const width = Number(pixels.width);
-            const height = Number(pixels.height);
-            if (![x, y, width, height].every((value) => Number.isFinite(value))) return null;
-            return [x, y, x + width, y + height];
+            if (pixels) {
+                const x = Number(pixels.x);
+                const y = Number(pixels.y);
+                const width = Number(pixels.width);
+                const height = Number(pixels.height);
+                if ([x, y, width, height].every((value) => Number.isFinite(value))) {
+                    return [x, y, x + width, y + height];
+                }
+            }
+
+            // Fall back to old "crop" format
+            const oldCrop = prev?.crop;
+            if (oldCrop && Number.isFinite(oldCrop.x) && Number.isFinite(oldCrop.y)) {
+                // Old format didn't store width/height, can't reconstruct points
+                // This is likely why the crop is shifting - the old format is incomplete
+                console.warn('Old crop format detected, cannot restore crop area accurately');
+            }
+
+            return null;
         })();
         const initialPoints = prevPoints || fallbackPoints || null;
         const initialZoom = prevZoom
@@ -1785,6 +1809,7 @@ export default function EditorPage(props) {
                 ? {
                     zoom: prevZoom != null ? initialZoom : null,
                     points: initialPoints ? initialPoints.slice() : null,
+                    rotation: initialRotation,
                 }
                 : null
         );
@@ -1985,6 +2010,7 @@ export default function EditorPage(props) {
         croppieInstanceRef.current = instance;
 
         const bindOptions = { url: cropSource };
+        // Pass saved crop parameters if they exist
         if (cropInitialParams?.points) {
             bindOptions.points = cropInitialParams.points.slice();
         }
@@ -2052,17 +2078,6 @@ export default function EditorPage(props) {
         cropSourceRef.current = cropSource;
     }, [cropSource, cropOpen]);
 
-    const handleZoomSliderChange = (event) => {
-        const nextZoom = Number(event.target.value);
-        if (Number.isNaN(nextZoom)) return;
-        const minZoom = Math.min(cropAutoZoom.fit ?? MIN_CROPPER_ZOOM, MAX_CROPPER_ZOOM);
-        const clampedZoom = Math.min(Math.max(nextZoom, minZoom), MAX_CROPPER_ZOOM);
-        const instance = croppieInstanceRef.current;
-        if (instance) {
-            instance.setZoom(clampedZoom);
-        }
-        setCropState((prev) => ({ ...prev, zoom: clampedZoom }));
-    };
 
     const handleRotateClick = () => {
         const instance = croppieInstanceRef.current;
@@ -2161,7 +2176,6 @@ export default function EditorPage(props) {
     })();
     const printQualityLabel = printQualityScore ? `${printQualityScore}/10` : "N/A";
     const isCropActionsDisabled = !cropSource || !croppieInstanceRef.current;
-    const zoomSliderId = "cropper-zoom-slider";
     const cropperStyle = useMemo(() => {
         const aspect =
             cropTarget?.aspect && Number.isFinite(cropTarget.aspect) && cropTarget.aspect > 0
@@ -2953,7 +2967,7 @@ export default function EditorPage(props) {
                     position="center"
                     className="editModal image-editor-layer"
                 >
-                    <div className="image-editor-card">
+                    <div className="image-editor-container">
                         <div className="image-editor-header">
                             <h2>Edit Photo</h2>
                             <button
@@ -2977,7 +2991,7 @@ export default function EditorPage(props) {
                                             <div
                                                 ref={croppieElementRef}
                                                 style={{ width: "100%", height: "100%" }}
-                                        
+
                                         />
                                         </div>
                                     </div>
@@ -3001,39 +3015,64 @@ export default function EditorPage(props) {
                                     </div>
                                     <div>
                                         <p className="image-editor-quality-title">Print Quality <span className="image-editor-quality-score">{printQualityLabel}</span></p>
-                                        
-                                    </div>
-                                </div>
-                                <div className="image-editor-tips">
-                                    <div className="image-editor-tips-icon" aria-hidden="true">
-                                        <svg class="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                    </div>
-                                    <div>
-                                        <p className="image-editor-tips-title">Quick Tips</p>
-                                        <ul className="image-editor-tips-list list-disc list-inside space-y-1">
-                                            <li>Drag the image to reposition.</li>
-                                            <li>Use the slider to zoom in or out.</li>
-                                            <li>Use the buttons for other actions.</li>
-                                        </ul>
+
                                     </div>
                                 </div>
                                 <div className="image-editor-slider">
                                     <div className="image-editor-slider-label">
-                                        <label htmlFor={zoomSliderId}>Zoom</label>
+                                        <label>Scale</label>
                                         <span>{`${zoomPercent}%`}</span>
                                     </div>
-                                    <input
-                                        id={zoomSliderId}
-                                        type="range"
-                                        min={minAllowedZoom}
-                                        max={MAX_CROPPER_ZOOM}
-                                        step={CROPPER_ZOOM_STEP}
-                                        value={normalizedZoom}
-                                        onChange={handleZoomSliderChange}
-                                        disabled={isCropActionsDisabled}
-                                    />
+                                </div>
+                                <div className="image-editor-slider">
+                                    <div className="image-editor-slider-label">
+                                        <label>Dimensions</label>
+                                        <span>{croppedAreaPixels ? `${Math.round(croppedAreaPixels.width)} x ${Math.round(croppedAreaPixels.height)}` : 'N/A'}</span>
+                                    </div>
+                                </div>
+                                <div className="image-editor-slider">
+                                    <div className="image-editor-slider-label">
+                                        <label>Source</label>
+                                        <span>Device</span>
+                                    </div>
                                 </div>
                                 <div className="image-editor-actions">
+                                    <button
+                                        type="button"
+                                        className="image-editor-action"
+                                        onClick={() => {
+                                            const instance = croppieInstanceRef.current;
+                                            if (instance) {
+                                                const fit = cropAutoZoom.fit ?? MIN_CROPPER_ZOOM;
+                                                instance.setZoom(fit);
+                                                setCropState((prev) => ({ ...prev, zoom: fit }));
+                                            }
+                                        }}
+                                        disabled={isCropActionsDisabled}
+                                    >
+                                        <span className="image-editor-action-icon" aria-hidden="true">
+                                            <svg class="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5l5.25 5.25"></path></svg>
+                                        </span>
+                                        <span className="image-editor-action-label">Fill</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="image-editor-action"
+                                        onClick={() => {
+                                            const instance = croppieInstanceRef.current;
+                                            if (instance) {
+                                                const fill = cropAutoZoom.fill ?? MIN_CROPPER_ZOOM;
+                                                instance.setZoom(fill);
+                                                setCropState((prev) => ({ ...prev, zoom: fill }));
+                                            }
+                                        }}
+                                        disabled={isCropActionsDisabled}
+                                    >
+                                        <span className="image-editor-action-icon" aria-hidden="true">
+                                            <svg class="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15"></path></svg>
+                                        </span>
+                                        <span className="image-editor-action-label">Fit</span>
+                                    </button>
                                     <button
                                         type="button"
                                         className="image-editor-action"
@@ -3065,6 +3104,45 @@ export default function EditorPage(props) {
                                             <svg class="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.134-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.067-2.09 1.02-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"></path></svg>
                                         </span>
                                         <span className="image-editor-action-label">Remove</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="image-editor-action"
+                                        onClick={() => {
+                                            const instance = croppieInstanceRef.current;
+                                            if (instance) {
+                                                const currentZoom = cropState.zoom || 1;
+                                                const newZoom = Math.min(currentZoom + 0.1, MAX_CROPPER_ZOOM);
+                                                instance.setZoom(newZoom);
+                                                setCropState((prev) => ({ ...prev, zoom: newZoom }));
+                                            }
+                                        }}
+                                        disabled={isCropActionsDisabled}
+                                    >
+                                        <span className="image-editor-action-icon" aria-hidden="true">
+                                            <svg class="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6"></path></svg>
+                                        </span>
+                                        <span className="image-editor-action-label">Zoom In</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="image-editor-action"
+                                        onClick={() => {
+                                            const instance = croppieInstanceRef.current;
+                                            if (instance) {
+                                                const currentZoom = cropState.zoom || 1;
+                                                const minZoom = Math.min(cropAutoZoom.fit ?? MIN_CROPPER_ZOOM, MAX_CROPPER_ZOOM);
+                                                const newZoom = Math.max(currentZoom - 0.1, minZoom);
+                                                instance.setZoom(newZoom);
+                                                setCropState((prev) => ({ ...prev, zoom: newZoom }));
+                                            }
+                                        }}
+                                        disabled={isCropActionsDisabled}
+                                    >
+                                        <span className="image-editor-action-icon" aria-hidden="true">
+                                            <svg class="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM13.5 10.5h-6"></path></svg>
+                                        </span>
+                                        <span className="image-editor-action-label">Zoom Out</span>
                                     </button>
                                 </div>
                             </aside>
