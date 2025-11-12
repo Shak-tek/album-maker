@@ -88,7 +88,7 @@ const computeLineHeight = (size) => {
 };
 
 const DEFAULT_TEXT_SETTINGS = {
-    fontFamily: 'Inter, system-ui, Helvetica, Arial, sans-serif',
+    
     fontSize: '32px',
     color: '#1F2933',
 };
@@ -910,7 +910,7 @@ export default function EditorPage(props) {
     }, []);
     const [cropAutoZoom, setCropAutoZoom] = useState({
         fit: MIN_CROPPER_ZOOM,
-        fill: MIN_CROPPER_ZOOM,
+        fill: MIN_CROPPER_ZOOM, 
     });
 
     const getSlotSrc = (ps, slotIdx) => {
@@ -1660,8 +1660,8 @@ export default function EditorPage(props) {
             if (overlayEl) {
                 const rect = overlayEl.getBoundingClientRect();
                 const computed = window.getComputedStyle(overlayEl);
-                const headingEl = overlayEl.querySelector("h1");
-                const subheadingEl = overlayEl.querySelector("h2");
+                const headingEl = overlayEl.querySelector("h2");
+                const subheadingEl = overlayEl.querySelector("h4");
                 const headingStyle = headingEl ? window.getComputedStyle(headingEl) : null;
                 const subheadingStyle = subheadingEl ? window.getComputedStyle(subheadingEl) : null;
                 titleOverlay = {
@@ -2205,14 +2205,13 @@ export default function EditorPage(props) {
     });
     const headerNode = (
         <div className="editor-floating-header">
+            <div className="page-container floating-header-area">
             <button
                 className="editor-back-button"
                 onClick={() => window.history.back()}
                 aria-label="Go back"
             >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M19 12H5M12 19l-7-7 7-7"/>
-                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-gray-800"><path d="M19 12H5"></path><path d="M12 19l-7-7 7-7"></path></svg>
             </button>
             <div className="editor-header-content">
                 <h1 className="editor-floating-header__title">{trimmedTitle || "Untitled Album"}</h1>
@@ -2221,7 +2220,7 @@ export default function EditorPage(props) {
                 </p>
             </div>
             <button
-                className="editor-continue-button"
+                className="editor-continue-button btn btn-primary"
                 onClick={() => {
                     // TODO: Navigate to next page or submit
                     console.log('Continue clicked');
@@ -2229,6 +2228,7 @@ export default function EditorPage(props) {
             >
                 Continue
             </button>
+            </div>
         </div>
     );
 
@@ -2238,9 +2238,9 @@ export default function EditorPage(props) {
             {/* SKELETON */}
             {!imagesWarm ? (
                 <div className="editor-page">
-                    <div className="page-container">
+                    
                         {headerNode}
-                        <div className="container">
+                        <div className="page-container container">
                             {pageSettings.map((ps, pi) => {
                                 const slots = getSlotsForPageIndex(ps, pi);
                                 const textSlots = getTextSlotsForPageIndex(ps, pi);
@@ -2265,14 +2265,14 @@ export default function EditorPage(props) {
                                 );
                             })}
                         </div>
-                    </div>
+                    
                 </div>
             ) : (
                 // REAL EDITOR
                 <div className="editor-page">
-                    <div className="page-container">
+                    
                         {headerNode}
-                        <div className="container">
+                        <div className="page-container container">
                             {pageSettings.map((ps, pi) => {
                                 const isCoverPage = isCoverPageIndex(pi);
                                 const isIntroPage = pi < INTRO_PAGES;
@@ -2297,10 +2297,10 @@ export default function EditorPage(props) {
                                 const canChangeTheme = pi !== 1;
 
                                 const titleFontSize = textSettings?.fontSize || '32px';
-                                const titleLineHeight = computeLineHeight(titleFontSize);
-                                const subtitleFontSize = scaleFontSize(titleFontSize, 0.6, 14);
-                                const subtitleLineHeight = computeLineHeight(subtitleFontSize);
-                                const textBoxFontSize = scaleFontSize(titleFontSize, 0.65, 14);
+                                //const titleLineHeight = computeLineHeight(titleFontSize);
+                                //const subtitleFontSize = scaleFontSize(titleFontSize, 0.6, 14);
+                                //const subtitleLineHeight = computeLineHeight(subtitleFontSize);
+                                const textBoxFontSize = scaleFontSize(titleFontSize, 0.65, 14); 
                                 const textBoxBaseStyle = {
                                     fontFamily: textSettings.fontFamily,
                                     fontSize: textBoxFontSize,
@@ -2480,7 +2480,6 @@ export default function EditorPage(props) {
                                                     className="title-overlay"
                                                     dir="ltr"
                                                     style={{
-                                                        fontFamily: textSettings.fontFamily,
                                                         color: textSettings.color,
                                                         textAlign: "center",
                                                         left: "12%",
@@ -2496,29 +2495,24 @@ export default function EditorPage(props) {
                                                     }}
                                                 >
                                                     {title && (
-                                                        <h1
-                                                            style={{
-                                                                margin: 0,
-                                                                fontSize: titleFontSize,
-                                                                lineHeight: titleLineHeight,
-                                                                fontWeight: 700,
-                                                            }}
-                                                        >
-                                                            {title}
-                                                        </h1>
-                                                    )}
-                                                    {subtitle && (
                                                         <h2
                                                             style={{
                                                                 margin: 0,
-                                                                opacity: 0.85,
-                                                                fontSize: subtitleFontSize,
-                                                                lineHeight: subtitleLineHeight,
-                                                                fontWeight: 500,
+                                                                
+                                                            }}
+                                                        >
+                                                            {title}
+                                                        </h2>
+                                                    )}
+                                                    {subtitle && (
+                                                        <h4
+                                                            style={{
+                                                                margin: 0,
+                                                                
                                                             }}
                                                         >
                                                             {subtitle}
-                                                        </h2>
+                                                        </h4>
                                                     )}
                                                 </div>
                                             )}
@@ -2621,7 +2615,7 @@ export default function EditorPage(props) {
                                 );
                             })}
                         </div>
-                    </div>
+                    
                 </div>
             )}
 
@@ -2632,9 +2626,9 @@ export default function EditorPage(props) {
                     const slots = getSlotsForPageIndex(ps, pi);
                     const textSlots = getTextSlotsForPageIndex(ps, pi);
                     const exportTitleFontSize = textSettings?.fontSize || DEFAULT_TEXT_SETTINGS.fontSize;
-                    const exportTitleLineHeight = computeLineHeight(exportTitleFontSize);
-                    const exportSubtitleFontSize = scaleFontSize(exportTitleFontSize, 0.6, 14);
-                    const exportSubtitleLineHeight = computeLineHeight(exportSubtitleFontSize);
+                    //const exportTitleLineHeight = computeLineHeight(exportTitleFontSize);
+                    //const exportSubtitleFontSize = scaleFontSize(exportTitleFontSize, 0.6, 14);
+                    //const exportSubtitleLineHeight = computeLineHeight(exportSubtitleFontSize);
                     const exportTextBoxFontSize = scaleFontSize(exportTitleFontSize, 0.65, 14);
                     return (
                         <Box key={pi}>
@@ -2704,7 +2698,7 @@ export default function EditorPage(props) {
                                     <Box
                                         className="title-overlay"
                                         style={{
-                                            fontFamily: textSettings.fontFamily,
+                                            
                                             color: textSettings.color,
                                             textAlign: "center",
                                             left: "12%",
@@ -2720,29 +2714,21 @@ export default function EditorPage(props) {
                                         }}
                                     >
                                         {title && (
-                                            <h1
+                                            <h2
                                                 style={{
-                                                    margin: 0,
-                                                    fontSize: exportTitleFontSize,
-                                                    lineHeight: exportTitleLineHeight,
-                                                    fontWeight: 700,
                                                 }}
                                             >
                                                 {title}
-                                            </h1>
+                                            </h2>
                                         )}
                                         {subtitle && (
-                                            <h2
+                                            <h4
                                                 style={{
-                                                    margin: 0,
-                                                    opacity: 0.85,
-                                                    fontSize: exportSubtitleFontSize,
-                                                    lineHeight: exportSubtitleLineHeight,
-                                                    fontWeight: 500,
+                                                    
                                                 }}
                                             >
                                                 {subtitle}
-                                            </h2>
+                                            </h4>
                                         )}
                                     </Box>
                                 )}
@@ -3246,14 +3232,14 @@ export default function EditorPage(props) {
                         <div className="image-editor-footer">
                             <button
                                 type="button"
-                                className="image-editor-button image-editor-button--secondary"
+                                className="image-editor-button btn btn-secondary small"
                                 onClick={closeCropper}
                             >
                                 Cancel
                             </button>
                             <button
                                 type="button"
-                                className="image-editor-button image-editor-button--primary"
+                                className="image-editor-button btn btn-primary small"
                                 onClick={saveCrop}
                                 disabled={!croppedAreaPixels}
                             >

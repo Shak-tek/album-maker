@@ -20,8 +20,8 @@ export default function TitleModal({ title: initialTitle = '', subtitle: initial
           onChange={(e) => setSubtitle(e.target.value)}
         />
         <Box direction="row" gap="small" justify="end" margin={{ top: 'medium' }}>
-          <Button label="Cancel" onClick={onClose} />
-          <Button primary label="Save" onClick={() => onSave({ title, subtitle })} />
+          <Button className="btn btn-secondary small" label="Cancel" onClick={onClose} />
+          <Button className="btn btn-primary small" label="Save" onClick={() => onSave({ title, subtitle })} />
         </Box>
       </Box>
     </Layer>

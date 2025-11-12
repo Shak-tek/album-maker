@@ -119,9 +119,9 @@ const buildTitleOverlay = (payload, layout) => {
   const baseStyle = overlay.style || {};
 
   return `
-    <div class="title-overlay" style="${styleToCss({ ...wrapperStyle, ...baseStyle })}">
-      ${payload.title ? `<h1 style="${styleToCss(headingStyle)}">${escapeHtml(payload.title)}</h1>` : ''}
-      ${payload.subtitle ? `<h2 style="${styleToCss(subheadingStyle)}">${escapeHtml(payload.subtitle)}</h2>` : ''}
+    <div class="title-overlay">
+      ${payload.title ? `<h2>${escapeHtml(payload.title)}</h2>` : ''}
+      ${payload.subtitle ? `<h4>${escapeHtml(payload.subtitle)}</h4>` : ''}
     </div>
   `;
 };

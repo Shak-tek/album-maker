@@ -16,7 +16,7 @@ export default function HomePage({
           Choose a stunning template, add your photos, and let us handle the rest.
         </Text>
         <Box direction="row" gap="medium" wrap justify="center">
-          <Button
+          <Button className="btn btn-primary"
             primary
             label="Start Your Album"
             onClick={onStartAlbum}

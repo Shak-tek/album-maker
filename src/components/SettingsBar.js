@@ -49,10 +49,7 @@ export default function SettingsBar({
   };
   // Icons (inline SVG OK)
   const BackgroundIcon = () => (
-    <svg viewBox="0 0 256 256" width="20" height="20" aria-hidden="true">
-      <rect width="256" height="256" fill="none" />
-      <path d="M80,56V48A16,16,0,0,1,96,32h8a8,8,0,0,1,0,16H96v8a8,8,0,0,1-16,0Zm64-8h16a8,8,0,0,0,0-16H144a8,8,0,0,0,0,16Zm64-16h-8a8,8,0,0,0,0,16h8v8a8,8,0,0,0,16,0V48A16,16,0,0,0,208,32Zm8,56a8,8,0,0,0-8,8v16a8,8,0,0,0,16,0V96A8,8,0,0,0,216,88Zm-40,8V208a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V96A16,16,0,0,1,48,80H160A16,16,0,0,1,176,96Zm-16,0H48V208H160Zm56,48a8,8,0,0,0-8,8v8h-8a8,8,0,0,0,0,16h8a16,16,0,0,0,16-16v-8A8,8,0,0,0,216,144Z" fill="#000" />
-    </svg>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
   );
   const PhotosIcon = () => (
     <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
@@ -60,9 +57,8 @@ export default function SettingsBar({
     </svg>
   );
   const ThemeIcon = () => (
-    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-      <path fill="#585858" fillRule="evenodd" d="M12 1C5.934 1 1 5.934 1 12s4.934 11 11 11a2.557 2.557 0 0 0 2.563-2.562c0-.7-.26-1.252-.64-1.696a.82.82 0 0 1-.227-.555c0-.447.365-.812.813-.812H16.5c3.59 0 6.5-2.91 6.5-6.5C23 5.365 18.011 1 12 1m0 2c4.961 0 9 3.532 9 7.875 0 2.486-2.014 4.5-4.5 4.5h-1.991a2.814 2.814 0 0 0-2.813 2.813c0 .675.248 1.338.709 1.856a.6.6 0 0 1 .158.393A.557.557 0 0 1 12 21c-4.961 0-9-4.039-9-9s4.039-9 9-9m-1 4.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m-3 4a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0M14.5 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3m4.5 2.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0" clipRule="evenodd" />
-    </svg>
+    
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><circle cx="12" cy="12" r="10"></circle></svg>
   );
   const SavingIcon = () => (
     <svg viewBox="0 0 100 100" width="20" height="20" aria-hidden="true">
@@ -71,6 +67,9 @@ export default function SettingsBar({
       c-1.766,0-3.202-1.435-3.202-3.198V9H78.611z M17.4,91V45.749c0-1.764,1.437-3.199,3.201-3.199h58.66
       c1.764,0,3.199,1.435,3.199,3.199V91H17.4z" />
     </svg>
+  );
+  const EditIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><path d="m3 15 4-8 4 8"></path><path d="M4 13h6"></path><path d="M15 12h5"></path><path d="M17.5 12v6"></path><path d="M20 18h-5"></path></svg>
   );
 
 
@@ -87,9 +86,7 @@ export default function SettingsBar({
       <Box
         className="settings-bar"
         direction="row"
-        gap="small"
-        pad="xsmall"
-        background="light-1"
+        
         elevation="medium"
       align="center"
       wrap
@@ -119,10 +116,10 @@ export default function SettingsBar({
           <Button icon={<ThemeIcon />} label="Change Theme" onClick={onOpenThemeModal}  className="btn-setting" />
         )}
         {onEditTitle && (
-          <Button icon={<Edit />} label="Edit Title" onClick={onEditTitle}  className="btn-setting" />
+          <Button icon={<EditIcon />} label="Change Title" onClick={onEditTitle}  className="btn-setting" />
         )}
         {onSave && (
-          <Button  className="btn-setting" icon={<SavingIcon />} label="Continue" onClick={onSave} />
+           <Button  className="btn-setting btn-continue" icon={<SavingIcon />} label="Continue" onClick={onSave} />
         )}
       </Box>
 

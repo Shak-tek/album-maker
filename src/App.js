@@ -36,30 +36,32 @@ const theme = deepMerge({
 */
 
 const theme = deepMerge({
+
+
   global: {
     colors: {
-      brand: "#2e2e2e",
-      active: "#df3b3b",
-      accent: "#df3b3b",
-      text: "#585858",
-      gray: "#f9f9f9",
-      surface: "#f9f9f9",
+      brand: "#1f2937",
+      active: "#1e959c",
+      accent: "#1e959c",      
+      text: "#4b5563",
+      gray: "#f3f4f6",
+      surface: "#f3f4f6",
       light2: "rgba(0,0,0,.05)",
       light3: "rgba(0,0,0,.09)",
       background: "#FFFFFF",
       black: "#000",
       white: "#fff",
-      border: "#E5E7EB",
+      border: "#e5e7eb",
       muted: "#6B7280",
-      focus: "#df3b3b",
+      focus: "#1e959c",
 
     },
     focus: {
       background: {
-        color: "#df3b3b",
+        color: "#1e959c",
       },
       border: {
-        color: "#df3b3b",
+        color: "none",
       },
       elevation: "none",
       shadow: {
@@ -127,10 +129,10 @@ const theme = deepMerge({
     },
 
     font: {
-      family: "-apple-system, BlinkMacSystemFont, SFUI, HelveticaNeue, Helvetica, Arial, sans-serif",
+      family: "ui-sans-serif, system-ui,sans-serif,Apple Color Emoji,Segoe UI Emoji, Segoe UI Symbol,Noto Color Emoji, Sharp Sans, -apple-system, BlinkMacSystemFont, SFUI, HelveticaNeue, Helvetica, Arial, sans-serif",
       size: "14px",
       weight: "400",
-      height: "1.57",
+      height: "1.5",
 
     },
 
@@ -153,7 +155,7 @@ const theme = deepMerge({
   
 
   text: {
-    t14: { size: '14px', height: '1.57' },
+    t14: { size: '14px', height: '1.5' },
     t16: { size: '16px', height: '1.2' },
     t18: { size: '18px', height: '1.2' },
     t20: { size: '20px', height: '1.2' },
@@ -161,17 +163,17 @@ const theme = deepMerge({
     t44: { size: '44px', height: '1.2' },
   },
   paragraph: {
-    small: { size: '12px', height: '1.57' },
-    medium: { size: '14px', height: '1.57' },
-    large: { size: '16px', height: '1.57' },
+    small: { size: '12px', height: '1.5' },
+    medium: { size: '14px', height: '1.5' },
+    large: { size: '16px', height: '1.5' },
   },
 
   button: {
     border: { color: "transparent", radius: "5px" },
-    padding: { vertical: "12px", horizontal: "24px", },
+    padding: { vertical: "10px", horizontal: "20px", },
     color: "#fff",
-    font: { size: "12px"},
-    secondary: {background: "#000" },
+    font: { size: "17px", height: "21px", weight: "semibold"},
+    secondary: {background: "#1f2937" },
   },
   card: {
     container: {
@@ -673,17 +675,19 @@ function MainApp() {
               onEsc={() => setShowPrompt(false)}
               onClickOutside={() => setShowPrompt(false)}
             >
-              <Box pad="medium" gap="small" style={{ maxWidth: '90vw' }}>
-                <Text>You already have an album in session.</Text>
-                <Text>Would you like to continue or make a new one?</Text>
+              <Box pad="large" gap="small" style={{ maxWidth: '90vw' }}>
+
+                <Text size="large" textAlign="center" weight="bold" color="brand">You already have an album in session.</Text>
+                <Text size="medium" textAlign="center"  margin={{ bottom: 'medium' }}>Would you like to continue or make a new one?</Text>
                 <Box direction="row" gap="small" wrap>
-                  <Button
+                  <Button 
+                   className="btn btn-primary small"
                     label="Continue"
-                    primary
+                    
                     onClick={() => continueSession(latestAlbum)}
                     disabled={!latestAlbum}
                   />
-                  <Button primary 
+                  <Button className="btn btn-secondary small" 
                     label="Show Previous Album"
                     onClick={() => {
                       setShowPrompt(false);
@@ -691,7 +695,8 @@ function MainApp() {
                     }}
                   />
                   <Button
-                    primary
+                    
+                     className="btn btn-secondary small"
                     label="New Session"
                     onClick={createNewSession}
                     disabled={!canCreateMoreAlbums}

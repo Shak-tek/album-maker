@@ -29,7 +29,7 @@ import {
 
 // Base typography fallback for all rich-text editors
 const DEFAULT_STYLE = {
-    fontFamily: "Inter, system-ui, Helvetica, Arial, sans-serif",
+    
     fontSize: "18px",
     color: "#1F2933",
     lineHeight: "1.45",
@@ -54,7 +54,7 @@ const mergeRefs = (...refs) => (node) => {
 const noop = () => {};
 
 const DEFAULT_FONTS = [
-    "Inter, system-ui, Helvetica, Arial, sans-serif",
+    "ui-sans-serif, system-ui,sans-serif,Apple Color Emoji,Segoe UI Emoji, Segoe UI Symbol,Noto Color Emoji, Sharp Sans, -apple-system, BlinkMacSystemFont, SFUI, HelveticaNeue, Helvetica, Arial, sans-serif",
     "Roboto, system-ui, Helvetica, Arial, sans-serif",
     "Helvetica, Arial, sans-serif",
     "Georgia, serif",
@@ -356,7 +356,7 @@ export function TextEditorModal({
                     {title}
                 </Heading>
 
-                <Box height={{ min: "medium" }} style={{ maxHeight: "40vh" }}>
+                <Box >
                     <TextEditor
                         ref={editorRef}
                         value={value}

@@ -1,19 +1,45 @@
 :root {
-    --brand: #2e2e2e;
     --brand: #1f2937;
-    --text: #585858;
-    --surface: #f9f9f9;
-    --accent: #df3b3b;
+    --text: #4b5563;
+    --text-light: #6b7280;
     
+    --surface: #f3f4f6;
+    --accent: #1e959c;
+    --border-color: #e5e7eb;
+
     --tw-border-opacity: 1;
     /*--family: "Inter", Times;*/
     --family: ui-sans-serif, "Sharp Sans", system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-    --h1: 44px;
+    --h1: 31px;
     --h2: 30px;
     --h3: 24px;
     --h4: 20px;
     --h5: 18px;
     --h6: 16px;
+
+
+    --tw-blur: ;
+    --tw-brightness: ;
+    --tw-contrast: ;
+    --tw-grayscale: ;
+    --tw-hue-rotate: ;
+    --tw-invert: ;
+    --tw-saturate: ;
+    --tw-sepia: ;
+    --tw-drop-shadow: ;
+    --tw-backdrop-blur: ;
+    --tw-backdrop-brightness: ;
+    --tw-backdrop-contrast: ;
+    --tw-backdrop-grayscale: ;
+    --tw-backdrop-hue-rotate: ;
+    --tw-backdrop-invert: ;
+    --tw-backdrop-opacity: ;
+    --tw-backdrop-saturate: ;
+    --tw-backdrop-sepia: ;
+    --tw-contain-size: ;
+    --tw-contain-layout: ;
+    --tw-contain-paint: ;
+    --tw-contain-style: ;
 
 
     --xxsmall: 4px;
@@ -33,32 +59,40 @@
         --xl2: 40px;
         --xl3: 60px;
         --xl4: 80px;
-        --h1: 28px;
-        --h2: 24px;
+        --h1: 24px;
         --h3: 20px;
         --h4: 18px;
         --h5: 16px;
         --h6: 14px;
     }
+    
 
+}
+
+body,
+input,
+button,
+textarea {
+    font-family: var(--family);
 }
 
 body {
     margin: 0;
-    background: #fff;
+    background: var(--surface);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-family: var(--family);
     color: var(--text);
-    line-height: 1.57;
+    line-height: 1.5;
+    font-size: 14px;
 }
 
 
 .page-container {
-    max-width: 1280px !important;
-    padding-left: 32px;
+    max-width: 1180px !important;
+    padding-left: 30px;
     width: 100%;
-    padding-right: 32px;
+    padding-right: 30px;
     margin: 0 auto;
 }
 
@@ -77,7 +111,6 @@ h4,
 h5,
 h6 {
     color: var(--brand);
-    /*font-family: ui-sans-serif, "Sharp Sans", system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";*/
     line-height: 1.2 !important;
     font-weight: 700 !important;
 }
@@ -96,6 +129,7 @@ p {
 h1,
 .h1 {
     font-size: var(--h1) !important;
+    line-height: 1.13 !important;
 }
 
 h2,
@@ -127,26 +161,56 @@ h3,
 .btn,
 .upload-field [data-cy="uploadDropzone"]>button {
     -webkit-appearance: none;
-    border: 2px solid transparent !important;
+    border: 1px solid transparent !important;
     box-shadow: none !important;
-    padding: 13px 24px 11px !important;
+    padding: 10px 20px 12px !important;
+    height: auto !important;
+    min-height: inherit !important;
     display: inline-block;
     vertical-align: top;
     max-width: 100% !important;
-    font-size: 14px !important;
-    font-weight: 700 !important;
-    line-height: 18px !important;
-    font-family: "Sharp Sans", Times !important;
+    font-weight: 600 !important;
+    font-size: 17px !important;
+    line-height: 21px !important;
     box-sizing: border-box !important;
-    background: var(--brand) !important;
-    color: #fff !important;
-    letter-spacing: .03em;
-}
-
-.btn-accent {
     background: var(--accent) !important;
     color: #fff !important;
+    letter-spacing: .03em !important;
+    border-radius: 8px !important;
+    min-width: 156px !important;
+    cursor: pointer;
+    outline: none !important;
+    
+    transition: all .2s ease-in-out !important;
+
+    &:hover {
+        opacity: .9;
+    }
+
+    @media (max-width: 1199px) {
+        padding: 10px 15px !important;
+        min-width: 140px !important;
+        font-size: 15px !important;
+        border-radius: 10px !important;
+    }
+    @media (max-width: 767px) {
+        min-width: 100px !important;
+        border-radius: 7px !important;
+        font-size: 14px !important;
+    }
+
+    &.small {
+        min-width: 100px !important;
+         
+    }
 }
+
+.btn-secondary {
+    background: var(--brand) !important;
+    color: #fff !important;
+}
+
+
 
 .header {
     height: 80px;
