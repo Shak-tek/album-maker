@@ -1,7 +1,7 @@
 // src/components/SettingsBar.js
 import React, { useRef, useState } from 'react';
 import { Box, Button, FileInput, CheckBox, Layer, Text } from 'grommet';
-import { Edit } from 'grommet-icons';
+//import { Edit } from 'grommet-icons';
 
 export default function SettingsBar({
   backgroundEnabled,
