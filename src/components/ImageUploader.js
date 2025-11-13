@@ -127,8 +127,9 @@ export default function ImageUploader({ sessionId, onContinue }) {
     );
 
     return (
-        <div className="StyledGrommet-sc-19lkkz7-0 daORNg section-upload page-height-section">
-            <Box className="page-header" background="gray">
+        <div className="page-height-section">
+            
+            {/* <Box className="page-header" background="gray">
                 <Box className="page-container" >
                     <Box gap="large" style={{ maxWidth: '400px', width: '100%' }}>
                         <Heading level={2}>
@@ -139,7 +140,7 @@ export default function ImageUploader({ sessionId, onContinue }) {
                         </Paragraph>
                     </Box>
                 </Box>
-            </Box>
+            </Box> */}
 
             <Box className="page-container page-height-content upload-zone text-center" gap="large">
                 <Box className="page-height-content-holder page-container">

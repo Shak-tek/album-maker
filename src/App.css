@@ -231,6 +231,8 @@ h6,
 
 .header {
     height: 80px;
+    background: var(--gray-lightest);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .page-header {
@@ -242,17 +244,17 @@ h6,
 }
 
 .page-height-section {
-    position: relative;
-    min-height: calc(100vh - 80px);
-    display: flex;
-    flex-flow: column nowrap;
+    position: relative !important;
+    min-height: calc(100vh - 80px) !important;
+    display: flex !important;
+    flex-flow: column nowrap !important;
 
 }
 
 .page-height-content {
     flex-grow: 1;
     overflow: hidden;
-    padding: var(--xl2) 0;
+    padding: var(--xl1) 0;
     display: flex;
     align-items: center;
     width: 100%;
@@ -457,4 +459,10 @@ h6,
             max-width: 100%;
         }
     }
+}
+
+.logo-button {
+    background: none !important;
+    color: var(--brand) !important;
+    opacity: 1 !important;
 }

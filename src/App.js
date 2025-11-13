@@ -627,8 +627,8 @@ function MainApp() {
   return (
     <Grommet theme={theme} full>
       <Page className="page">
-        <Header className="header" background="gray" pad="small">
-          <Button plain onClick={() => navigate("home")} hoverIndicator>
+        <Header className="header" pad="small">
+          <Button className="logo-button" plain onClick={() => navigate("home")} hoverIndicator>
             <Text size="large" weight="bold">
               FlipSnip
             </Text>
