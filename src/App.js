@@ -181,6 +181,12 @@ const theme = deepMerge({
       background: "white",
     },
   },
+  modal: {
+    container: {
+      round: "10px",
+      background: "white",
+    },
+  },
 });
 
 
@@ -670,12 +676,13 @@ function MainApp() {
         <div className="main-content">
           {user && showPrompt && (
             <Layer
+              className="modal-main modal-prompt"
               position="center"
               responsive={false}
               onEsc={() => setShowPrompt(false)}
               onClickOutside={() => setShowPrompt(false)}
             >
-              <Box pad="large" gap="small" style={{ maxWidth: '90vw' }}>
+              <Box className="modal-contents" pad="large" gap="small" style={{ maxWidth: '90vw' }}>
 
                 <Text size="large" textAlign="center" weight="bold" color="brand">You already have an album in session.</Text>
                 <Text size="medium" textAlign="center"  margin={{ bottom: 'medium' }}>Would you like to continue or make a new one?</Text>

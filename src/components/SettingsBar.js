@@ -101,7 +101,7 @@ export default function SettingsBar({
       />
 
       {/* Background toggle */}
-      <Box direction="row" align="center" gap="xsmall" className="btn-setting">
+      <Box direction="row" align="center" gap="xsmall" className="btn-setting btn-setting-checkbox">
         <BackgroundIcon />
         <CheckBox
             toggle

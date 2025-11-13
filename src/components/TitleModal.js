@@ -6,9 +6,9 @@ export default function TitleModal({ title: initialTitle = '', subtitle: initial
   const [subtitle, setSubtitle] = useState(initialSubtitle);
 
   return (
-    <Layer position="center" responsive={false} onEsc={onClose} onClickOutside={onClose}>
-      <Box pad="medium" gap="small" width="medium">
-        <Heading level={3} margin="none">Edit Album Details</Heading>
+    <Layer position="center" className='modal-main modal-prompt' responsive={false} onEsc={onClose} onClickOutside={onClose}>
+      <Box className='modal-contents' gap="small" width="medium">
+        <Heading level={4} margin={{ bottom: 'small' }}>Edit Album Details</Heading>
         <TextInput
           placeholder="Title"
           value={title}

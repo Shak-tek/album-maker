@@ -3047,14 +3047,14 @@ export default function EditorPage(props) {
                     modal
                     responsive={false}
                     position="center"
-                    className="editModal image-editor-layer"
+                    className="editModal image-editor-layer modal-main"
                 >
                     <div className="image-editor-container">
-                        <div className="image-editor-header">
+                        <div className="image-editor-header modal-header">
                             <h2>Edit Photo</h2>
                             <button
                                 type="button"
-                                className="image-editor-icon-button"
+                                className="image-editor-icon-button modal-close-button"
                                 onClick={closeCropper}
                                 aria-label="Close editor"
                             >
@@ -3092,12 +3092,24 @@ export default function EditorPage(props) {
                             </div>
                             <aside className="image-editor-sidebar">
                                 <div className="image-editor-quality">
-                                    <div className="image-editor-quality-icon" aria-hidden="true">
+                                    <div className="ico-svg" aria-hidden="true">
                                         <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                     </div>
-                                    <div>
-                                        <p className="image-editor-quality-title">Print Quality <span className="image-editor-quality-score">{printQualityLabel}</span></p>
+                                    <div className="image-editor-holder">
+                                        <p className="title-text">Print Quality <span className="image-editor-quality-score">{printQualityLabel}</span></p>
 
+                                    </div>
+                                </div>
+                                <div className="image-editor-quality image-editor-tips">
+                                    <div className="ico-svg" aria-hidden="true">
+                                        <svg class="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    </div>
+                                    <div className="image-editor-holder">
+                                        <p className="title-text">Quick Tips</p>
+                                        <ul className="image-tips-list">
+                                            <li>Drag the image to reposition.</li>
+                                            <li>Use buttons for other actions.</li>
+                                        </ul>
                                     </div>
                                 </div>
                                 <div className="image-editor-slider">
@@ -3118,6 +3130,7 @@ export default function EditorPage(props) {
                                         <span>Device</span>
                                     </div>
                                 </div>
+                                
                                 <div className="image-editor-actions">
                                     <button
                                         type="button"
@@ -3176,17 +3189,7 @@ export default function EditorPage(props) {
                                         </span>
                                         <span className="image-editor-action-label">Replace</span>
                                     </button>
-                                    <button
-                                        type="button"
-                                        className="image-editor-action"
-                                        onClick={handleRemoveImage}
-                                        disabled={isCropActionsDisabled}
-                                    >
-                                        <span className="image-editor-action-icon" aria-hidden="true">
-                                            <svg class="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.134-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.067-2.09 1.02-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"></path></svg>
-                                        </span>
-                                        <span className="image-editor-action-label">Remove</span>
-                                    </button>
+
                                     <button
                                         type="button"
                                         className="image-editor-action"
@@ -3225,6 +3228,17 @@ export default function EditorPage(props) {
                                             <svg class="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM13.5 10.5h-6"></path></svg>
                                         </span>
                                         <span className="image-editor-action-label">Zoom Out</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="image-editor-action"
+                                        onClick={handleRemoveImage}
+                                        disabled={isCropActionsDisabled}
+                                    >
+                                        <span className="image-editor-action-icon" aria-hidden="true">
+                                            <svg class="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.134-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.067-2.09 1.02-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"></path></svg>
+                                        </span>
+                                        <span className="image-editor-action-label">Remove</span>
                                     </button>
                                 </div>
                             </aside>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Layer, Text } from 'grommet';
+import { Box, Heading, Layer, Text } from 'grommet';
 import { themeGroups } from '../templates/predefinedThemes';
 
 // base ImageKit URL for transforming uploaded backgrounds
@@ -66,16 +66,30 @@ export default function ThemeModal({
             responsive={false}
             onEsc={onClose}
             onClickOutside={onClose}
+            className="themeModalContent modal-main"
+            style={{ maxWidth: '90vw', overflowY: 'auto', maxHeight: '90vh' }}
         >
+            <div className="modal-header">
+                <h2>Theme Selection</h2>
+                <button
+                    type="button"
+                    className="modal-close-button"
+                    onClick={onClose}
+                    aria-label="Close editor"
+                >
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
             <Box
-                pad="small"
-                gap="medium"
-                width="large"
-                className="themeModalContent"
-                style={{ maxWidth: '90vw', overflowY: 'auto', maxHeight: '90vh' }}
+                className="modal-contents"
+                gap="large"
+
+
+
             >
-                <Box>
-                    <Text weight="bold">Custom Image</Text>
+                <Box className='custom-upload'>
+
+                    <Heading level={5} >Custom Image</Heading>
                     <Box pad={{ vertical: 'xsmall' }}>
                         {uploading ? (
                             <Text size="small">Uploading...</Text>
@@ -86,7 +100,7 @@ export default function ThemeModal({
                 </Box>
                 {themeGroups.map((group) => (
                     <Box key={group.name}>
-                        <Text weight="bold">{group.name}</Text>
+                        <Heading level={5}>{group.name}</Heading>
                         <Box className="dynamicColors" direction="row" wrap gap="small" pad={{ vertical: 'xsmall' }}>
                             {group.dynamic ? (
                                 <>
@@ -127,8 +141,8 @@ export default function ThemeModal({
                                     )}
                                 </>
                             ) : (
-                                    group.colors.map((c) => (
-                                    
+                                group.colors.map((c) => (
+
                                     <Box
                                         key={c}
                                         background={c}
@@ -138,9 +152,14 @@ export default function ThemeModal({
                                 ))
                             )}
                         </Box>
+                        <Box pad="medium">
+                            
+                        </Box>
                     </Box>
+                    
                 ))}
             </Box>
+            
         </Layer>
     );
 }

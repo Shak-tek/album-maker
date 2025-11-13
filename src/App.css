@@ -7,6 +7,8 @@
     --accent: #1e959c;
     --border-color: #e5e7eb;
 
+    --gray-lightest: #f9fafb;
+
     --tw-border-opacity: 1;
     /*--family: "Inter", Times;*/
     --family: ui-sans-serif, "Sharp Sans", system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
@@ -61,7 +63,7 @@
         --xl4: 80px;
         --h1: 24px;
         --h3: 20px;
-        --h4: 18px;
+        --h4: 20px;
         --h5: 16px;
         --h6: 14px;
     }
@@ -144,6 +146,21 @@ h3,
     font-size: var(--h3) !important;
     letter-spacing: .02em;
 
+}
+
+h4,
+.h4 {
+    font-size: var(--h4) !important;
+}
+
+h5,
+.h5 {
+    font-size: var(--h5) !important;
+}
+
+h6,
+.h6 {
+    font-size: var(--h6) !important;
 }
 
 @media (max-width: 767px) {
