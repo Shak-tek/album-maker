@@ -147,8 +147,7 @@ export default function ImageUploader({ sessionId, onContinue }) {
                     {!shouldHideHeader && (
                         <Box className="upload-header" margin={{ bottom: "xxlarge" }}>
                             <div className="img-holder">
-                                <img src="./ICON_DESKTOP.webp" className="hide-mobile" alt="" width="80" height="80" />
-                                <img src="./ICON_MOBILE.png" className="hide-desktop" alt="" width="80" height="80" />
+                                <img src="./ico-upload.png" alt=""/>
                             </div>
                             <Heading level={3}>Select 20 photos to start</Heading>
                             <Paragraph>You can change them later. The more photos you add, the better it looks.</Paragraph>

@@ -268,7 +268,7 @@ h6,
 
 .upload-zone {
     position: relative;
-    text-align: center;
+    text-align: center;    
 }
 
 .upload-zone h3 {
@@ -295,9 +295,18 @@ h6,
     border: 0;
     padding: 0;
     border-radius: 0;
+    background: none;
+    align-self: center;
+    display: inline-flex;
+    vertical-align: top;
+    max-width: 100%;
+    padding: 0;
+    border: 0;
+    /*
     background: var(--surface);
     border-radius: 8px;
-    padding: 32px 24px;
+    padding: 32px 24px;*/
+
 }
 
 /* Uplaoder Grid Styling */
