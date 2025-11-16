@@ -192,9 +192,9 @@ const theme = deepMerge({
 
 
 // S3 config
-const REGION = "us-east-1";
-const IDENTITY_POOL_ID = "us-east-1:77fcf55d-2bdf-4f46-b979-ee71beb59193";
-const BUCKET = "albumgrom";
+const REGION = process.env.REACT_APP_AWS_REGION || "us-east-1";
+const IDENTITY_POOL_ID = process.env.REACT_APP_AWS_COGNITO_IDENTITY_POOL_ID || "us-east-1:77fcf55d-2bdf-4f46-b979-ee71beb59193";
+const BUCKET = process.env.REACT_APP_AWS_S3_BUCKET || "albumgrom";
 
 AWS.config.update({ region: REGION });
 AWS.config.credentials = new AWS.CognitoIdentityCredentials({
