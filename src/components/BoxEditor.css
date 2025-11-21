@@ -1,4 +1,4 @@
-/* src/components/EditorPage.css */
+/* src/components/BoxEditor.css - Square (1:1) aspect ratio editor */
 
 .editor-page {
     padding: 179px 0 120px;
@@ -626,11 +626,12 @@
     position: relative;
     width: 100%;
     height: 0;
-    padding-top: 75%;
+    padding-top: 100%;
     z-index: 6;
     overflow: hidden;
     /* clips slot content */
     touch-action: pan-y;
+    transition: padding-top 800ms ease, background 800ms ease;
     /*/
     transition: transform 0.3s ease;
     border-radius: inherit;
@@ -681,11 +682,19 @@
     background: transparent;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
+    transition: all 800ms ease;
 }
 
 .photo-page.zoomed .photo-slot {
-    border: 0 !important;
+    overflow: visible !important;
     box-shadow: none !important;
+}
+
+/* Make images grow to cover borders and fill gaps */
+.photo-page.zoomed .photo-slot img {
+    transform: scale(1.12);
+    transform-origin: center center;
+    transition: transform 800ms ease;
 }
 
 /* slots */
@@ -699,6 +708,10 @@
     cursor: grab;
     border-radius: 0 !important;
     border: 0 !important;
+}
+
+.photo-slot img {
+    transition: transform 800ms ease;
 }
 
 .photo-slot:active {
@@ -2832,4 +2845,1365 @@
         display: block;
         min-height: 510px;
     }
+}
+/* ============================================
+   NORMALIZED SLOT POSITIONS (NO MARGINS)
+   When background is disabled (.photo-page.zoomed)
+   ============================================ */
+.photo-page.zoomed .slot1 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot2 {
+    top: 0.0000% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot3 {
+    top: 52.7778% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot4 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot5 {
+    top: 0.0000% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot6 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot7 {
+    top: 0.0000% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot8 {
+    top: 52.7778% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot9 {
+    top: 52.7778% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot10 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot12 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot13 {
+    top: 52.7778% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot14 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot15 {
+    top: 52.7778% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot16 {
+    top: 0.0000% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot17 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot18 {
+    top: 0.0000% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot19 {
+    top: 52.7778% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot20 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot21 {
+    top: 52.7778% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot22 {
+    top: 52.7778% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot23 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 64.8111% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot24 {
+    top: 0.0000% !important;
+    left: 70.3744% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot25 {
+    top: 52.7778% !important;
+    left: 70.3744% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot26 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot27 {
+    top: 0.0000% !important;
+    left: 35.1852% !important;
+    width: 64.8111% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot28 {
+    top: 52.7778% !important;
+    left: 0.0000% !important;
+    width: 64.8111% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot29 {
+    top: 52.7778% !important;
+    left: 70.3744% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot30 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 64.8111% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot31 {
+    top: 0.0000% !important;
+    left: 70.3744% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot32 {
+    top: 52.7778% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot33 {
+    top: 52.7778% !important;
+    left: 35.1852% !important;
+    width: 64.8111% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot34 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot35 {
+    top: 0.0000% !important;
+    left: 35.1852% !important;
+    width: 29.6297% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot36 {
+    top: 0.0000% !important;
+    left: 70.3704% !important;
+    width: 29.6297% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot37 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot38 {
+    top: 35.1852% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot39 {
+    top: 70.3704% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot40 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot41 {
+    top: 0.0000% !important;
+    left: 35.1852% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot42 {
+    top: 0.0000% !important;
+    left: 70.3704% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot43 {
+    top: 52.7778% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot44 {
+    top: 52.7778% !important;
+    left: 35.1852% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot45 {
+    top: 52.7778% !important;
+    left: 70.3704% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot46 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot47 {
+    top: 0.0000% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot48 {
+    top: 35.1852% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot49 {
+    top: 35.1852% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot50 {
+    top: 70.3704% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot51 {
+    top: 70.3704% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot52 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 25.0000% !important;
+}
+
+.photo-page.zoomed .slot53 {
+    top: 0.0000% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 69.4444% !important;
+}
+
+.photo-page.zoomed .slot54 {
+    top: 30.5556% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 69.4444% !important;
+}
+
+.photo-page.zoomed .slot55 {
+    top: 75.0000% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 25.0000% !important;
+}
+
+.photo-page.zoomed .slot56 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 69.4444% !important;
+}
+
+.photo-page.zoomed .slot57 {
+    top: 0.0000% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 25.0000% !important;
+}
+
+.photo-page.zoomed .slot58 {
+    top: 75.0000% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 25.0000% !important;
+}
+
+.photo-page.zoomed .slot59 {
+    top: 30.5556% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 69.4444% !important;
+}
+
+.photo-page.zoomed .slot60 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot61 {
+    top: 0.0000% !important;
+    left: 35.1852% !important;
+    width: 64.8149% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot62 {
+    top: 52.7778% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot63 {
+    top: 52.7778% !important;
+    left: 35.1852% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot64 {
+    top: 52.7778% !important;
+    left: 70.3704% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot65 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 64.8149% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot66 {
+    top: 0.0000% !important;
+    left: 70.3704% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot67 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot68 {
+    top: 0.0000% !important;
+    left: 35.1852% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot69 {
+    top: 0.0000% !important;
+    left: 70.3704% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot70 {
+    top: 52.7778% !important;
+    left: 0.0000% !important;
+    width: 64.8149% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot71 {
+    top: 52.7778% !important;
+    left: 70.3704% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot72 {
+    top: 52.7778% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot73 {
+    top: 52.7778% !important;
+    left: 35.1852% !important;
+    width: 64.8149% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot74 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot75 {
+    top: 0.0000% !important;
+    left: 35.1852% !important;
+    width: 29.6297% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot76 {
+    top: 0.0000% !important;
+    left: 70.3704% !important;
+    width: 29.6297% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot77 {
+    top: 35.1852% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot78 {
+    top: 35.1852% !important;
+    left: 35.1852% !important;
+    width: 29.6297% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot79 {
+    top: 35.1852% !important;
+    left: 70.3704% !important;
+    width: 29.6297% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot80 {
+    top: 70.3704% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot81 {
+    top: 70.3704% !important;
+    left: 35.1852% !important;
+    width: 29.6297% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot82 {
+    top: 70.3704% !important;
+    left: 70.3704% !important;
+    width: 29.6297% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot83 {
+    top: 16.6667% !important;
+    left: 16.6667% !important;
+    width: 66.6667% !important;
+    height: 66.6667% !important;
+}
+
+.photo-page.zoomed .slot84 {
+    top: 16.6667% !important;
+    left: 16.6667% !important;
+    width: 27.7778% !important;
+    height: 27.7778% !important;
+}
+
+.photo-page.zoomed .slot85 {
+    top: 16.6667% !important;
+    left: 50.0000% !important;
+    width: 27.7778% !important;
+    height: 27.7778% !important;
+}
+
+.photo-page.zoomed .slot86 {
+    top: 50.0000% !important;
+    left: 16.6667% !important;
+    width: 27.7778% !important;
+    height: 27.7778% !important;
+}
+
+.photo-page.zoomed .slot87 {
+    top: 50.0000% !important;
+    left: 50.0000% !important;
+    width: 27.7778% !important;
+    height: 27.7778% !important;
+}
+
+.photo-page.zoomed .slot88 {
+    top: 31.9444% !important;
+    left: 11.1111% !important;
+    width: 36.1111% !important;
+    height: 36.1111% !important;
+}
+
+.photo-page.zoomed .slot89 {
+    top: 31.9444% !important;
+    left: 52.7778% !important;
+    width: 36.1111% !important;
+    height: 36.1111% !important;
+}
+
+.photo-page.zoomed .slot90 {
+    top: 31.9444% !important;
+    left: 11.1111% !important;
+    width: 22.2222% !important;
+    height: 31.1111% !important;
+}
+
+.photo-page.zoomed .slot91 {
+    top: 31.9444% !important;
+    left: 38.8889% !important;
+    width: 22.2222% !important;
+    height: 31.1111% !important;
+}
+
+.photo-page.zoomed .slot92 {
+    top: 31.9444% !important;
+    left: 66.6667% !important;
+    width: 22.2222% !important;
+    height: 31.1111% !important;
+}
+
+.photo-page.zoomed .slot93 {
+    top: 8.3333% !important;
+    left: 16.6667% !important;
+    width: 66.6667% !important;
+    height: 83.3333% !important;
+}
+
+.photo-page.zoomed .slot94 {
+    top: 8.3333% !important;
+    left: 22.2222% !important;
+    width: 61.1111% !important;
+    height: 38.8889% !important;
+}
+
+.photo-page.zoomed .slot95 {
+    top: 52.7778% !important;
+    left: 22.2222% !important;
+    width: 61.1111% !important;
+    height: 38.8889% !important;
+}
+
+.photo-page.zoomed .slot96 {
+    top: 8.3333% !important;
+    left: 11.1111% !important;
+    width: 36.1111% !important;
+    height: 83.3333% !important;
+}
+
+.photo-page.zoomed .slot97 {
+    top: 8.3333% !important;
+    left: 52.7778% !important;
+    width: 36.1111% !important;
+    height: 83.3333% !important;
+}
+
+.photo-page.zoomed .slot98 {
+    top: 8.3333% !important;
+    left: 8.3333% !important;
+    width: 83.3333% !important;
+    height: 83.3333% !important;
+}
+
+.photo-page.zoomed .slot99 {
+    top: 31.9444% !important;
+    left: 11.1111% !important;
+    width: 22.2222% !important;
+    height: 31.1111% !important;
+}
+
+.photo-page.zoomed .slot100 {
+    top: 31.9444% !important;
+    left: 38.8889% !important;
+    width: 44.4444% !important;
+    height: 31.1111% !important;
+}
+
+.photo-page.zoomed .slot101 {
+    top: 31.9444% !important;
+    left: 11.1111% !important;
+    width: 44.4444% !important;
+    height: 31.1111% !important;
+}
+
+.photo-page.zoomed .slot102 {
+    top: 31.9444% !important;
+    left: 61.1111% !important;
+    width: 22.2222% !important;
+    height: 31.1111% !important;
+}
+
+.photo-page.zoomed .slot103 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 20.8333% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot104 {
+    top: 0.0000% !important;
+    left: 26.3889% !important;
+    width: 20.8333% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot105 {
+    top: 0.0000% !important;
+    left: 52.7778% !important;
+    width: 20.8333% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot106 {
+    top: 0.0000% !important;
+    left: 79.1667% !important;
+    width: 20.8333% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot107 {
+    top: 52.7778% !important;
+    left: 0.0000% !important;
+    width: 20.8333% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot108 {
+    top: 52.7778% !important;
+    left: 26.3889% !important;
+    width: 20.8333% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot109 {
+    top: 52.7778% !important;
+    left: 52.7778% !important;
+    width: 20.8333% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot110 {
+    top: 52.7778% !important;
+    left: 79.1667% !important;
+    width: 20.8333% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot111 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 20.8333% !important;
+}
+
+.photo-page.zoomed .slot112 {
+    top: 26.3889% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 20.8333% !important;
+}
+
+.photo-page.zoomed .slot113 {
+    top: 52.7778% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 20.8333% !important;
+}
+
+.photo-page.zoomed .slot114 {
+    top: 79.1667% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 20.8333% !important;
+}
+
+.photo-page.zoomed .slot115 {
+    top: 0.0000% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 20.8333% !important;
+}
+
+.photo-page.zoomed .slot116 {
+    top: 26.3889% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 20.8333% !important;
+}
+
+.photo-page.zoomed .slot117 {
+    top: 52.7778% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 20.8333% !important;
+}
+
+.photo-page.zoomed .slot118 {
+    top: 79.1667% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 20.8333% !important;
+}
+
+.photo-page.zoomed .slot119 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 27.7778% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot120 {
+    top: 52.7778% !important;
+    left: 0.0000% !important;
+    width: 27.7778% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot121 {
+    top: 0.0000% !important;
+    left: 33.3333% !important;
+    width: 66.6667% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot122 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 22.2222% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot123 {
+    top: 0.0000% !important;
+    left: 27.7778% !important;
+    width: 44.4444% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot124 {
+    top: 0.0000% !important;
+    left: 77.7778% !important;
+    width: 22.2222% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot125 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 64.8111% !important;
+}
+
+.photo-page.zoomed .slot126 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 20.8333% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot127 {
+    top: 0.0000% !important;
+    left: -5.5556% !important;
+    width: 20.8333% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot128 {
+    top: 0.0000% !important;
+    left: -5.5556% !important;
+    width: 20.8333% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot129 {
+    top: 0.0000% !important;
+    left: -5.5556% !important;
+    width: 20.8333% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot130 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 20.8333% !important;
+}
+
+.photo-page.zoomed .slot134 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 64.8111% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot135 {
+    top: 0.0000% !important;
+    left: 70.3704% !important;
+    width: 29.6297% !important;
+    height: 64.8111% !important;
+}
+
+.photo-page.zoomed .slot136 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 61.1111% !important;
+}
+
+.photo-page.zoomed .slot137 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot138 {
+    top: 0.0000% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot901 {
+    top: 70.3704% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot902 {
+    top: 0.0000% !important;
+    left: 70.3744% !important;
+    width: 29.6297% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot903 {
+    top: 66.6667% !important;
+    left: 16.6667% !important;
+    width: 66.6667% !important;
+    height: 33.3333% !important;
+}
+
+.photo-page.zoomed .slot904 {
+    top: 70.0000% !important;
+    left: 58.8889% !important;
+    width: 41.1111% !important;
+    height: 30.0000% !important;
+}
+
+.photo-page.zoomed .slot139 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot140 {
+    top: 0.0000% !important;
+    left: 35.1852% !important;
+    width: 29.6297% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot141 {
+    top: 0.0000% !important;
+    left: 70.3704% !important;
+    width: 29.6297% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot142 {
+    top: 0.0000% !important;
+    left: 5.5556% !important;
+    width: 24.0741% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot143 {
+    top: 14.8144% !important;
+    left: 35.1852% !important;
+    width: 29.6297% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot144 {
+    top: 27.7778% !important;
+    left: 70.3704% !important;
+    width: 20.7408% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot905 {
+    top: 36.1111% !important;
+    left: 18.8889% !important;
+    width: 60.0000% !important;
+    height: 27.7778% !important;
+}
+
+.photo-page.zoomed .slot907 {
+    top: 36.1111% !important;
+    left: 24.4444% !important;
+    width: 48.8889% !important;
+    height: 27.7778% !important;
+}
+
+.photo-page.zoomed .slot145 {
+    top: 35.1852% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot146 {
+    top: 35.1852% !important;
+    left: 35.1852% !important;
+    width: 29.6297% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot147 {
+    top: 35.1852% !important;
+    left: 70.3704% !important;
+    width: 29.6297% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot148 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 34.0741% !important;
+}
+
+.photo-page.zoomed .slot149 {
+    top: 64.8149% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 34.0741% !important;
+}
+
+.photo-page.zoomed .slot150 {
+    top: 39.2593% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 20.7408% !important;
+}
+
+.photo-page.zoomed .slot151 {
+    top: 39.2593% !important;
+    left: 35.1852% !important;
+    width: 29.6297% !important;
+    height: 20.7408% !important;
+}
+
+.photo-page.zoomed .slot152 {
+    top: 39.2593% !important;
+    left: 70.3704% !important;
+    width: 29.6297% !important;
+    height: 20.7408% !important;
+}
+
+.photo-page.zoomed .slot153 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 34.0741% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot154 {
+    top: 0.0000% !important;
+    left: 40.7408% !important;
+    width: 60.3700% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot155 {
+    top: 35.1852% !important;
+    left: 40.7408% !important;
+    width: 27.2222% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot156 {
+    top: 70.3711% !important;
+    left: 0.0000% !important;
+    width: 34.0741% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot157 {
+    top: 35.1852% !important;
+    left: 73.5189% !important;
+    width: 27.2222% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot906 {
+    top: 35.1852% !important;
+    left: 73.5189% !important;
+    width: 27.2222% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot908 {
+    top: 0.0000% !important;
+    left: 5.5556% !important;
+    width: 44.4444% !important;
+    height: 23.3333% !important;
+}
+
+.photo-page.zoomed .slot158 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 66.6667% !important;
+    height: 61.1111% !important;
+}
+
+.photo-page.zoomed .slot159 {
+    top: 44.4444% !important;
+    left: 50.0000% !important;
+    width: 50.0000% !important;
+    height: 55.5556% !important;
+}
+
+.photo-page.zoomed .slot160 {
+    top: 66.6667% !important;
+    left: 0.0000% !important;
+    width: 44.4444% !important;
+    height: 33.3333% !important;
+}
+
+.photo-page.zoomed .slot909 {
+    top: 22.2222% !important;
+    left: 44.4444% !important;
+    width: 44.4444% !important;
+    height: 55.5556% !important;
+}
+
+.photo-page.zoomed .slot161 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot162 {
+    top: 35.1852% !important;
+    left: 16.6667% !important;
+    width: 66.6667% !important;
+    height: 22.2222% !important;
+}
+
+.photo-page.zoomed .slot163 {
+    top: 62.9630% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 37.0333% !important;
+}
+
+.photo-page.zoomed .slot164 {
+    top: 0.0000% !important;
+    left: 55.5556% !important;
+    width: 33.3333% !important;
+    height: 33.3333% !important;
+}
+
+.photo-page.zoomed .slot165 {
+    top: 70.3704% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot166 {
+    top: 70.3704% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot167 {
+    top: 35.1856% !important;
+    left: 70.3704% !important;
+    width: 29.6297% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot168 {
+    top: 35.1852% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot169 {
+    top: 35.1852% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot170 {
+    top: 12.2222% !important;
+    left: 28.8889% !important;
+    width: 44.4444% !important;
+    height: 44.4444% !important;
+}
+
+.photo-page.zoomed .slot171 {
+    top: 27.7778% !important;
+    left: 70.3704% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot172 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 22.2222% !important;
+}
+
+.photo-page.zoomed .slot173 {
+    top: 27.7778% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot174 {
+    top: 0.0000% !important;
+    left: 35.1852% !important;
+    width: 29.6297% !important;
+    height: 38.8889% !important;
+}
+
+.photo-page.zoomed .slot175 {
+    top: 0.0000% !important;
+    left: 60.0000% !important;
+    width: 33.3333% !important;
+    height: 22.2222% !important;
+}
+
+.photo-page.zoomed .slot176 {
+    top: 70.3704% !important;
+    left: 0.0000% !important;
+    width: 20.8333% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot177 {
+    top: 70.3704% !important;
+    left: 26.3889% !important;
+    width: 20.8333% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot178 {
+    top: 70.3704% !important;
+    left: 52.7778% !important;
+    width: 20.8333% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot179 {
+    top: 70.3704% !important;
+    left: 79.1667% !important;
+    width: 20.8333% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot180 {
+    top: 0.0000% !important;
+    left: 27.7778% !important;
+    width: 44.4444% !important;
+    height: 35.5556% !important;
+}
+
+.photo-page.zoomed .slot181 {
+    top: 38.8889% !important;
+    left: 35.1852% !important;
+    width: 29.6297% !important;
+    height: 22.2222% !important;
+}
+
+.photo-page.zoomed .slot182 {
+    top: 35.5556% !important;
+    left: 35.5556% !important;
+    width: 27.7778% !important;
+    height: 27.7778% !important;
+}
+
+.photo-page.zoomed .slot183 {
+    top: 35.1852% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 64.8111% !important;
+}
+
+.photo-page.zoomed .slot184 {
+    top: 0.0000% !important;
+    left: 5.5556% !important;
+    width: 41.6667% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot185 {
+    top: 0.0000% !important;
+    left: 52.7778% !important;
+    width: 41.6667% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot186 {
+    top: 41.6667% !important;
+    left: 5.5556% !important;
+    width: 33.3333% !important;
+    height: 58.3333% !important;
+}
+
+.photo-page.zoomed .slot187 {
+    top: 41.6667% !important;
+    left: 61.1111% !important;
+    width: 33.3333% !important;
+    height: 58.3333% !important;
+}
+
+.photo-page.zoomed .slot188 {
+    top: 41.6667% !important;
+    left: 0.0000% !important;
+    width: 50.5556% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot189 {
+    top: 41.6667% !important;
+    left: 47.2222% !important;
+    width: 50.5556% !important;
+    height: 47.2222% !important;
 }

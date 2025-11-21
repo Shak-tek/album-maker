@@ -14,6 +14,7 @@ import {
 import { deepMerge } from "grommet/utils";
 import ImageUploader from "./components/ImageUploader";
 import EditorPage from "./components/EditorPage";
+import BoxEditor from "./components/BoxEditor";
 import TitlePage from "./components/TitlePage";
 import ProductsPage from "./ProductsPage";
 import ProductDetailPage from "./components/ProductDetailPage";
@@ -807,24 +808,48 @@ function MainApp() {
               initialSubtitle={albumSubtitle}
             />
           ) : view === "editor" ? (
-            <EditorPage
-              images={loadedImages}
-              onAddImages={(urls = []) =>
-                setLoadedImages((prev) => [
-                  ...prev,
-                  ...(Array.isArray(urls) ? urls : [urls]),
-                ])
-              }
-              albumSize={albumSize}
-              s3={s3}
-              sessionId={sessionId}
-              user={user}
-              identityId={identityId}
-              title={albumTitle}
-              subtitle={albumSubtitle}
-              setTitle={setAlbumTitle}
-              setSubtitle={setAlbumSubtitle}
-            />
+            // Use BoxEditor for square albums (width === height), otherwise use EditorPage
+            albumSize?.width === albumSize?.height ? (
+              <BoxEditor
+                images={loadedImages}
+                onAddImages={(urls = []) =>
+                  setLoadedImages((prev) => [
+                    ...prev,
+                    ...(Array.isArray(urls) ? urls : [urls]),
+                  ])
+                }
+                albumSize={albumSize}
+                s3={s3}
+                sessionId={sessionId}
+                user={user}
+                identityId={identityId}
+                title={albumTitle}
+                subtitle={albumSubtitle}
+                setTitle={setAlbumTitle}
+                setSubtitle={setAlbumSubtitle}
+                onBack={() => navigate("products")}
+              />
+            ) : (
+              <EditorPage
+                images={loadedImages}
+                onAddImages={(urls = []) =>
+                  setLoadedImages((prev) => [
+                    ...prev,
+                    ...(Array.isArray(urls) ? urls : [urls]),
+                  ])
+                }
+                albumSize={albumSize}
+                s3={s3}
+                sessionId={sessionId}
+                user={user}
+                identityId={identityId}
+                title={albumTitle}
+                subtitle={albumSubtitle}
+                setTitle={setAlbumTitle}
+                setSubtitle={setAlbumSubtitle}
+                onBack={() => navigate("products")}
+              />
+            )
           ) : null}
         </div>
       </Page>

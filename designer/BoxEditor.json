@@ -1,0 +1,39 @@
+{
+  "name": "box-editor-page",
+  "theme": "grommet",
+  "screens": {
+    "1": {
+      "id": 1,
+      "name": "Box Editor",
+      "root": 2,
+      "path": "/"
+    }
+  },
+  "screenOrder": [1],
+  "components": {
+    "2": {
+      "id": 2,
+      "type": "grommet.Page",
+      "props": {},
+      "children": [3]
+    },
+    "3": {
+      "id": 3,
+      "type": "grommet.PageContent",
+      "props": {},
+      "children": [4]
+    },
+    "4": {
+      "id": 4,
+      "type": "components.BoxEditor",
+      "props": {}
+    }
+  },
+  "nextId": 5,
+  "date": "2025-11-21T00:00:00.000Z",
+  "created": "2025-11-21T00:00:00.000Z",
+  "imports": [
+    { "name": "BoxEditor", "path": "../src/components/BoxEditor" }
+  ],
+  "version": 3.7
+}

@@ -7,10 +7,21 @@ const albumSizes = [
   { label: '27cm × 21cm', width: 27, height: 21 },
   { label: '35cm × 26cm', width: 35, height: 26 },
 ];
+
+const boxAlbumSizes = [
+  { label: '20cm × 20cm', width: 20, height: 20 },
+  { label: '25cm × 25cm', width: 25, height: 25 },
+  { label: '30cm × 30cm', width: 30, height: 30 },
+];
+
 const BASE_URL = process.env.REACT_APP_IMAGE_BASE_URL || '';
 
 export default function ProductDetailPage({ product, onContinue }) {
   const [selected, setSelected] = useState(null);
+
+  // Detect if this is a box album (square format) by checking product name
+  const isBoxAlbum = product?.name?.toLowerCase().includes('box album');
+  const availableSizes = isBoxAlbum ? boxAlbumSizes : albumSizes;
 
 
   return (
@@ -59,7 +70,7 @@ export default function ProductDetailPage({ product, onContinue }) {
         <Text weight="bold" size="large">{product?.price}</Text>
         {product?.details && <Text>{product.details}</Text>}
         <Box direction="row" gap="small" wrap>
-          {albumSizes.map((size) => (
+          {availableSizes.map((size) => (
             <Box
               key={size.label}
               pad="small"

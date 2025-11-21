@@ -1,5 +1,5 @@
-// src/components/EditorPage.js
-import "./EditorPage.css";
+// src/components/BoxEditor.js - Square (1:1) aspect ratio editor
+import "./BoxEditor.css";
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import ColorThief from "color-thief-browser";
 import { Box, Button, Layer, Text, Spinner, Meter, Heading, RadioButtonGroup } from "grommet";
@@ -9,7 +9,7 @@ import "croppie/croppie.css";
 import TemplateModal from "./TemplateModal";
 import ThemeModal from "./ThemeModal";
 import SettingsBar from "./SettingsBar";
-import { pageTemplates } from "../templates/pageTemplates";
+import { boxPageTemplates as pageTemplates } from "../templates/boxPageTemplates";
 import TitleModal from "./TitleModal";
 import TextEditor, { TextEditorModal } from "./TextEditor";
 
@@ -158,10 +158,28 @@ const SLOT_MAP_BG = [
     { top: `${slotMargin}%`, left: `${slotMargin}%`, width: `${100 - 2 * slotMargin}%`, height: `${100 - 2 * slotMargin}%` }, // 9
 ];
 
+// When background is disabled, recalculate positions with no margins/gaps
+const halfWidthNoGap = 50; // 100 / 2
+const SLOT_MAP_NO_BG = [
+    { top: '0%', left: '0%', width: `${halfWidthNoGap}%`, height: '100%' }, // 0
+    { top: '0%', left: `${halfWidthNoGap}%`, width: `${halfWidthNoGap}%`, height: `${halfWidthNoGap}%` }, // 1
+    { top: `${halfWidthNoGap}%`, left: `${halfWidthNoGap}%`, width: `${halfWidthNoGap}%`, height: `${halfWidthNoGap}%` }, // 2
+    { top: '0%', left: '0%', width: `${halfWidthNoGap}%`, height: '100%' }, // 3
+    { top: '0%', left: `${halfWidthNoGap}%`, width: `${halfWidthNoGap}%`, height: '100%' }, // 4
+    { top: '0%', left: '0%', width: `${halfWidthNoGap}%`, height: `${halfWidthNoGap}%` }, // 5
+    { top: '0%', left: `${halfWidthNoGap}%`, width: `${halfWidthNoGap}%`, height: `${halfWidthNoGap}%` }, // 6
+    { top: `${halfWidthNoGap}%`, left: '0%', width: `${halfWidthNoGap}%`, height: `${halfWidthNoGap}%` }, // 7
+    { top: `${halfWidthNoGap}%`, left: `${halfWidthNoGap}%`, width: `${halfWidthNoGap}%`, height: `${halfWidthNoGap}%` }, // 8
+    { top: '0%', left: '0%', width: '100%', height: '100%' }, // 9
+];
+
 // use canonical only when background is ON
 function getSlotRect(slotIndex, backgroundEnabled) {
-    if (!backgroundEnabled) return null;
-    return SLOT_MAP_BG[slotIndex] ?? null;
+    if (backgroundEnabled) {
+        return SLOT_MAP_BG[slotIndex] ?? null;
+    } else {
+        return SLOT_MAP_NO_BG[slotIndex] ?? null;
+    }
 }
 
 // ---------------------- Normalization helpers (for "remove background") ----------------------
@@ -805,7 +823,7 @@ const usePrevious = (val) => {
     return ref.current;
 };
 
-export default function EditorPage(props) {
+export default function BoxEditor(props) {
     const {
         images = [],
         onAddImages: onAddImagesProp,
@@ -852,9 +870,7 @@ export default function EditorPage(props) {
         setRestoredSessionId(null);
     }, [sessionId]);
 
-    // dynamic normalized rects when background is disabled
-    // shape: { [pageIdx]: Array<{top,left,width,height} | null> }
-    const [noBgRects, setNoBgRects] = useState({});
+    // Removed noBgRects state - now using simpler SLOT_MAP_NO_BG approach
 
     const previewRef = useRef(null);
     const previewImgRef = useRef(null);
@@ -1566,8 +1582,6 @@ export default function EditorPage(props) {
             return next;
         });
 
-        // After changing templates, recompute no-bg rects (next paint)
-        requestAnimationFrame(() => requestAnimationFrame(() => recomputeNoBgRects()));
         setShowTemplateModal(false);
     };
 
@@ -2122,48 +2136,7 @@ export default function EditorPage(props) {
         closeCropper();
     };
 
-    // ---------------- NORMALIZATION (remove background) ----------------
-    const recomputeNoBgRects = () => {
-        const next = {};
-        pageSettings.forEach((ps, pi) => {
-            const els = (slotRefs.current?.[pi] || []).filter(Boolean);
-            if (!els.length) return;
-            const layout = computeNormalizedRects(els);
-            if (layout) next[pi] = layout;
-        });
-        setNoBgRects(next);
-    };
-
-    // Recompute whenever bg turns OFF or layout/images are ready
-    useEffect(() => {
-        if (!imagesWarm || !pageSettings.length) return;
-        if (!backgroundEnabled) {
-            // Wait two frames for layout to settle, then measure
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => recomputeNoBgRects());
-            });
-        } else {
-            setNoBgRects({});
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [imagesWarm, pageSettings, backgroundEnabled]);
-
-    // Recompute after template changes that alter slot geometry
-    useEffect(() => {
-        if (!backgroundEnabled) {
-            requestAnimationFrame(() => requestAnimationFrame(() => recomputeNoBgRects()));
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [pageSettings.map(p => p.templateId).join(",")]);
-
-    // Keep in sync on resize while bg is OFF
-    useEffect(() => {
-        if (backgroundEnabled) return;
-        const onResize = () => recomputeNoBgRects();
-        window.addEventListener("resize", onResize);
-        return () => window.removeEventListener("resize", onResize);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [backgroundEnabled, pageSettings]);
+    // Removed recomputeNoBgRects and related effects - now using simpler SLOT_MAP_NO_BG approach
 
     const minAllowedZoom = Math.min(cropAutoZoom.fit ?? MIN_CROPPER_ZOOM, MAX_CROPPER_ZOOM);
     const normalizedZoom = Math.min(Math.max(cropState.zoom, minAllowedZoom), MAX_CROPPER_ZOOM);
@@ -2280,7 +2253,6 @@ export default function EditorPage(props) {
                                 const slots = getSlotsForPageIndex(ps, pi);
                                 const textSlots = getTextSlotsForPageIndex(ps, pi);
                                 const bgColor = ps.theme.color || "transparent";
-                                const noBgLayout = noBgRects?.[pi] || null;
                                 const wrapperStyle = !backgroundEnabled
                                     ? {
                                         backgroundColor: "transparent",
@@ -2301,24 +2273,18 @@ export default function EditorPage(props) {
                                 //const titleLineHeight = computeLineHeight(titleFontSize);
                                 //const subtitleFontSize = scaleFontSize(titleFontSize, 0.6, 14);
                                 //const subtitleLineHeight = computeLineHeight(subtitleFontSize);
-                                const textBoxFontSize = scaleFontSize(titleFontSize, 0.65, 14); 
+                                const textBoxFontSize = scaleFontSize(titleFontSize, 0.65, 14);
                                 const textBoxBaseStyle = {
                                     fontFamily: textSettings.fontFamily,
                                     fontSize: textBoxFontSize,
                                     color: textSettings.color,
                                     lineHeight: computeLineHeight(textBoxFontSize),
                                 };
-                                const defaultAspect = 0.75;
-                                const measuredAspect = noBgLayout?.aspectRatio;
-                                const resolvedAspect =
-                                    !backgroundEnabled && Number.isFinite(measuredAspect) && measuredAspect > 0
-                                        ? Math.max(0.25, Math.min(3, measuredAspect))
-                                        : defaultAspect;
-                                const widthToHeight = resolvedAspect > 0 ? 1 / resolvedAspect : 4 / 3;
+                                // Square aspect ratio (1:1) when background is disabled
                                 const photoPageStyle = !backgroundEnabled
                                     ? {
-                                        paddingTop: `${resolvedAspect * 100}%`,
-                                        aspectRatio: `${widthToHeight}`,
+                                        paddingTop: '100%',
+                                        aspectRatio: '1',
                                     }
                                     : undefined;
 
@@ -2329,12 +2295,10 @@ export default function EditorPage(props) {
                                             style={photoPageStyle}
                                         >
                                             {slots.map((slotPosIndex, slotIdx) => {
-                                                const inlinePos = backgroundEnabled
-                                                    ? (getSlotRect(slotPosIndex, true) || null)
-                                                    : (noBgLayout?.rects?.[slotIdx] || null);
+                                                const inlinePos = getSlotRect(slotPosIndex, backgroundEnabled);
 
                                                 const imgSrc = getSlotSrc(ps, slotIdx);
-                                                const transitionDelay = !backgroundEnabled ? `${slotIdx * 40}ms` : "0ms";
+                                                const transitionDelay = !backgroundEnabled ? `${slotIdx * 80}ms` : "0ms";
 
                                                 const isEmpty = !imgSrc;
 
@@ -2353,9 +2317,9 @@ export default function EditorPage(props) {
                                                             position: "absolute",
                                                             overflow: "hidden",
                                                             borderRadius: isCoverPage ? "24px" : "4px",
-                                                            visibility: (!backgroundEnabled && !inlinePos) ? "hidden" : "visible",
+                                                            visibility: "visible",
                                                             transition:
-                                                                "top 200ms ease, left 200ms ease, width 200ms ease, height 200ms ease, opacity 200ms ease, transform 200ms ease",
+                                                                "top 800ms ease, left 800ms ease, width 800ms ease, height 800ms ease, opacity 800ms ease, transform 800ms ease",
                                                             transitionDelay,
                                                             willChange: "top, left, width, height, opacity, transform",
                                                             // NEW: give empty slots a black background
@@ -2436,9 +2400,7 @@ export default function EditorPage(props) {
                                             })}
 
                                             {textSlots.map((slotPosIndex, textIdx) => {
-                                                const inlinePos = backgroundEnabled
-                                                    ? (getSlotRect(slotPosIndex, true) || null)
-                                                    : (noBgLayout?.rects?.[slots.length + textIdx] || null);
+                                                const inlinePos = getSlotRect(slotPosIndex, backgroundEnabled);
                                                 const content = ps.texts?.[textIdx] || "";
                                                 const placeholder = textIdx === 0 ? "Add your story" : "Keep writing";
                                                 const activateEditor = () => handleOpenTextEditor(pi, textIdx, placeholder);
@@ -2454,6 +2416,7 @@ export default function EditorPage(props) {
                                                         style={{
                                                             ...(inlinePos || {}),
                                                             position: "absolute",
+                                                            visibility: "visible",
                                                         }}
                                                         role="button"
                                                         tabIndex={0}
