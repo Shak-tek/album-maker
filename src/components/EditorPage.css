@@ -1,7 +1,7 @@
 /* src/components/EditorPage.css */
 
 .editor-page {
-    padding: 179px 0 120px;
+    padding: 80px 0 120px;
     background: var(--surface);
     min-height: 100vh;
 }
@@ -17,7 +17,7 @@
 /* Floating Header */
 .editor-floating-header {
     position: fixed;
-    top: 80px;
+    top: 0;
     left: 0;
     right: 0;
     z-index: 10;
@@ -399,7 +399,7 @@
     border-radius: 8px;
     font-size: 12px;
     color: rgb(22 101 52 / var(--tw-text-opacity, 1));
-
+    
 
     .image-editor-holder {
         flex-grow: 1;
@@ -408,12 +408,11 @@
 
     .ico-svg {
         flex-shrink: 0;
-
         svg {
             width: 17px;
-            display: block;
-            color: rgb(22 163 74 / var(--tw-text-opacity, 1));
-            stroke-color: currentColor;
+        display: block;
+        color: rgb(22 163 74 / var(--tw-text-opacity, 1));
+        stroke-color: currentColor;
 
         }
     }
@@ -428,7 +427,7 @@
 .image-editor-quality {
     background: #ecfdf5;
     align-items: center;
-
+    
 
 }
 
@@ -440,7 +439,7 @@
 .image-editor-tips {
     background: #eff6ff;
     align-items: flex-start;
-
+    
     color: rgb(31 41 55 / var(--tw-text-opacity, 1));
 
     .ico-svg svg {
@@ -824,10 +823,6 @@
 
     @media (min-width: 768px) {
         border-radius: 12px;
-
-        &:first-child {
-            border-radius: 12px !important;
-        }
 
         &:nth-child(odd):not(:last-child) {
             border-bottom-right-radius: 0;
@@ -1300,1384 +1295,1412 @@
 
 /* your exact slot positions from the snippet */
 .slot1 {
-    top: 5% !important;
-    left: 5% !important;
-    width: 43.75% !important;
-    height: 90% !important;
+    top: 5%;
+    left: 5%;
+    width: 43.75%;
+    height: 90%;
 }
 
 .slot2 {
-    top: 5% !important;
-    left: 51.25% !important;
-    width: 43.75% !important;
-    height: 43.75% !important;
+    top: 5%;
+    left: 51.25%;
+    width: 43.75%;
+    height: 43.75%;
 }
 
 .slot3 {
-    top: 51.25% !important;
-    left: 51.25% !important;
-    width: 43.75% !important;
-    height: 43.75% !important;
+    top: 51.25%;
+    left: 51.25%;
+    width: 43.75%;
+    height: 43.75%;
 }
 
 .slot4 {
-    top: 5% !important;
-    left: 5% !important;
-    width: 43.75% !important;
-    height: 90% !important;
+    top: 5%;
+    left: 5%;
+    width: 43.75%;
+    height: 90%;
 }
 
 .slot5 {
-    top: 5% !important;
-    left: 51.25% !important;
-    width: 43.75% !important;
-    height: 90% !important;
+    top: 5%;
+    left: 51.25%;
+    width: 43.75%;
+    height: 90%;
 }
 
 .slot6 {
-    top: 5% !important;
-    left: 5% !important;
+    top: 5%;
+    left: 5%;
     width: 43.75% !important;
     height: 43.75% !important;
 }
 
 .slot7 {
-    top: 5% !important;
+    top: 5%;
     left: 51.25% !important;
     width: 43.75% !important;
     height: 43.75% !important;
 }
 
 .slot8 {
-    top: 51.25% !important;
-    left: 5% !important;
-    width: 43.75% !important;
-    height: 43.75% !important;
+    top: 51.25%;
+    left: 5%;
+    width: 43.75%;
+    height: 43.75%;
 }
 
 .slot9 {
-    top: 51.25% !important;
-    left: 51.25% !important;
-    width: 43.75% !important;
-    height: 43.75% !important;
+    top: 51.25%;
+    left: 51.25%;
+    width: 43.75%;
+    height: 43.75%;
 }
 
 .slot10 {
-    top: 5% !important;
-    left: 5% !important;
-    width: 90% !important;
-    height: 90% !important;
+    top: 5%;
+    left: 5%;
+    width: 90%;
+    height: 90%;
 }
 
 .slot12 {
-    top: 5% !important;
-    left: 5% !important;
-    width: 90% !important;
-    height: 43.75% !important;
+    top: 5%;
+    left: 5%;
+    width: 90%;
+    height: 43.75%;
 }
 
 .slot13 {
-    top: 51.25% !important;
-    left: 5% !important;
-    width: 90% !important;
-    height: 43.75% !important;
+    top: 51.25%;
+    left: 5%;
+    width: 90%;
+    height: 43.75%;
 }
 
 .slot14 {
-    top: 5% !important;
-    left: 5% !important;
-    width: 43.75% !important;
-    height: 43.75% !important;
+    top: 5%;
+    left: 5%;
+    width: 43.75%;
+    height: 43.75%;
 }
 
 .slot15 {
-    top: 51.25% !important;
-    left: 5% !important;
-    width: 43.75% !important;
-    height: 43.75% !important;
+    top: 51.25%;
+    left: 5%;
+    width: 43.75%;
+    height: 43.75%;
 }
 
 .slot16 {
-    top: 5% !important;
-    left: 51.25% !important;
-    width: 43.75% !important;
-    height: 90% !important;
+    top: 5%;
+    left: 51.25%;
+    width: 43.75%;
+    height: 90%;
 }
 
 .slot17 {
-    top: 5% !important;
-    left: 5% !important;
-    width: 43.75% !important;
-    height: 43.75% !important;
+    top: 5%;
+    left: 5%;
+    width: 43.75%;
+    height: 43.75%;
 }
 
 .slot18 {
-    top: 5% !important;
-    left: 51.25% !important;
-    width: 43.75% !important;
-    height: 43.75% !important;
+    top: 5%;
+    left: 51.25%;
+    width: 43.75%;
+    height: 43.75%;
 }
 
 .slot19 {
-    top: 51.25% !important;
-    left: 5% !important;
-    width: 90% !important;
-    height: 43.75% !important;
+    top: 51.25%;
+    left: 5%;
+    width: 90%;
+    height: 43.75%;
 }
 
 .slot20 {
-    top: 5% !important;
-    left: 5% !important;
-    width: 90% !important;
-    height: 43.75% !important;
+    top: 5%;
+    left: 5%;
+    width: 90%;
+    height: 43.75%;
 }
 
 .slot21 {
-    top: 51.25% !important;
-    left: 5% !important;
-    width: 43.75% !important;
-    height: 43.75% !important;
+    top: 51.25%;
+    left: 5%;
+    width: 43.75%;
+    height: 43.75%;
 }
 
 .slot22 {
-    top: 51.25% !important;
-    left: 51.25% !important;
-    width: 43.75% !important;
-    height: 43.75% !important;
+    top: 51.25%;
+    left: 51.25%;
+    width: 43.75%;
+    height: 43.75%;
 }
 
 .slot23 {
-    top: 5% !important;
-    left: 5% !important;
-    width: 59.167% !important;
-    height: 90% !important;
+    top: 5%;
+    left: 5%;
+    width: 58.33%;
+    height: 90%;
 }
 
 .slot24 {
-    top: 5% !important;
-    left: 66.667% !important;
-    width: 28.333% !important;
-    height: 43.75% !important;
+    top: 5%;
+    left: 68.337%;
+    width: 28.333%;
+    height: 43.75%;
 }
 
 .slot25 {
-    top: 51.25% !important;
-    left: 66.667% !important; 
-    width: 28.333% !important;
-    height: 43.75% !important;
+    top: 51.25%;
+    left: 68.337%;
+    width: 28.333%;
+    height: 43.75%;
 }
 
 .slot26 {
-    top: 5% !important;
-    left: 5% !important;
-    width: 28.333% !important;
-    height: 43.75% !important;
+    top: 5%;
+    left: 5%;
+    width: 28.333%;
+    height: 43.75%;
 }
 
 .slot27 {
-    top: 5% !important;
-    left: 35.833% !important;
-    width: 59.167% !important;
-    height: 43.75% !important;
+    top: 5%;
+    left: 35.833%;
+    width: 58.33%;
+    height: 43.75%;
 }
 
 .slot28 {
-    top: 51.25% !important;
-    left: 5% !important;
-    width: 59.167% !important;
-    height: 43.75% !important;
+    top: 51.25%;
+    left: 5%;
+    width: 58.33%;
+    height: 43.75%;
 }
 
 .slot29 {
-    top: 51.25% !important;
-    left: 66.667% !important;
-    width: 28.333% !important;
-    height: 43.75% !important;
+    top: 51.25%;
+    left: 68.337%;
+    width: 28.333%;
+    height: 43.75%;
 }
 
 .slot30 {
-    top: 5% !important;
-    left: 5% !important;
-    width: 59.167% !important;
-    height: 43.75% !important;
+    top: 5%;
+    left: 5%;
+    width: 58.33%;
+    height: 43.75%;
 }
 
 .slot31 {
-    top: 5% !important;
-    left: 66.667% !important;
-    width: 28.333% !important;
-    height: 43.75% !important;
+    top: 5%;
+    left: 68.337%;
+    width: 28.333%;
+    height: 43.75%;
 }
 
 .slot32 {
-    top: 51.25% !important;
-    left: 5% !important;
-    width: 28.333% !important;
-    height: 43.75% !important;
+    top: 51.25%;
+    left: 5%;
+    width: 28.333%;
+    height: 43.75%;
 }
 
 .slot33 {
-    top: 51.25% !important;
-    left: 35.833% !important;
-    width: 59.167% !important;
-    height: 43.75% !important;
+    top: 51.25%;
+    left: 35.833%;
+    width: 58.33%;
+    height: 43.75%;
 }
 
+
+
+
 .slot34 {
-    top: 5% !important;
-    left: 5% !important;
-    width: 28.333% !important;
-    height: 90% !important;
+    top: 5%;
+    left: 5%;
+    width: 28.333%;
+    height: 90%;
 }
 
 .slot35 {
-    top: 5% !important;
-    left: 35.833% !important;
-    width: 28.333% !important;
-    height: 90% !important;
+    top: 5%;
+    left: 35.833%;
+    width: 28.333%;
+    height: 90%;
 }
 
 .slot36 {
-    top: 5% !important;
-    left: 66.666% !important;
-    width: 28.333% !important;
-    height: 90% !important;
+    top: 5%;
+    left: 66.666%;
+    width: 28.333%;
+    height: 90%;
 }
 
 .slot37 {
-    left: 5% !important;
-    top: 5% !important;
-    height: 28.333% !important;
-    width: 90% !important;
+    left: 5%;
+    top: 5%;
+    height: 28.333%;
+    width: 90%;
 }
 
 .slot38 {
-    left: 5% !important;
-    top: 35.833% !important;
-    height: 28.333% !important;
-    width: 90% !important;
+    left: 5%;
+    top: 35.833%;
+    height: 28.333%;
+    width: 90%;
 }
 
 .slot39 {
-    left: 5% !important;
-    top: 66.666% !important;
-    height: 28.333% !important;
-    width: 90% !important;
+    left: 5%;
+    top: 66.666%;
+    height: 28.333%;
+    width: 90%;
 }
 
 .slot40 {
-    top: 5% !important;
-    left: 5% !important;
-    width: 28.333% !important;
-    height: 43.75% !important;
+    top: 5%;
+    left: 5%;
+    width: 28.333%;
+    height: 43.75%;
 }
 
 .slot41 {
-    top: 5% !important;
-    left: 35.833% !important;
-    width: 28.333% !important;
-    height: 43.75% !important;
+    top: 5%;
+    left: 35.833%;
+    width: 28.333%;
+    height: 43.75%;
 }
 
 .slot42 {
-    top: 5% !important;
-    left: 66.666% !important;
-    width: 28.333% !important;
-    height: 43.75% !important;
+    top: 5%;
+    left: 66.666%;
+    width: 28.333%;
+    height: 43.75%;
 }
 
 .slot43 {
-    top: 51.25% !important;
-    left: 5% !important;
-    width: 28.333% !important;
-    height: 43.75% !important;
+    top: 51.25%;
+    left: 5%;
+    width: 28.333%;
+    height: 43.75%;
 }
 
 .slot44 {
-    top: 51.25% !important;
-    left: 35.833% !important;
-    width: 28.333% !important;
-    height: 43.75% !important;
+    top: 51.25%;
+    left: 35.833%;
+    width: 28.333%;
+    height: 43.75%;
 }
 
 .slot45 {
-    top: 51.25% !important;
-    left: 66.666% !important;
-    width: 28.333% !important;
-    height: 43.75% !important;
+    top: 51.25%;
+    left: 66.666%;
+    width: 28.333%;
+    height: 43.75%;
 }
 
 .slot46 {
-    left: 5% !important;
-    top: 5% !important;
-    height: 28.333% !important;
-    width: 43.75% !important;
+    left: 5%;
+    top: 5%;
+    height: 28.333%;
+    width: 43.75%;
 }
 
 .slot47 {
-    left: 51.25% !important;
-    top: 5% !important;
-    height: 28.333% !important;
-    width: 43.75% !important;
+    left: 51.25%;
+    top: 5%;
+    height: 28.333%;
+    width: 43.75%;
 }
 
 .slot48 {
-    left: 5% !important;
-    top: 35.833% !important;
-    height: 28.333% !important;
-    width: 43.75% !important;
+    left: 5%;
+    top: 35.833%;
+    height: 28.333%;
+    width: 43.75%;
 }
 
 .slot49 {
-    left: 51.25% !important;
-    top: 35.833% !important;
-    height: 28.333% !important;
-    width: 43.75% !important;
+    left: 51.25%;
+    top: 35.833%;
+    height: 28.333%;
+    width: 43.75%;
 }
 
 .slot50 {
-    left: 5% !important;
-    top: 66.666% !important;
-    height: 28.333% !important;
-    width: 43.75% !important;
+    left: 5%;
+    top: 66.666%;
+    height: 28.333%;
+    width: 43.75%;
 }
 
 .slot51 {
-    left: 51.25% !important;
-    top: 66.666% !important;
-    height: 28.333% !important;
-    width: 43.75% !important;
+    left: 51.25%;
+    top: 66.666%;
+    height: 28.333%;
+    width: 43.75%;
 }
 
 .slot52 {
-    left: 5% !important;
-    top: 5% !important;
-    width: 43.75% !important;
-    height: 23.75% !important;
+    left: 5%;
+    top: 5%;
+    width: 43.75%;
+    height: 22.5%;
 }
 
 .slot53 {
-    left: 51.25% !important;
-    top: 5% !important;
-    width: 43.75% !important;
-    height: 63.75% !important;
+    left: 51.25%;
+    top: 5%;
+    width: 43.75%;
+    height: 62.5%;
 }
 
 .slot54 {
-    left: 5% !important;
-    top: 31.25% !important;
-    width: 43.75% !important;
-    height: 63.75% !important;
+    left: 5%;
+    top: 32.5%;
+    width: 43.75%;
+    height: 62.5%;
 }
 
 .slot55 {
-    left: 51.25% !important;
-    top: 71.25% !important;
-    width: 43.75% !important;
-    height: 23.75% !important;
+    left: 51.25%;
+    top: 72.5%;
+    width: 43.75%;
+    height: 22.5%;
 }
 
 .slot56 {
-    left: 5% !important;
-    top: 5% !important;
-    width: 43.75% !important;
-    height: 63.75% !important;
+    left: 5%;
+    top: 5%;
+    width: 43.75%;
+    height: 62.5%;
 }
 
 .slot57 {
-    left: 51.25% !important;
-    top: 5% !important;
-    width: 43.75% !important;
-    height: 23.75% !important;
+    left: 51.25%;
+    top: 5%;
+    width: 43.75%;
+    height: 22.5%;
 }
 
 .slot58 {
-    left: 5% !important;
-    top: 71.25% !important;
-    width: 43.75% !important;
-    height: 23.75% !important;
+    left: 5%;
+    top: 72.5%;
+    width: 43.75%;
+    height: 22.5%;
 }
 
 .slot59 {
-    left: 51.25% !important;
-    top: 31.25% !important;
-    width: 43.75% !important;
-    height: 63.75% !important;
+    left: 51.25%;
+    top: 32.5%;
+    width: 43.75%;
+    height: 62.5%;
 }
 
 .slot60 {
-    top: 5% !important;
-    left: 5% !important;
-    width: 28.333% !important;
-    height: 43.75% !important;
+    top: 5%;
+    left: 5%;
+    width: 28.333%;
+    height: 43.75%;
 }
 
 .slot61 {
-    top: 5% !important;
-    left: 35.833% !important;
-    width: 59.167% !important;
-    height: 43.75% !important;
+    top: 5%;
+    left: 35.833%;
+    width: 58.3334%;
+    height: 43.75%;
 }
 
 .slot62 {
-    top: 51.25% !important;
-    left: 5% !important;
-    width: 28.333% !important;
-    height: 43.75% !important;
+    top: 51.25%;
+    left: 5%;
+    width: 28.333%;
+    height: 43.75%;
 }
 
 .slot63 {
-    top: 51.25% !important;
-    left: 35.833% !important;
-    width: 28.333% !important;
-    height: 43.75% !important;
+    top: 51.25%;
+    left: 35.833%;
+    width: 28.333%;
+    height: 43.75%;
 }
 
 .slot64 {
-    top: 51.25% !important;
-    left: 66.666% !important;
-    width: 28.333% !important;
-    height: 43.75% !important;
+    top: 51.25%;
+    left: 66.666%;
+    width: 28.333%;
+    height: 43.75%;
 }
 
 .slot65 {
-    top: 5% !important;
-    left: 5% !important;
-    width: 59.167% !important;
-    height: 43.75% !important;
+    top: 5%;
+    left: 5%;
+    width: 58.3334%;
+    height: 43.75%;
 }
 
 .slot66 {
-    top: 5% !important;
-    left: 66.666% !important;
-    width: 28.333% !important;
-    height: 43.75% !important;
+    top: 5%;
+    left: 66.666%;
+    width: 28.333%;
+    height: 43.75%;
 }
 
 .slot67 {
-    top: 5% !important;
-    left: 5% !important;
-    width: 28.333% !important;
-    height: 43.75% !important;
+    top: 5%;
+    left: 5%;
+    width: 28.333%;
+    height: 43.75%;
 }
 
 .slot68 {
-    top: 5% !important;
-    left: 35.833% !important;
-    width: 28.333% !important;
-    height: 43.75% !important;
+    top: 5%;
+    left: 35.833%;
+    width: 28.333%;
+    height: 43.75%;
 }
 
 .slot69 {
-    top: 5% !important;
-    left: 66.666% !important;
-    width: 28.333% !important;
-    height: 43.75% !important;
+    top: 5%;
+    left: 66.666%;
+    width: 28.333%;
+    height: 43.75%;
 }
 
 .slot70 {
-    top: 51.25% !important;
-    left: 5% !important;
-    width: 59.167% !important;
-    height: 43.75% !important;
+    top: 51.25%;
+    left: 5%;
+    width: 58.3334%;
+    height: 43.75%;
 }
 
 .slot71 {
-    top: 51.25% !important;
-    left: 66.666% !important;
-    width: 28.333% !important;
-    height: 43.75% !important;
+    top: 51.25%;
+    left: 66.666%;
+    width: 28.333%;
+    height: 43.75%;
 }
 
 .slot72 {
-    top: 51.25% !important;
-    left: 5% !important;
-    width: 28.333% !important;
-    height: 43.75% !important;
+    top: 51.25%;
+    left: 5%;
+    width: 28.333%;
+    height: 43.75%;
 }
 
 .slot73 {
-    top: 51.25% !important;
-    left: 35.833% !important;
-    width: 59.167% !important;
-    height: 43.75% !important;
+    top: 51.25%;
+    left: 35.833%;
+    width: 58.3334%;
+    height: 43.75%;
 }
 
 .slot74 {
-    top: 5% !important;
-    left: 5% !important;
-    width: 28.333% !important;
-    height: 28.333% !important;
+    top: 5%;
+    left: 5%;
+    width: 28.333%;
+    height: 28.333%;
 }
 
 .slot75 {
-    top: 5% !important;
-    left: 35.833% !important;
-    width: 28.333% !important;
-    height: 28.333% !important;
+    top: 5%;
+    left: 35.833%;
+    width: 28.333%;
+    height: 28.333%;
 }
 
 .slot76 {
-    top: 5% !important;
-    left: 66.666% !important;
-    width: 28.333% !important;
-    height: 28.333% !important;
+    top: 5%;
+    left: 66.666%;
+    width: 28.333%;
+    height: 28.333%;
 }
 
 .slot77 {
-    left: 5% !important;
-    top: 35.833% !important;
-    height: 28.333% !important;
-    width: 28.333% !important;
+    left: 5%;
+    top: 35.833%;
+    height: 28.333%;
+    width: 28.333%;
 }
 
 .slot78 {
-    left: 35.833% !important;
-    top: 35.833% !important;
-    height: 28.333% !important;
-    width: 28.333% !important;
+    left: 35.833%;
+    top: 35.833%;
+    height: 28.333%;
+    width: 28.333%;
 }
 
 .slot79 {
-    left: 66.666% !important;
-    top: 35.833% !important;
-    height: 28.333% !important;
-    width: 28.333% !important;
+    left: 66.666%;
+    top: 35.833%;
+    height: 28.333%;
+    width: 28.333%;
 }
 
 .slot80 {
-    left: 5% !important;
-    top: 66.666% !important;
-    height: 28.333% !important;
-    width: 28.333% !important;
+    left: 5%;
+    top: 66.666%;
+    height: 28.333%;
+    width: 28.333%;
 }
 
 .slot81 {
-    left: 35.833% !important;
-    top: 66.666% !important;
-    height: 28.333% !important;
-    width: 28.333% !important;
+    left: 35.833%;
+    top: 66.666%;
+    height: 28.333%;
+    width: 28.333%;
 }
 
 .slot82 {
-    left: 66.666% !important;
-    top: 66.666% !important;
-    height: 28.333% !important;
-    width: 28.333% !important;
+    left: 66.666%;
+    top: 66.666%;
+    height: 28.333%;
+    width: 28.333%;
 }
 
 .slot83 {
-    left: 20% !important;
-    top: 20% !important;
-    height: 60% !important;
-    width: 60% !important;
+    left: 20%;
+    top: 20%;
+    height: 60%;
+    width: 60%;
 }
 
 .slot84 {
-    left: 20% !important;
-    top: 20% !important;
-    height: 28.75% !important;
-    width: 28.75% !important;
+    left: 20%;
+    top: 20%;
+    height: 25%;
+    width: 25%;
 }
 
 .slot85 {
-    left: 51.25% !important;
-    top: 20% !important;
-    height: 28.75% !important;
-    width: 28.75% !important;
+    left: 50%;
+    top: 20%;
+    height: 25%;
+    width: 25%;
 }
 
 .slot86 {
-    left: 20% !important;
-    top: 51.25% !important;
-    height: 28.75% !important;
-    width: 28.75% !important;
+    left: 20%;
+    top: 50%;
+    height: 25%;
+    width: 25%;
 }
 
 .slot87 {
-    left: 51.25% !important;
-    top: 51.25% !important;
-    height: 28.75% !important;
-    width: 28.75% !important;
+    left: 50%;
+    top: 50%;
+    height: 25%;
+    width: 25%;
 }
 
 .slot88 {
-    left: 16.25% !important;
-    top: 33.75% !important;
-    height: 32.5% !important;
-    width: 32.5% !important;
+    left: 15%;
+    top: 33.75%;
+    height: 32.5%;
+    width: 32.5%;
 }
 
 .slot89 {
-    left: 51.25% !important;
-    top: 33.75% !important;
-    height: 32.50% !important;
-    width: 32.5% !important;
+    left: 51.25%;
+    top: 33.75%;
+    height: 32.5%;
+    width: 32.5%;
 }
 
 .slot90 {
-    left: 15.625% !important;
-    top: 33.75% !important;
-    height: 30% !important;
-    width: 21.25% !important;
+    left: 15%;
+    top: 33.75%;
+    height: 28%;
+    width: 20%;
 }
 
 .slot91 {
-    left: 39.375% !important;
-    top: 33.75% !important;
-    height: 30% !important;
-    width: 21.25% !important;
+    left: 40%;
+    top: 33.75%;
+    height: 28%;
+    width: 20%;
 }
 
 .slot92 {
-    left: 63.125% !important;
-    top: 33.75% !important;
-    height: 30% !important;
-    width: 21.25% !important;
+    left: 65%;
+    top: 33.75%;
+    height: 28%;
+    width: 20%;
 }
 
 .slot93 {
-    left: 20% !important;
-    top: 12.5% !important;
-    height: 75% !important;
-    width: 60% !important;
+    left: 20%;
+    top: 12.5%;
+    height: 75%;
+    width: 60%;
 }
 
 .slot94 {
-    left: 22.5% !important;
-    top: 12.5% !important;
-    height: 35% !important;
-    width: 55% !important;
+    left: 25%;
+    top: 12.5%;
+    height: 35%;
+    width: 55%;
 }
 
 .slot95 {
-    left: 22.5% !important;
-    top: 50% !important;
-    height: 35% !important;
-    width: 55% !important;
+    left: 25%;
+    top: 51.25%;
+    height: 35%;
+    width: 55%;
 }
 
 .slot96 {
-    left: 16.25% !important;
-    top: 12.5% !important;
-    height: 75% !important;
-    width: 32.5% !important;
+    left: 15%;
+    top: 12.5%;
+    height: 75%;
+    width: 32.5%;
 }
 
 .slot97 {
-    left: 51.25% !important;
-    top: 12.5% !important;
-    height: 75% !important;
-    width: 32.5% !important;
+    left: 51.25%;
+    top: 12.5%;
+    height: 75%;
+    width: 32.5%;
 }
 
 .slot98 {
-    left: 12.5% !important;
-    top: 12.5% !important;
-    height: 75% !important;
-    width: 75% !important;
+    left: 12.5%;
+    top: 12.5%;
+    height: 75%;
+    width: 75%;
 }
 
 .slot99 {
-    left: 15% !important;
-    top: 33.75% !important;
-    height: 32% !important;
-    width: 22.5% !important;
+    left: 15%;
+    top: 33.75%;
+    height: 28%;
+    width: 20%;
 }
 
 .slot100 {
-    left: 40% !important;
-    top: 33.75% !important;
-    height: 32% !important;
-    width: 45% !important;
+    left: 40%;
+    top: 33.75%;
+    height: 28%;
+    width: 40%;
 }
 
 .slot101 {
-    left: 15% !important;
-    top: 33.75% !important;
-    height: 32% !important;
-    width: 45% !important;
+    left: 15%;
+    top: 33.75%;
+    height: 28%;
+    width: 40%;
 }
 
 .slot102 {
-    left: 62.5% !important;
-    top: 33.75% !important;
-    height: 32% !important;
-    width: 22.5% !important;
+    left: 60%;
+    top: 33.75%;
+    height: 28%;
+    width: 20%;
 }
 
+
+
 .slot103 {
-    left: 5% !important;
-    top: 5% !important;
-    height: 43.75% !important;
-    width: 20.625% !important;
+    left: 5%;
+    top: 5%;
+    height: 43.75%;
+    width: 18.75%;
 }
 
 .slot104 {
-    left: 28.125% !important;
-    top: 5% !important;
-    height: 43.75% !important;
-    width: 20.625% !important;
+    left: 28.75%;
+    top: 5%;
+    height: 43.75%;
+    width: 18.75%;
 }
 
 .slot105 {
-    left: 51.25% !important;
-    top: 5% !important;
-    height: 43.75% !important;
-    width: 20.625% !important;
+    left: 51.25%;
+    top: 5%;
+    height: 43.75%;
+    width: 18.75%;
 }
 
 .slot106 {
-    left: 74.375% !important;
-    top: 5% !important;
-    height: 43.75% !important;
-    width: 20.625% !important;
+    left: 76.25%;
+    top: 5%;
+    height: 43.75%;
+    width: 18.75%;
 }
 
 .slot107 {
-    left: 5% !important;
-    top: 51.25% !important;
-    height: 43.75% !important;
-    width: 20.625% !important;
+    left: 5%;
+    top: 51.25%;
+    height: 43.75%;
+    width: 18.75%;
 }
 
 .slot108 {
-    left: 28.125% !important;
-    top: 51.25% !important;
-    height: 43.75% !important;
-    width: 20.625% !important;
+    left: 28.75%;
+    top: 51.25%;
+    height: 43.75%;
+    width: 18.75%;
 }
 
 .slot109 {
-    left: 51.25% !important;
-    top: 51.25% !important;
-    height: 43.75% !important;
-    width: 20.625% !important;
+    left: 51.25%;
+    top: 51.25%;
+    height: 43.75%;
+    width: 18.75%;
 }
 
 .slot110 {
-    left: 74.375% !important;
-    top: 51.25% !important;
-    height: 43.75% !important;
-    width: 20.625% !important;
+    left: 76.25%;
+    top: 51.25%;
+    height: 43.75%;
+    width: 18.75%;
 }
 
+
 .slot111 {
-    top: 5% !important;
-    left: 5% !important;
-    width: 43.75% !important;
-    height: 20.625% !important;
+    top: 5%;
+    left: 5%;
+    width: 43.75%;
+    height: 18.75%;
 }
 
 .slot112 {
-    top: 28.125% !important;
-    left: 5% !important;
-    width: 43.75% !important;
-    height: 20.625% !important;
+    top: 28.75%;
+    left: 5%;
+    width: 43.75%;
+    height: 18.75%;
 }
 
 .slot113 {
-    top: 51.25% !important;
-    left: 5% !important;
-    width: 43.75% !important;
-    height: 20.625% !important;
+    top: 51.25%;
+    left: 5%;
+    width: 43.75%;
+    height: 18.75%;
 }
 
 .slot114 {
-    top: 74.375% !important;
-    left: 5% !important;
-    width: 43.75% !important;
-    height: 20.625% !important;
+    top: 76.25%;
+    left: 5%;
+    width: 43.75%;
+    height: 18.75%;
 }
 
 .slot115 {
-    top: 5% !important;
-    left: 51.25% !important;
-    width: 43.75% !important;
-    height: 20.625% !important;
+    top: 5%;
+    left: 51.25%;
+    width: 43.75%;
+    height: 18.75%;
 }
 
 .slot116 {
-    top: 28.125% !important;
-    left: 51.25% !important;
-    width: 43.75% !important;
-    height: 20.625% !important;
+    top: 28.75%;
+    left: 51.25%;
+    width: 43.75%;
+    height: 18.75%;
 }
 
 .slot117 {
-    top: 51.25% !important;
-    left: 51.25% !important;
-    width: 43.75% !important;
-    height: 20.625% !important;
+    top: 51.25%;
+    left: 51.25%;
+    width: 43.75%;
+    height: 18.75%;
 }
 
 .slot118 {
-    top: 74.375% !important;
-    left: 51.25% !important;
-    width: 43.75% !important;
-    height: 20.625% !important;
+    top: 76.25%;
+    left: 51.25%;
+    width: 43.75%;
+    height: 18.75%;
 }
 
+
+
+
+
 .slot119 {
-    top: 5% !important;
-    left: 5% !important;
-    width: 28.333% !important;
-    height: 43.75% !important;
+    top: 5%;
+    left: 5%;
+    width: 25%;
+    height: 43.75%;
 }
 
 .slot120 {
-    top: 51.25% !important;
-    left: 5% !important;
-    width: 28.333% !important;
-    height: 43.75% !important;
+    top: 51.25%;
+    left: 5%;
+    width: 25%;
+    height: 43.75%;
 }
 
 .slot121 {
-    top: 5% !important;
-    left: 35.833% !important;
-    width: 59.167% !important;
-    height: 90% !important;
+    top: 5%;
+    left: 35%;
+    width: 60%;
+    height: 90%;
 }
 
+
 .slot122 {
-    top: 5% !important;
-    left: 5% !important;
-    width: 21.25% !important;
-    height: 90% !important;
+    top: 5%;
+    left: 5%;
+    width: 20%;
+    height: 90%;
 }
 
 .slot123 {
-    top: 5% !important;
-    left: 28.75% !important;
-    width: 42.5% !important;
-    height: 90% !important;
+    top: 5%;
+    left: 30%;
+    width: 40%;
+    height: 90%;
 }
 
 .slot124 {
-    top: 5% !important;
-    left: 73.75% !important;
-    width: 21.25% !important;
-    height: 90% !important;
+    top: 5%;
+    left: 75%;
+    width: 20%;
+    height: 90%;
 }
 
 .slot125 {
-    top: 5% !important;
-    left: 5% !important;
-    width: 90% !important;
-    height: 59.167% !important;
+    top: 5%;
+    left: 5%;
+    width: 90%;
+    height: 58.33%;
 }
 
+
 .slot126 {
-    top: 5% !important;
-    left: 5% !important;
-    width: 20.625% !important;
-    height: 90% !important;
+    top: 5%;
+    left: 5%;
+    width: 18.75%;
+    height: 90%;
 }
 
 .slot127 {
-    top: 5% !important;
-    left: 28.125% !important;
-    width: 20.625% !important;
-    height: 90% !important;
+    top: 5%;
+    left: calc(5% + (18.75% * 1) + (5% * 1));
+    width: 18.75%;
+    height: 90%;
 }
 
 .slot128 {
-    top: 5% !important;
-    left:  51.25% !important;
-    width: 20.625% !important;
-    height: 90% !important;
+    top: 5%;
+    left: calc(5% + (18.75% * 2) + (5% * 2));
+    width: 18.75%;
+    height: 90%;
 }
 
 .slot129 {
-    top: 5% !important;
-    left: 74.375% !important;
-    width: 20.625% !important;
-    height: 90% !important;
+    top: 5%;
+    left: calc(5% + (18.75% * 3) + (5% * 3));
+    width: 18.75%;
+    height: 90%;
 }
 
+
 .slot130 {
-    left: 5% !important;
-    top: 5% !important;
-    height: 20.625% !important;
-    width: 90% !important;
+    left: 5%;
+    top: 5%;
+    height: 18.75%;
+    width: 90%;
 }
 
 .slot131 {
-    left: 5% !important;
-    top: 28.125% !important;
-    height: 20.625% !important;
-    width: 90% !important;
+    left: 5%;
+    top: calc(5% + (18.75% * 1) + (5% * 1));
+    height: 18.75%;
+    width: 90%;
 }
 
 .slot132 {
-    left: 5% !important;
-    top: 51.25% !important;
-    height: 20.625% !important;
-    width: 90% !important;
+    left: 5%;
+    top: calc(5% + (18.75% * 2) + (5% * 2));
+    height: 18.75%;
+    width: 90%;
 }
 
 .slot133 {
-    left: 5% !important;
-    top: 74.375% !important;
-    height: 20.625% !important;
-    width: 90% !important;
+    left: 5%;
+    top: calc(5% + (18.75% * 3) + (5% * 3));
+    height: 18.75%;
+    width: 90%;
 }
 
+
 .slot134 {
-    top: 5% !important;
-    left: 5% !important;
-    width: 59.167% !important;
-    height: 28.333% !important;
+    top: 5%;
+    left: 5%;
+    width: 58.33%;
+    height: 28.333%;
 }
 
 .slot135 {
-    top: 5% !important;
-    left: 66.666% !important;
-    height: 59.167% !important;
-    width: 28.333% !important;
+    top: 5%;
+    left: 66.666%;
+    height: 58.33%;
+    width: 28.333%;
 }
 
+
 .slot136 {
-    top: 5% !important;
-    left: 5% !important;
-    height: 55% !important;
-    width: 90% !important;
+    top: 5%;
+    left: 5%;
+    height: 55%;
+    width: 90%;
 }
 
 .slot137 {
-    top: 5% !important;
-    left: 5% !important;
-    height: 59.167% !important;
-    width: 43.75% !important;
+    top: 5%;
+    left: 5%;
+    height: 58.3334%;
+    width: 43.75%;
 }
 
 .slot138 {
-    top: 5% !important;
-    left: 51.25% !important;
-    height: 59.167% !important;
-    width: 43.75% !important;
+    top: 5%;
+    left: 51.25%;
+    height: 58.3334%;
+    width: 43.75%;
 }
 
+
+
 .slot901 {
-    left: 5% !important;
-    top: 66.666% !important;
-    height: 28.333% !important;
-    width: 90% !important;
+    left: 5%;
+    top: 66.666%;
+    height: 28.333%;
+    width: 90%;
 }
 
 .slot902 {
-    left: 66.667% !important;
-    top: 5% !important;
-    width: 28.333% !important;
-    height: 90% !important;
+    left: 68.337%;
+    top: 5%;
+    width: 28.333%;
+    height: 90%;
 }
 
+
 .slot903 {
-    left: 20% !important;
-    top: 65% !important;
-    width: 60% !important;
-    height: 30% !important;
+    left: 20%;
+    top: 65%;
+    width: 60%;
+    height: 30%;
 }
 
 .slot904 {
-    left: 58% !important;
-    top: 68% !important;
-    width: 37% !important;
-    height: 27% !important;
+    left: 58%;
+    top: 68%;
+    width: 37%;
+    height: 27%;
 }
 
 .slot139 {
-    top: 5% !important;
-    left: 5% !important;
-    width: 28.333% !important;
-    height: 59.167% !important;
+    top: 5%;
+    left: 5%;
+    width: 28.333%;
+    height: 58.3334%;
 }
 
 .slot140 {
-    top: 5% !important;
-    left: 35.833% !important;
-    width: 28.333% !important;
-    height: 59.167% !important;
+    top: 5%;
+    left: 35.833%;
+    width: 28.333%;
+    height: 58.3334%;
 }
 
 .slot141 {
-    top: 5% !important;
-    left: 66.666% !important;
-    width: 28.333% !important;
-    height: 59.167% !important;
+    top: 5%;
+    left: 66.666%;
+    width: 28.333%;
+    height: 58.3334%;
 }
 
 .slot142 {
-    top: 5% !important;
-    left: 10% !important;
-    width: 21.6667% !important;
-    height: 59.167% !important;
+    top: 5%;
+    left: 10%;
+    width: 21.6667%;
+    height: 58.3334%;
 }
 
+
 .slot143 {
-    top: 18.333% !important;
-    left: 35.833% !important;
-    width: 28.333% !important;
-    height: 59.167% !important;
+    top: 18.333%;
+    left: 35.833%;
+    width: 28.333%;
+    height: 58.3334%;
 }
 
 .slot144 {
-    top: 30% !important;
-    left: 66.666% !important;
-    width: 18.6667% !important;
-    height: 59.167% !important;
+    top: 30%;
+    left: 66.666%;
+    width: 18.6667%;
+    height: 58.3334%;
 }
 
+
+
 .slot905 {
-    left: 22% !important;
-    top: 37.5% !important;
-    width: 54% !important;
-    height: 25% !important;
+    left: 22%;
+    top: 37.5%;
+    width: 54%;
+    height: 25%;
 }
 
 .slot907 {
-    left: 27% !important;
-    top: 37.5% !important;
-    width: 44% !important;
-    height: 25% !important;
+    left: 27%;
+    top: 37.5%;
+    width: 44%;
+    height: 25%;
 }
 
 .slot145 {
-    top: 35.833% !important;
-    left: 5% !important;
-    width: 28.333% !important;
-    height: 59.167% !important;
+    top: 35.833%;
+    left: 5%;
+    width: 28.333%;
+    height: 58.3334%;
 }
 
 .slot146 {
-    top: 35.833% !important;
-    left: 35.833% !important;
-    width: 28.333% !important;
-    height: 59.167% !important;
+    top: 35.833%;
+    left: 35.833%;
+    width: 28.333%;
+    height: 58.3334%;
 }
 
 .slot147 {
-    top: 35.833% !important;
-    left: 66.666% !important;
-    width: 28.333% !important;
-    height: 59.167% !important;
+    top: 35.833%;
+    left: 66.666%;
+    width: 28.333%;
+    height: 58.3334%;
 }
+
 
 .slot148 {
-    left: 5% !important;
-    top: 5% !important;
-    height: 30.6667% !important;
-    width: 90% !important;
+    left: 5%;
+    top: 5%;
+    height: 30.6667%;
+    width: 90%;
 }
 
+
 .slot149 {
-    left: 5% !important;
-    top: 63.3334% !important;
-    height: 30.6667% !important;
-    width: 90% !important;
+    left: 5%;
+    top: 63.3334%;
+    height: 30.6667%;
+    width: 90%;
 }
 
 .slot150 {
-    left: 5% !important;
-    top: 40.3334% !important;
-    height: 18.6667% !important;
-    width: 28.333% !important;
+    left: 5%;
+    top: 40.3334%;
+    height: 18.6667%;
+    width: 28.333%;
 }
 
 .slot151 {
-    left: 35.833% !important;
-    top: 40.3334% !important;
-    height: 18.6667% !important;
-    width: 28.333% !important;
+    left: 35.833%;
+    top: 40.3334%;
+    height: 18.6667%;
+    width: 28.333%;
 }
 
 .slot152 {
-    left: 66.666% !important;
-    top: 40.3334% !important;
-    height: 18.6667% !important;
-    width: 28.333% !important;
+    left: 66.666%;
+    top: 40.3334%;
+    height: 18.6667%;
+    width: 28.333%;
 }
 
+
+
 .slot153 {
-    left: 5% !important;
-    top: 5% !important;
-    height: 59.167% !important;
-    width: 30.6667% !important;
+    left: 5%;
+    top: 5%;
+    height: 58.3334%;
+    width: 30.6667%;
 }
 
 .slot154 {
-    left: 41.6667% !important;
-    top: 5% !important;
-    height: 28.333% !important;
-    width: 54.333% !important;
+    left: 41.6667%;
+    top: 5%;
+    height: 28.333%;
+    width: 54.333%;
 }
 
 .slot155 {
-    left: 41.6667% !important;
-    top: 35.833% !important;
-    height: 59.167% !important;
-    width: 24.5% !important;
+    left: 41.6667%;
+    top: 35.833%;
+    height: 58.3334%;
+    width: 24.5%;
 }
 
 .slot156 {
-    left: 5% !important;
-    top: 68.334% !important;
-    height: 28.333% !important;
-    width: 30.6667% !important;
+    left: 5%;
+    top: 68.334%;
+    height: 28.333%;
+    width: 30.6667%;
 }
 
 .slot157 {
-    left: 71.167% !important;
-    top: 35.833% !important;
-    height: 59.167% !important;
-    width: 24.5% !important;
+    left: 71.167%;
+    top: 35.833%;
+    height: 58.3334%;
+    width: 24.5%;
 }
 
 .slot906 {
-    left: 71.167% !important;
-    top: 35.833% !important;
-    height: 59.167% !important;
-    width: 24.5% !important;
+    left: 71.167%;
+    top: 35.833%;
+    height: 58.3334%;
+    width: 24.5%;
 }
 
 .slot908 {
-    left: 10% !important;
-    top: 5% !important;
-    height: 21% !important;
-    width: 40% !important;
+    left: 10%;
+    top: 5%;
+    height: 21%;
+    width: 40%;
 }
 
 .slot158 {
-    top: 5% !important;
-    left: 5% !important;
-    width: 60% !important;
-    height: 55% !important;
+    top: 5%;
+    left: 5%;
+    width: 60%;
+    height: 55%;
 }
 
 .slot159 {
-    top: 45% !important;
-    left: 50% !important;
-    width: 45% !important;
-    height: 50% !important;
+    top: 45%;
+    left: 50%;
+    width: 45%;
+    height: 50%;
 }
 
 .slot160 {
-    top: 65% !important;
-    left: 5% !important;
-    width: 40% !important;
-    height: 30% !important;
+    top: 65%;
+    left: 5%;
+    width: 40%;
+    height: 30%;
 }
 
 .slot909 {
-    left: 45% !important;
-    top: 25% !important;
-    height: 50% !important;
-    width: 40% !important;
+    left: 45%;
+    top: 25%;
+    height: 50%;
+    width: 40%;
 }
 
+
 .slot161 {
-    top: 5% !important;
-    left: 5% !important;
-    width: 90% !important;
-    height: 28.333% !important;
+    top: 5%;
+    left: 5%;
+    width: 90%;
+    height: 28.333%;
 }
 
 .slot162 {
-    top: 35.833% !important;
-    left: 20% !important;
-    width: 60% !important;
-    height: 20% !important;
+    top: 35.833%;
+    left: 20%;
+    width: 60%;
+    height: 20%;
 }
 
 .slot163 {
-    top: 61.6667% !important;
-    left: 5% !important;
-    width: 90% !important;
-    height: 33.33% !important;
+    top: 61.6667%;
+    left: 5%;
+    width: 90%;
+    height: 33.33%;
 }
 
+
 .slot164 {
-    top: 5% !important;
-    left: 55% !important;
-    height: 30% !important;
-    width: 30% !important;
+    top: 5%;
+    left: 55%;
+    height: 30%;
+    width: 30%;
 }
 
 .slot165 {
-    left: 5% !important;
-    top: 66.666% !important;
-    height: 28.333% !important;
-    width: 43.75% !important;
+    left: 5%;
+    top: 66.666%;
+    height: 28.333%;
+    width: 43.75%;
 }
 
 .slot166 {
-    left: 51.25% !important;
-    top: 66.666% !important;
-    height: 28.333% !important;
-    width: 43.75% !important;
+    left: 51.25%;
+    top: 66.666%;
+    height: 28.333%;
+    width: 43.75%;
 }
 
+
 .slot167 {
-    top: 35.833% !important;
-    left: 66.666% !important;
-    width: 28.333% !important;
-    height: 59.167% !important;
+    top: 35.833%;
+    left: 66.666%;
+    width: 28.333%;
+    height: 58.3334%;
 }
 
 .slot168 {
-    top: 35.833% !important;
-    left: 5% !important;
-    width: 43.75% !important;
-    height: 59.167% !important;
+    top: 35.833%;
+    left: 5%;
+    width: 43.75%;
+    height: 58.3334%;
 }
 
 .slot169 {
-    top: 35.833% !important;
-    left: 51.25% !important;
-    width: 43.75% !important;
-    height: 59.167% !important;
+    top: 35.833%;
+    left: 51.25%;
+    width: 43.75%;
+    height: 58.3334%;
 }
 
 .slot170 {
-    top: 16% !important;
-    left: 31% !important;
-    width: 40% !important;
-    height: 40% !important;
+    top: 16%;
+    left: 31%;
+    width: 40%;
+    height: 40%;
 }
 
 .slot171 {
-    top: 30% !important;
-    left: 66.666% !important;
-    width: 28.333% !important;
-    height: 43.75% !important;
+    top: 30%;
+    left: 66.666%;
+    width: 28.333%;
+    height: 43.75%;
 }
 
 .slot172 {
-    top: 5% !important;
-    left: 5% !important;
-    width: 28.333% !important;
-    height: 20% !important;
+    top: 5%;
+    left: 5%;
+    width: 28.333%;
+    height: 20%;
 }
 
 .slot173 {
-    top: 30% !important;
-    left: 5% !important;
-    width: 28.333% !important;
-    height: 43.75% !important;
+    top: 30%;
+    left: 5%;
+    width: 28.333%;
+    height: 43.75%;
 }
 
 .slot174 {
-    top: 5% !important;
-    left: 35.833% !important;
-    width: 28.333% !important;
-    height: 35% !important;
+    top: 5%;
+    left: 35.833%;
+    width: 28.333%;
+    height: 35%;
 }
 
 .slot175 {
-    top: 5% !important;
-    left: 59% !important;
-    height: 20% !important;
-    width: 30% !important;
+    top: 5%;
+    left: 59%;
+    height: 20%;
+    width: 30%;
 }
 
+
 .slot176 {
-    left: 5% !important;
-    top: 66.666% !important;
-    height: 28.333% !important;
-    width: 20.625% !important;
+    left: 5%;
+    top: 66.666%;
+    height: 28.333%;
+    width: 18.75%;
 }
 
 .slot177 {
-    left: 28.75% !important;
-    top: 66.666% !important;
-    height: 28.333% !important;
-    width: 20.625% !important;
+    left: 28.75%;
+    top: 66.666%;
+    height: 28.333%;
+    width: 18.75%;
 }
 
 .slot178 {
-    left: 51.25% !important;
-    top: 66.666% !important;
-    height: 28.333% !important;
-    width: 20.625% !important;
+    left: 51.25%;
+    top: 66.666%;
+    height: 28.333%;
+    width: 18.75%;
 }
 
 .slot179 {
-    left: 76.25% !important;
-    top: 66.666% !important;
-    height: 28.333% !important;
-    width: 20.625% !important;
+    left: 76.25%;
+    top: 66.666%;
+    height: 28.333%;
+    width: 18.75%;
 }
 
 .slot180 {
-    left: 30% !important;
-    top: 5% !important;
-    height: 32% !important;
-    width: 40% !important;
+    left: 30%;
+    top: 5%;
+    height: 32%;
+    width: 40%;
 }
 
 .slot181 {
-    left: 35.833% !important;
-    top: 40% !important;
-    height: 20% !important;
-    width: 28.333% !important;
+    left: 35.833%;
+    top: 40%;
+    height: 20%;
+    width: 28.333%;
 }
 
 .slot182 {
-    left: 37% !important;
-    top: 37% !important;
-    height: 25% !important;
-    width: 25% !important;
+    left: 37%;
+    top: 37%;
+    height: 25%;
+    width: 25%;
 }
 
 .slot183 {
-    left: 5% !important;
-    top: 35.833% !important;
-    height: 59.167% !important;
-    width: 90% !important;
+    left: 5%;
+    top: 35.833%;
+    height: 58.33%;
+    width: 90%;
 }
 
 .slot184 {
-    top: 5% !important;
-    left: 10% !important;
-    width: 37.5% !important;
-    height: 43.75% !important;
+    top: 5%;
+    left: 10%;
+    width: 37.5%;
+    height: 43.75%;
 }
 
 .slot185 {
-    top: 5% !important;
-    left: 51.25% !important;
-    width: 37.5% !important;
-    height: 43.75% !important;
+    top: 5%;
+    left: 51.25%;
+    width: 37.5%;
+    height: 43.75%;
 }
 
 .slot186 {
-    top: 43.75% !important;
-    left: 10% !important;
-    width: 30% !important;
-    height: 51.25% !important;
+    top: 43.75%;
+    left: 10%;
+    width: 30%;
+    height: 51.25%;
 }
 
 .slot187 {
-    top: 43.75% !important;
-    left: 60% !important;
-    width: 30% !important;
-    height: 51.25% !important;
+    top: 43.75%;
+    left: 60%;
+    width: 30%;
+    height: 51.25%;
 }
 
 .slot188 {
-    left: 5% !important;
-    top: 43.75% !important;
-    height: 43.75% !important;
-    width: 45.5% !important;
+    left: 5%;
+    top: 43.75%;
+    height: 43.75%;
+    width: 45.5%;
 }
 
 .slot189 {
-    left: 47.5% !important;
-    top: 43.75% !important;
-    height: 43.75% !important;
-    width: 45.5% !important;
+    left: 47.5%;
+    top: 43.75%;
+    height: 43.75%;
+    width: 45.5%;
 }
-
 
 .btn-setting.btnUpload {
     width: 100% !important;
@@ -2809,9 +2832,4 @@
         display: block;
         min-height: 510px;
     }
-}
-
-
-.editor-page .container {
-    max-width: 1070px !important;
 }

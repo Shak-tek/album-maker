@@ -89,7 +89,14 @@ body {
     font-size: 14px;
 }
 
-
+#root {
+    
+    position: relative;
+    overflow: hidden;
+}
+.page {
+    padding-top: 80px;
+}
 .page-container {
     max-width: 1180px !important;
     padding-left: 30px;
@@ -233,6 +240,15 @@ h6,
     height: 80px;
     background: var(--gray-lightest);
     border-bottom: 1px solid var(--border-color);
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.8);
+    --tw-backdrop-blur: blur(12px);
+    -webkit-backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
+    backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
 }
 
 .page-header {
