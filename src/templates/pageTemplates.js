@@ -309,7 +309,7 @@ export const pageTemplates = [
         id: 100,
         name: 'Half Text Half Image',
         slots: [124],
-        textSlots: [900],
+        textSlots: [38],
         thumbnailUrl: '/layout-100.png',
     },
     {
