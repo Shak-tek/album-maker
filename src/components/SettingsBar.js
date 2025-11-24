@@ -49,7 +49,7 @@ export default function SettingsBar({
   };
   // Icons (inline SVG OK)
   const BackgroundIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
   );
   const PhotosIcon = () => (
     <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
@@ -57,8 +57,8 @@ export default function SettingsBar({
     </svg>
   );
   const ThemeIcon = () => (
-    
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><circle cx="12" cy="12" r="10"></circle></svg>
+
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6"><circle cx="12" cy="12" r="10"></circle></svg>
   );
   const SavingIcon = () => (
     <svg viewBox="0 0 100 100" width="20" height="20" aria-hidden="true">
@@ -69,7 +69,7 @@ export default function SettingsBar({
     </svg>
   );
   const EditIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><path d="m3 15 4-8 4 8"></path><path d="M4 13h6"></path><path d="M15 12h5"></path><path d="M17.5 12v6"></path><path d="M20 18h-5"></path></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><path d="m3 15 4-8 4 8"></path><path d="M4 13h6"></path><path d="M15 12h5"></path><path d="M17.5 12v6"></path><path d="M20 18h-5"></path></svg>
   );
 
 

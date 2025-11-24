@@ -14,6 +14,7 @@ import {
 import { deepMerge } from "grommet/utils";
 import ImageUploader from "./components/ImageUploader";
 import EditorPage from "./components/EditorPage";
+import BoxEditor from "./components/BoxEditor";
 import TitlePage from "./components/TitlePage";
 import ProductsPage from "./ProductsPage";
 import ProductDetailPage from "./components/ProductDetailPage";
@@ -192,9 +193,9 @@ const theme = deepMerge({
 
 
 // S3 config
-const REGION = "us-east-1";
-const IDENTITY_POOL_ID = "us-east-1:77fcf55d-2bdf-4f46-b979-ee71beb59193";
-const BUCKET = "albumgrom";
+const REGION = process.env.REACT_APP_AWS_REGION || "us-east-1";
+const IDENTITY_POOL_ID = process.env.REACT_APP_AWS_COGNITO_IDENTITY_POOL_ID || "us-east-1:77fcf55d-2bdf-4f46-b979-ee71beb59193";
+const BUCKET = process.env.REACT_APP_AWS_S3_BUCKET || "albumgrom";
 
 AWS.config.update({ region: REGION });
 AWS.config.credentials = new AWS.CognitoIdentityCredentials({
@@ -807,24 +808,48 @@ function MainApp() {
               initialSubtitle={albumSubtitle}
             />
           ) : view === "editor" ? (
-            <EditorPage
-              images={loadedImages}
-              onAddImages={(urls = []) =>
-                setLoadedImages((prev) => [
-                  ...prev,
-                  ...(Array.isArray(urls) ? urls : [urls]),
-                ])
-              }
-              albumSize={albumSize}
-              s3={s3}
-              sessionId={sessionId}
-              user={user}
-              identityId={identityId}
-              title={albumTitle}
-              subtitle={albumSubtitle}
-              setTitle={setAlbumTitle}
-              setSubtitle={setAlbumSubtitle}
-            />
+            // Use BoxEditor for square albums (width === height), otherwise use EditorPage
+            albumSize?.width === albumSize?.height ? (
+              <BoxEditor
+                images={loadedImages}
+                onAddImages={(urls = []) =>
+                  setLoadedImages((prev) => [
+                    ...prev,
+                    ...(Array.isArray(urls) ? urls : [urls]),
+                  ])
+                }
+                albumSize={albumSize}
+                s3={s3}
+                sessionId={sessionId}
+                user={user}
+                identityId={identityId}
+                title={albumTitle}
+                subtitle={albumSubtitle}
+                setTitle={setAlbumTitle}
+                setSubtitle={setAlbumSubtitle}
+                onBack={() => navigate("products")}
+              />
+            ) : (
+              <EditorPage
+                images={loadedImages}
+                onAddImages={(urls = []) =>
+                  setLoadedImages((prev) => [
+                    ...prev,
+                    ...(Array.isArray(urls) ? urls : [urls]),
+                  ])
+                }
+                albumSize={albumSize}
+                s3={s3}
+                sessionId={sessionId}
+                user={user}
+                identityId={identityId}
+                title={albumTitle}
+                subtitle={albumSubtitle}
+                setTitle={setAlbumTitle}
+                setSubtitle={setAlbumSubtitle}
+                onBack={() => navigate("products")}
+              />
+            )
           ) : null}
         </div>
       </Page>

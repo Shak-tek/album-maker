@@ -5,9 +5,9 @@ import AWS from "aws-sdk";
 import UploadStepContent from "./UploadStepContent";
 import GridStep from "./GridStep";
 
-const REGION = "us-east-1";
-const IDENTITY_POOL_ID = "us-east-1:77fcf55d-2bdf-4f46-b979-ee71beb59193";
-const BUCKET = "albumgrom";
+const REGION = process.env.REACT_APP_AWS_REGION || "us-east-1";
+const IDENTITY_POOL_ID = process.env.REACT_APP_AWS_COGNITO_IDENTITY_POOL_ID || "us-east-1:77fcf55d-2bdf-4f46-b979-ee71beb59193";
+const BUCKET = process.env.REACT_APP_AWS_S3_BUCKET || "albumgrom";
 const MAX_IMAGES = 100;
 const MIN_IMAGES = 20;     // ← minimum required photos
 

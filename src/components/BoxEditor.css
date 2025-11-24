@@ -1,0 +1,4209 @@
+/* src/components/BoxEditor.css - Square (1:1) aspect ratio editor */
+
+.editor-page {
+    padding: 179px 0 120px;
+    background: var(--surface);
+    min-height: 100vh;
+}
+
+.editor-page .container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px 0;
+    align-items: start;
+    width: 100%;
+}
+
+/* Floating Header */
+.editor-floating-header {
+    position: fixed;
+    top: 80px;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    border-bottom: 1px solid var(--border-color);
+
+    background: rgba(255, 255, 255, 0.8);
+    --tw-backdrop-blur: blur(12px);
+    -webkit-backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
+    backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
+
+
+    .floating-header-area {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding-top: 15px;
+        padding-bottom: 15px;
+        height: 99px;
+
+        @media (max-width: 767px) {
+            padding-top: 10px;
+            height: auto;
+            gap: 8px;
+            padding-bottom: 10px;
+        }
+
+    }
+}
+
+.editor-back-button {
+    border: none;
+    background: transparent;
+    padding: 8px;
+    cursor: pointer;
+    color: var(--brand);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+
+    @media (max-width: 767px) {
+        padding: 6px;
+        margin-left: -20px
+    }
+
+    svg {
+        width: 21px;
+        height: 21px;
+        display: block;
+    }
+}
+
+.editor-back-button:hover {
+    background: #f3f4f6;
+}
+
+.editor-header-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.editor-floating-header__title {
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.editor-floating-header__subtitle {
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+/* Theme Indicator */
+.theme-indicator {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+}
+
+.theme-indicator--rainbow {
+    background: linear-gradient(135deg,
+            #ff0000 0%,
+            #ff7f00 16.67%,
+            #ffff00 33.33%,
+            #00ff00 50%,
+            #0000ff 66.67%,
+            #4b0082 83.33%,
+            #9400d3 100%);
+}
+
+.btn-ico--theme {
+    padding: 0 !important;
+}
+
+.btn-ico--theme>div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Bottom Toolbar */
+.page-toolbar-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 21px;
+    padding: 10px 7px;
+    position: absolute;
+    left: 0;
+    top: 100%;
+    width: 100%;
+    z-index: 5;
+
+    @media (max-width: 991px) {
+        gap: 14px;
+
+    }
+
+
+}
+
+.page-number {
+    font-size: 17px;
+    color: var(--text-light);
+    font-weight: 400;
+
+    @media (max-width: 991px) {
+        font-size: 14px;
+    }
+
+}
+
+.page-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    @media (max-width: 991px) {
+        gap: 8px;
+    }
+}
+
+.page-action-btn {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+    padding: 0 !important;
+    box-shadow: none;
+
+    @media (max-width: 991px) {
+        width: 30px;
+        height: 30px;
+    }
+}
+
+.page-action-btn:hover {
+    background: var(--border-color);
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.01);
+}
+
+
+
+.page-action-btn svg {
+    display: block;
+    width: 20px;
+    height: 20px;
+    margin: 0 auto;
+
+    @media (max-width: 991px) {
+        width: 16px;
+        height: 16px;
+    }
+}
+
+
+
+@media (max-width: 767px) {
+    .editor-page .container {
+        grid-template-columns: repeat(1, 1fr);
+        gap: 20px 0;
+    }
+
+
+
+
+    .editor-page {
+        padding: 30px 0 100px;
+    }
+}
+
+.modal-main {
+    background: #ffffff;
+    border-radius: 10px !important;
+    overflow: hidden;
+
+    &:not(.modal-prompt) {
+        max-width: 1000px !important;
+        width: 100%;
+    }
+}
+
+.image-editor-container {
+    display: flex;
+    flex-flow: column nowrap;
+    width: 100%;
+    background: #ffffff;
+    overflow-y: auto;
+    max-height: 90vh;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+
+    h2 {
+        font-size: 20px !important;
+    }
+}
+
+.modal-contents {
+    padding: 15px 20px;
+}
+
+.modal-close-button {
+    border: none;
+    background: transparent;
+    color: var(--text-light);
+    border-radius: 9999px;
+    font-size: 30px;
+    padding: 0 10px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: .9;
+    width: 30px;
+    height: 30px;
+    text-transform: uppercase;
+    vertical-align: top;
+    transition: all .2s ease-in-out;
+}
+
+.modal-close-button:hover {
+    background: var(--border-color);
+    color: var(--brand);
+}
+
+.image-editor-body {
+    display: flex;
+    flex-direction: column;
+    background: var(--gray-lightest);
+    flex-grow: 1;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+@media (min-width: 900px) {
+    .image-editor-body {
+        flex-direction: row;
+        align-items: stretch;
+
+    }
+}
+
+.image-editor-preview {
+    flex: 1;
+    display: flex;
+    padding: 20px;
+    justify-content: center;
+    align-items: center;
+}
+
+.image-editor-cropper {
+    position: relative;
+    width: 100%;
+    min-height: 280px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #e1e1e1;
+    aspect-ratio: 1 / 1;
+
+    border: 15px solid #fef7f5;
+    --tw-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);
+    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.image-editor-cropper .croppie-container {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.image-editor-cropper .croppie-container .cr-boundary {
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: inherit;
+    background: #ffffff;
+}
+
+.image-editor-cropper .croppie-container .cr-viewport {
+    border-radius: 4px;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+    border: 2px solid #ffffff;
+}
+
+.image-editor-cropper .croppie-container .cr-slider-wrap {
+    display: none;
+}
+
+.image-editor-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 40px 16px;
+    text-align: center;
+    color: #6b7280;
+}
+
+.image-editor-link {
+    border: none;
+    background: none;
+    color: #2563eb;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.image-editor-link:hover {
+    color: #1d4ed8;
+}
+
+.image-editor-sidebar {
+    width: 100%;
+    flex-shrink: 0;
+    width: 350px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px 20px;
+    background: #fff;
+    padding: 21px;
+}
+
+@media (max-width: 899px) {
+    .image-editor-sidebar {
+        max-width: none;
+    }
+}
+
+.image-editor-quality {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    color: rgb(22 101 52 / var(--tw-text-opacity, 1));
+    
+
+    .image-editor-holder {
+        flex-grow: 1;
+        overflow: hidden;
+    }
+
+    .ico-svg {
+        flex-shrink: 0;
+        svg {
+            width: 17px;
+        display: block;
+        color: rgb(22 163 74 / var(--tw-text-opacity, 1));
+        stroke-color: currentColor;
+
+        }
+    }
+
+    .title-text {
+        margin: 0;
+        font-weight: 600;
+        font-size: 12px;
+    }
+}
+
+.image-editor-quality {
+    background: #ecfdf5;
+    align-items: center;
+    
+
+}
+
+
+
+
+
+
+.image-editor-tips {
+    background: #eff6ff;
+    align-items: flex-start;
+    
+    color: rgb(31 41 55 / var(--tw-text-opacity, 1));
+
+    .ico-svg svg {
+        color: rgb(59 130 246);
+    }
+}
+
+
+
+
+
+.image-tips-list {
+    list-style: inside;
+    gap: 4px;
+    display: flex;
+    padding: 4px 0 0;
+    flex-flow: column nowrap;
+    flex-grow: 1;
+    overflow: hidden;
+
+}
+
+.image-editor-slider {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.image-editor-slider-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 400;
+    font-size: 13px;
+    color: var(--brand);
+}
+
+.image-editor-slider-label label {
+    font-weight: 400;
+}
+
+.image-editor-slider-label span {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.image-editor-slider input[type="range"] {
+    width: 100%;
+    accent-color: #111827;
+}
+
+.image-editor-slider input[type="range"]::-webkit-slider-runnable-track {
+    height: 6px;
+    background: #d1d5db;
+    border-radius: 9999px;
+}
+
+.image-editor-slider input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    margin-top: -5px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #111827;
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 0 2px rgba(17, 24, 39, 0.15);
+    cursor: pointer;
+}
+
+.image-editor-slider input[type="range"]::-moz-range-track {
+    height: 6px;
+    background: #d1d5db;
+    border-radius: 9999px;
+}
+
+.image-editor-slider input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #111827;
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 0 2px rgba(17, 24, 39, 0.15);
+    cursor: pointer;
+}
+
+.image-editor-actions {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+@media (max-width: 600px) {
+    .image-editor-actions {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.image-editor-action {
+    border: 1px solid var(--border-color);
+    border-color: var(--border-color);
+    background: #ffffff;
+    border-radius: 7px;
+    padding: 7px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+
+    font-weight: 600;
+    font-size: 10.5px;
+    color: var(--brand);
+    letter-spacing: .2px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.image-editor-action:hover:not(:disabled) {
+    /*  transform: translateY(-2px);
+    box-shadow: 0 14px 28px rgba(15, 23, 42, 0.12);
+    border-color: var(--accent);
+*/
+
+    background: rgb(229 231 235 / 0.5);
+
+}
+
+.image-editor-action:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    transform: none;
+    box-shadow: none;
+}
+
+.image-editor-action-icon svg {
+    width: 21px;
+    display: block;
+    color: inherit;
+    height: auto;
+    stroke-width: 1;
+}
+
+
+.image-editor-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 20px 32px;
+    border-top: 1px solid var(--border-color);
+    background: #ffffff;
+}
+
+.image-editor-button {
+    border-radius: 10px;
+    border: 1px solid transparent;
+    padding: 11px 24px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.image-editor-button--secondary {
+    background: #ffffff;
+    color: var(--brand);
+    border-color: #d1d5db;
+}
+
+.image-editor-button--secondary:hover {
+    background: #f3f4f6;
+}
+
+.image-editor-button--primary {
+    background: #111827;
+    color: #ffffff;
+}
+
+.image-editor-button--primary:hover {
+    background: #000000;
+}
+
+/* photo pages */
+.photo-page {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-top: 100%;
+    z-index: 6;
+    overflow: hidden;
+    /* clips slot content */
+    touch-action: pan-y;
+    transition: padding-top 800ms ease, background 800ms ease;
+    /*/
+    transition: transform 0.3s ease;
+    border-radius: inherit;
+
+    will-change: transform;
+    backface-visibility: hidden;
+    backdrop-filter: blur(4px);
+    background: rgba(255, 255, 255, 0.1);
+
+    -webkit-backdrop-filter: blur(12px);*/
+
+}
+
+
+/* title overlay */
+.title-overlay {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    text-align: center;
+    pointer-events: none;
+    background: rgba(255, 255, 255, .7);
+    padding: 10px 10px 15px !important;
+    border-radius: 5px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    h2 {
+        color: var(--accent);
+    }
+
+    h4 {
+        color: var(--text);
+        font-weight: 500 !important;
+    }
+}
+
+
+
+.photo-page.cover-page-layout .photo-slot {
+    border-radius: 20px;
+}
+
+.photo-page.zoomed {
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    transition: all 800ms ease;
+}
+
+.photo-page.zoomed .photo-slot {
+    overflow: visible !important;
+    box-shadow: none !important;
+}
+
+/* Make images grow to cover borders and fill gaps */
+.photo-page.zoomed .photo-slot img {
+    transform: scale(1.12);
+    transform-origin: center center;
+    transition: transform 800ms ease;
+}
+
+/* slots */
+.photo-slot {
+    position: absolute;
+    /*border-radius: 4px;*/
+    overflow: hidden;
+    /* clips the image within the slot */
+    /*box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+    border: 4px solid transparent;*/
+    cursor: grab;
+    border-radius: 0 !important;
+    border: 0 !important;
+}
+
+.photo-slot img {
+    transition: transform 800ms ease;
+}
+
+.photo-slot:active {
+    cursor: grabbing;
+}
+
+.photo-slot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    user-select: none;
+    pointer-events: none;
+    display: block;
+    /* avoid sub-pixel gaps */
+}
+
+.text-slot {
+    position: absolute;
+    display: flex;
+    align-items: stretch;
+    justify-content: stretch;
+    padding: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-sizing: border-box;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    box-shadow: 0 24px 42px rgba(15, 23, 42, 0.14);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.text-slot .text-editor {
+    flex: 1 1 auto;
+}
+
+.text-slot[role="button"] {
+    cursor: pointer;
+}
+
+.text-slot[role="button"]:hover {
+    border-color: rgba(15, 23, 42, 0.2);
+    box-shadow: 0 28px 46px rgba(15, 23, 42, 0.2);
+}
+
+.text-slot[role="button"]:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+}
+
+.text-editor {
+    width: 100%;
+    height: 100%;
+}
+
+.text-editor-surface {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.text-editor-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.text-editor-toolbar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 4px;
+}
+
+.text-editor-content {
+    flex: 1;
+    outline: none;
+    overflow: auto;
+}
+
+
+/* drag preview */
+#drag-preview {
+    position: fixed;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    pointer-events: none;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    display: none;
+    z-index: 1000;
+    transform: translate(-50%, -50%);
+}
+
+#drag-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* highlight target slot */
+.highlight {
+    outline: 3px dashed #f8f8f8;
+}
+
+/* wrap each page + toolbar together */
+.page-wrapper {
+    position: relative;
+    margin: 0 0 60px;
+    border-radius: 8px;
+    background: #ffffff;
+    display: block;
+    outline: none !important;
+    border: 0 !important;
+    box-shadow: none;
+    z-index: 1;
+
+
+    --tw-drop-shadow: drop-shadow(0 20px 13px rgb(0 0 0 / 0.03)) drop-shadow(0 8px 5px rgb(0 0 0 / 0.08));
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+
+    @media (min-width: 768px) {
+        border-radius: 12px;
+
+        &:nth-child(odd):not(:last-child) {
+            border-bottom-right-radius: 0;
+            border-top-right-radius: 0;
+
+
+        }
+
+        &:nth-child(even) {
+            border-bottom-left-radius: 0;
+            border-top-left-radius: 0;
+        }
+    }
+
+
+}
+
+/* toolbar */
+.page-wrapper .toolbar {
+    position: relative;
+    background: #f8f8f8;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+
+
+}
+
+.page-wrapper .toolbar .btn-ico svg {
+    color: #000;
+    fill: #000;
+}
+
+@media (min-width: 768px) {
+    .page-wrapper:nth-child(even) .toolbar {
+        justify-content: flex-end;
+    }
+}
+
+/* skeleton loading */
+.skeleton-page-wrapper {
+    background: #f7f7f7;
+    margin-bottom: 1rem;
+    border-radius: 12px;
+    /* match page radius */
+}
+
+/* individual slot placeholders */
+.skeleton-photo-slot {
+    background: #e0e0e0;
+    flex: 1;
+    border-radius: 4px;
+    height: 150px;
+}
+
+.skeleton-photo-slot--blank {
+    flex: 1 1 100%;
+    height: 150px;
+    border-radius: 4px;
+    background: rgba(226, 232, 240, 0.65);
+    border: 2px dashed rgba(148, 163, 184, 0.35);
+}
+
+/* floating settings bar */
+.settings-bar {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) !important;
+    border-radius: 14px !important;
+    background: rgba(255, 255, 255, .8) !important;
+    /* box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px !important;*/
+    justify-content: center;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: flex-start !important;
+    gap: 7px !important;
+    padding: 7px !important;
+    z-index: 20;
+    max-width: 510px !important;
+    --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);
+    --tw-backdrop-blur: blur(12px);
+    -webkit-backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
+    backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
+    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow) !important;
+
+
+}
+
+@media (max-width: 767px) {
+    .settings-bar {
+        left: 30px;
+        right: 30px;
+        bottom: 20px;
+        border-radius: 0;
+        justify-content: center;
+        flex-wrap: wrap;
+        transform: none !important;
+        box-shadow: none;
+    }
+}
+
+.btn-setting {
+    display: inline-flex !important;
+    flex-flow: column nowrap !important;
+    gap: 0 !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    line-height: 20px !important;
+    min-width: 112px !important;
+    color: var(--brand) !important;
+    text-align: center !important;
+    padding: 10px 5px !important;
+    border: 0 !important;
+    border: 0;
+    border-radius: 7px !important;
+    transition: all .2s ease-in-out;
+
+    @media (max-width: 767px) {
+        min-width: 80px !important;
+    }
+
+    &:hover {
+        background: rgb(229 231 235 / 0.5);
+    }
+
+    label input[type="checkbox"] {
+        display: none;
+    }
+
+    label>div {
+        margin: 0;
+    }
+
+    label input+span {
+        display: none !important;
+    }
+
+    &.btn-continue {
+        display: none !important;
+    }
+
+    &.btn-setting-checkbox {
+        position: relative;
+
+        svg {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            pointer-events: none;
+            height: auto;
+            top: 11px;
+        }
+
+        svg~label {
+            padding: 30px 0 0;
+        }
+    }
+}
+
+.btn-setting>div {
+    display: flex !important;
+    flex-flow: column nowrap !important;
+    gap: 0 !important;
+
+}
+
+.btn-setting div:empty {
+    display: none !important;
+}
+
+.btn-setting svg {
+    display: block;
+    width: 20px !important;
+    height: 20px !important;
+    margin: 0 0 10px !important;
+    color: inherit !important;
+    stroke: currentColor !important
+}
+
+.dynamicColors {
+    gap: 8px !important;
+    align-items: center;
+}
+
+.themePaletteSwatch {
+    width: 42px !important;
+    height: 42px !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.12);
+}
+
+.themePaletteSwatch:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.2);
+}
+
+.themePaletteAuto {
+    min-width: 72px;
+    justify-content: center;
+    display: inline-flex;
+    cursor: pointer;
+    transition: box-shadow 0.15s ease;
+}
+
+.themePaletteAuto:hover {
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.2);
+}
+
+.themePaletteSwatch:focus-visible,
+.themePaletteAuto:focus-visible {
+    outline: 2px solid #0085ff;
+    outline-offset: 2px;
+}
+
+.themeModalContent .modal-contents {
+    display: block !important;
+}
+
+.themeModalContent .custom-upload {
+    display: block !important;
+}
+
+@media (max-width: 600px) {
+    .themeModalContent {
+        width: calc(100vw - 24px) !important;
+        max-width: calc(100vw - 24px) !important;
+        border-radius: 10px;
+    }
+
+    .dynamicColors {
+        gap: 6px !important;
+        justify-content: flex-start;
+    }
+
+    .themePaletteSwatch {
+        width: 36px !important;
+        height: 36px !important;
+    }
+
+    .themePaletteAuto {
+        min-width: 100%;
+        justify-content: center;
+    }
+}
+
+.modalTemplates {
+    width: 650px;
+    background: var(--gray-lightest) !important;
+}
+
+.btnLayoutWrap {
+    display: flex;
+    flex-flow: row wrap;
+    gap: 20px !important;
+}
+
+.btnLayoutWrap .btnLayout {
+    width: calc(25% - 15px) !important;
+}
+
+.btnLayoutWrap .btnLayout>div {
+    background-color: #fff !important;
+    padding: 5px !important;
+    border: 0 !important;
+
+    box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.06) !important;
+    border-radius: 4px !important;
+    background-size: calc(100% - 10px) calc(100% - 10px) !important;
+}
+
+.btnLayoutWrap .btnLayout>div img {}
+
+.btnLayoutWrap .btnLayout>span {
+    display: block;
+    margin-top: 8px;
+    font-size: 11px !important;
+    font-weight: 500;
+    letter-spacing: .5px;
+    text-align: center;
+}
+
+.modalClose {
+    color: #000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-weight: 700;
+}
+
+@media (max-width: 549px) {
+    .btnLayoutWrap .btnLayout {
+        width: calc(50% - 15px) !important;
+    }
+}
+
+/* --- Image cropper: per-slot overlay buttons --- */
+.slot-reset-btn {
+    position: absolute;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 4px 6px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    cursor: pointer;
+    line-height: 1;
+    opacity: 0;
+    /* hidden until hover/focus (desktop) */
+    transition: opacity 120ms ease, transform 120ms ease;
+}
+
+.slot-reset-btn {
+    top: 6px;
+    left: 6px;
+    font-size: 11px;
+    padding: 2px 6px;
+
+    .slot-reset-btn:hover {
+        transform: translateY(-1px);
+    }
+}
+
+.slot-reset-btn:focus-visible {
+    outline: 2px solid #000;
+    outline-offset: 2px;
+    opacity: 1;
+}
+
+/* reveal buttons on hover (desktop/mouse) */
+.photo-slot:hover .slot-reset-btn {
+    opacity: 1;
+}
+
+/* on touch devices, keep buttons visible (no hover) */
+@media (hover: none) and (pointer: coarse) {
+
+    .slot-reset-btn {
+        opacity: 1;
+    }
+}
+
+.modalTemplatesWrap {
+    overflow: hidden;
+    border-radius: 10px !important;
+
+}
+
+.photo-slot.empty {
+    outline: 2px dashed rgba(0, 0, 0, 0.2);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+}
+
+.slot-placeholder {
+    font-size: 1.5rem;
+    opacity: 0.5;
+}
+
+.photo-slot.empty-slot.highlight {
+    outline: 2px dashed #fff;
+    outline-offset: -2px;
+}
+
+/* --- Text editor --- */
+.text-editor {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.te-toolbar {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    padding: 4px 6px;
+    border-radius: 8px;
+    opacity: 0;
+    transition: opacity 160ms ease;
+    z-index: 2;
+}
+
+.text-slot:hover .te-toolbar,
+.text-editor:focus-within .te-toolbar {
+    opacity: 1;
+}
+
+.te-btn {
+    border: 0;
+    background: rgba(255, 255, 255, 0.1);
+    color: inherit;
+    border-radius: 6px;
+    padding: 4px 8px;
+    cursor: pointer;
+}
+
+.te-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.te-btn.te-active {
+    background: rgba(255, 255, 255, 0.35);
+}
+
+.te-select {
+    border: 0;
+    border-radius: 6px;
+    padding: 3px 6px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    cursor: pointer;
+}
+
+.te-sep {
+    width: 1px;
+    height: 18px;
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.te-content {
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 100%;
+    padding: 0;
+    outline: none;
+    overflow-y: auto;
+    background: transparent;
+    /* force a stable base direction; toggle via dir attribute */
+    direction: ltr;
+    unicode-bidi: isolate;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.te-content:empty:before {
+    content: attr(data-placeholder);
+    color: rgba(71, 85, 105, 0.6);
+    pointer-events: none;
+}
+
+/* Force LTR inside editable text areas */
+.text-slot,
+.text-slot * {
+    direction: ltr !important;
+    unicode-bidi: plaintext;
+    text-align: left;
+}
+
+/* And for the title overlay */
+.title-overlay,
+.title-overlay * {
+    direction: ltr !important;
+    text-align: left;
+}
+
+/* your exact slot positions from the snippet */
+.slot1 {
+    top: 5%;
+    left: 5%;
+    width: 42.5%;
+    height: 90%;
+}
+
+.slot2 {
+    top: 5%;
+    left: 52.5%;
+    width: 42.5%;
+    height: 42.5%;
+}
+
+.slot3 {
+    top: 52.5%;
+    left: 52.5%;
+    width: 42.5%;
+    height: 42.5%;
+}
+
+.slot4 {
+    top: 5%;
+    left: 5%;
+    width: 42.5%;
+    height: 90%;
+}
+
+.slot5 {
+    top: 5%;
+    left: 52.5%;
+    width: 42.5%;
+    height: 90%;
+}
+
+.slot6 {
+    top: 5%;
+    left: 5%;
+    width: 42.5%;
+    height: 42.5%;
+}
+
+.slot7 {
+    top: 5%;
+    left: 52.5%;
+    width: 42.5%;
+    height: 42.5%;
+}
+
+.slot8 {
+    top: 52.5%;
+    left: 5%;
+    width: 42.5%;
+    height: 42.5%;
+}
+
+.slot9 {
+    top: 52.5%;
+    left: 52.5%;
+    width: 42.5%;
+    height: 42.5%;
+}
+
+.slot10 {
+    top: 5%;
+    left: 5%;
+    width: 90%;
+    height: 90%;
+}
+
+.slot12 {
+    top: 5%;
+    left: 5%;
+    width: 90%;
+    height: 42.5%;
+}
+
+.slot13 {
+    top: 52.5%;
+    left: 5%;
+    width: 90%;
+    height: 42.5%;
+}
+
+.slot14 {
+    top: 5%;
+    left: 5%;
+    width: 42.5%;
+    height: 42.5%;
+}
+
+.slot15 {
+    top: 52.5%;
+    left: 5%;
+    width: 42.5%;
+    height: 42.5%;
+}
+
+.slot16 {
+    top: 5%;
+    left: 52.5%;
+    width: 42.5%;
+    height: 90%;
+}
+
+.slot17 {
+    top: 5%;
+    left: 5%;
+    width: 42.5%;
+    height: 42.5%;
+}
+
+.slot18 {
+    top: 5%;
+    left: 52.5%;
+    width: 42.5%;
+    height: 42.5%;
+}
+
+.slot19 {
+    top: 52.5%;
+    left: 5%;
+    width: 90%;
+    height: 42.5%;
+}
+
+.slot20 {
+    top: 5%;
+    left: 5%;
+    width: 90%;
+    height: 42.5%;
+}
+
+.slot21 {
+    top: 52.5%;
+    left: 5%;
+    width: 42.5%;
+    height: 42.5%;
+}
+
+.slot22 {
+    top: 52.5%;
+    left: 52.5%;
+    width: 42.5%;
+    height: 42.5%;
+}
+
+.slot23 {
+    top: 5%;
+    left: 5%;
+    width: 58.33%;
+    height: 90%;
+}
+
+.slot24 {
+    top: 5%;
+    left: 68.337%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+
+.slot25 {
+    top: 52.5%;
+    left: 68.337%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+
+.slot26 {
+    top: 5%;
+    left: 5%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+
+.slot27 {
+    top: 5%;
+    left: 36.6667%;
+    width: 58.33%;
+    height: 42.5%;
+}
+
+.slot28 {
+    top: 52.5%;
+    left: 5%;
+    width: 58.33%;
+    height: 42.5%;
+}
+
+.slot29 {
+    top: 52.5%;
+    left: 68.337%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+
+.slot30 {
+    top: 5%;
+    left: 5%;
+    width: 58.33%;
+    height: 42.5%;
+}
+
+.slot31 {
+    top: 5%;
+    left: 68.337%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+
+.slot32 {
+    top: 52.5%;
+    left: 5%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+
+.slot33 {
+    top: 52.5%;
+    left: 36.6667%;
+    width: 58.33%;
+    height: 42.5%;
+}
+
+
+
+
+.slot34 {
+    top: 5%;
+    left: 5%;
+    width: 26.6667%;
+    height: 90%;
+}
+
+.slot35 {
+    top: 5%;
+    left: 36.6667%;
+    width: 26.6667%;
+    height: 90%;
+}
+
+.slot36 {
+    top: 5%;
+    left: 68.3334%;
+    width: 26.6667%;
+    height: 90%;
+}
+
+.slot37 {
+    left: 5%;
+    top: 5%;
+    height: 26.6667%;
+    width: 90%;
+}
+
+.slot38 {
+    left: 5%;
+    top: 36.6667%;
+    height: 26.6667%;
+    width: 90%;
+}
+
+.slot39 {
+    left: 5%;
+    top: 68.3334%;
+    height: 26.6667%;
+    width: 90%;
+}
+
+.slot40 {
+    top: 5%;
+    left: 5%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+
+.slot41 {
+    top: 5%;
+    left: 36.6667%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+
+.slot42 {
+    top: 5%;
+    left: 68.3334%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+
+.slot43 {
+    top: 52.5%;
+    left: 5%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+
+.slot44 {
+    top: 52.5%;
+    left: 36.6667%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+
+.slot45 {
+    top: 52.5%;
+    left: 68.3334%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+
+.slot46 {
+    left: 5%;
+    top: 5%;
+    height: 26.6667%;
+    width: 42.5%;
+}
+
+.slot47 {
+    left: 52.5%;
+    top: 5%;
+    height: 26.6667%;
+    width: 42.5%;
+}
+
+.slot48 {
+    left: 5%;
+    top: 36.6667%;
+    height: 26.6667%;
+    width: 42.5%;
+}
+
+.slot49 {
+    left: 52.5%;
+    top: 36.6667%;
+    height: 26.6667%;
+    width: 42.5%;
+}
+
+.slot50 {
+    left: 5%;
+    top: 68.3334%;
+    height: 26.6667%;
+    width: 42.5%;
+}
+
+.slot51 {
+    left: 52.5%;
+    top: 68.3334%;
+    height: 26.6667%;
+    width: 42.5%;
+}
+
+.slot52 {
+    left: 5%;
+    top: 5%;
+    width: 42.5%;
+    height: 22.5%;
+}
+
+.slot53 {
+    left: 52.5%;
+    top: 5%;
+    width: 42.5%;
+    height: 62.5%;
+}
+
+.slot54 {
+    left: 5%;
+    top: 32.5%;
+    width: 42.5%;
+    height: 62.5%;
+}
+
+.slot55 {
+    left: 52.5%;
+    top: 72.5%;
+    width: 42.5%;
+    height: 22.5%;
+}
+
+.slot56 {
+    left: 5%;
+    top: 5%;
+    width: 42.5%;
+    height: 62.5%;
+}
+
+.slot57 {
+    left: 52.5%;
+    top: 5%;
+    width: 42.5%;
+    height: 22.5%;
+}
+
+.slot58 {
+    left: 5%;
+    top: 72.5%;
+    width: 42.5%;
+    height: 22.5%;
+}
+
+.slot59 {
+    left: 52.5%;
+    top: 32.5%;
+    width: 42.5%;
+    height: 62.5%;
+}
+
+.slot60 {
+    top: 5%;
+    left: 5%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+
+.slot61 {
+    top: 5%;
+    left: 36.6667%;
+    width: 58.3334%;
+    height: 42.5%;
+}
+
+.slot62 {
+    top: 52.5%;
+    left: 5%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+
+.slot63 {
+    top: 52.5%;
+    left: 36.6667%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+
+.slot64 {
+    top: 52.5%;
+    left: 68.3334%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+
+.slot65 {
+    top: 5%;
+    left: 5%;
+    width: 58.3334%;
+    height: 42.5%;
+}
+
+.slot66 {
+    top: 5%;
+    left: 68.3334%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+
+.slot67 {
+    top: 5%;
+    left: 5%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+
+.slot68 {
+    top: 5%;
+    left: 36.6667%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+
+.slot69 {
+    top: 5%;
+    left: 68.3334%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+
+.slot70 {
+    top: 52.5%;
+    left: 5%;
+    width: 58.3334%;
+    height: 42.5%;
+}
+
+.slot71 {
+    top: 52.5%;
+    left: 68.3334%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+
+.slot72 {
+    top: 52.5%;
+    left: 5%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+
+.slot73 {
+    top: 52.5%;
+    left: 36.6667%;
+    width: 58.3334%;
+    height: 42.5%;
+}
+
+.slot74 {
+    top: 5%;
+    left: 5%;
+    width: 26.6667%;
+    height: 26.6667%;
+}
+
+.slot75 {
+    top: 5%;
+    left: 36.6667%;
+    width: 26.6667%;
+    height: 26.6667%;
+}
+
+.slot76 {
+    top: 5%;
+    left: 68.3334%;
+    width: 26.6667%;
+    height: 26.6667%;
+}
+
+.slot77 {
+    left: 5%;
+    top: 36.6667%;
+    height: 26.6667%;
+    width: 26.6667%;
+}
+
+.slot78 {
+    left: 36.6667%;
+    top: 36.6667%;
+    height: 26.6667%;
+    width: 26.6667%;
+}
+
+.slot79 {
+    left: 68.3334%;
+    top: 36.6667%;
+    height: 26.6667%;
+    width: 26.6667%;
+}
+
+.slot80 {
+    left: 5%;
+    top: 68.3334%;
+    height: 26.6667%;
+    width: 26.6667%;
+}
+
+.slot81 {
+    left: 36.6667%;
+    top: 68.3334%;
+    height: 26.6667%;
+    width: 26.6667%;
+}
+
+.slot82 {
+    left: 68.3334%;
+    top: 68.3334%;
+    height: 26.6667%;
+    width: 26.6667%;
+}
+
+.slot83 {
+    left: 20%;
+    top: 20%;
+    height: 60%;
+    width: 60%;
+}
+
+.slot84 {
+    left: 20%;
+    top: 20%;
+    height: 25%;
+    width: 25%;
+}
+
+.slot85 {
+    left: 50%;
+    top: 20%;
+    height: 25%;
+    width: 25%;
+}
+
+.slot86 {
+    left: 20%;
+    top: 50%;
+    height: 25%;
+    width: 25%;
+}
+
+.slot87 {
+    left: 50%;
+    top: 50%;
+    height: 25%;
+    width: 25%;
+}
+
+.slot88 {
+    left: 15%;
+    top: 33.75%;
+    height: 32.5%;
+    width: 32.5%;
+}
+
+.slot89 {
+    left: 52.5%;
+    top: 33.75%;
+    height: 32.5%;
+    width: 32.5%;
+}
+
+.slot90 {
+    left: 15%;
+    top: 33.75%;
+    height: 28%;
+    width: 20%;
+}
+
+.slot91 {
+    left: 40%;
+    top: 33.75%;
+    height: 28%;
+    width: 20%;
+}
+
+.slot92 {
+    left: 65%;
+    top: 33.75%;
+    height: 28%;
+    width: 20%;
+}
+
+.slot93 {
+    left: 20%;
+    top: 12.5%;
+    height: 75%;
+    width: 60%;
+}
+
+.slot94 {
+    left: 25%;
+    top: 12.5%;
+    height: 35%;
+    width: 55%;
+}
+
+.slot95 {
+    left: 25%;
+    top: 52.5%;
+    height: 35%;
+    width: 55%;
+}
+
+.slot96 {
+    left: 15%;
+    top: 12.5%;
+    height: 75%;
+    width: 32.5%;
+}
+
+.slot97 {
+    left: 52.5%;
+    top: 12.5%;
+    height: 75%;
+    width: 32.5%;
+}
+
+.slot98 {
+    left: 12.5%;
+    top: 12.5%;
+    height: 75%;
+    width: 75%;
+}
+
+.slot99 {
+    left: 15%;
+    top: 33.75%;
+    height: 28%;
+    width: 20%;
+}
+
+.slot100 {
+    left: 40%;
+    top: 33.75%;
+    height: 28%;
+    width: 40%;
+}
+
+.slot101 {
+    left: 15%;
+    top: 33.75%;
+    height: 28%;
+    width: 40%;
+}
+
+.slot102 {
+    left: 60%;
+    top: 33.75%;
+    height: 28%;
+    width: 20%;
+}
+
+
+
+.slot103 {
+    left: 5%;
+    top: 5%;
+    height: 42.5%;
+    width: 18.75%;
+}
+
+.slot104 {
+    left: 28.75%;
+    top: 5%;
+    height: 42.5%;
+    width: 18.75%;
+}
+
+.slot105 {
+    left: 52.5%;
+    top: 5%;
+    height: 42.5%;
+    width: 18.75%;
+}
+
+.slot106 {
+    left: 76.25%;
+    top: 5%;
+    height: 42.5%;
+    width: 18.75%;
+}
+
+.slot107 {
+    left: 5%;
+    top: 52.5%;
+    height: 42.5%;
+    width: 18.75%;
+}
+
+.slot108 {
+    left: 28.75%;
+    top: 52.5%;
+    height: 42.5%;
+    width: 18.75%;
+}
+
+.slot109 {
+    left: 52.5%;
+    top: 52.5%;
+    height: 42.5%;
+    width: 18.75%;
+}
+
+.slot110 {
+    left: 76.25%;
+    top: 52.5%;
+    height: 42.5%;
+    width: 18.75%;
+}
+
+
+.slot111 {
+    top: 5%;
+    left: 5%;
+    width: 42.5%;
+    height: 18.75%;
+}
+
+.slot112 {
+    top: 28.75%;
+    left: 5%;
+    width: 42.5%;
+    height: 18.75%;
+}
+
+.slot113 {
+    top: 52.5%;
+    left: 5%;
+    width: 42.5%;
+    height: 18.75%;
+}
+
+.slot114 {
+    top: 76.25%;
+    left: 5%;
+    width: 42.5%;
+    height: 18.75%;
+}
+
+.slot115 {
+    top: 5%;
+    left: 52.5%;
+    width: 42.5%;
+    height: 18.75%;
+}
+
+.slot116 {
+    top: 28.75%;
+    left: 52.5%;
+    width: 42.5%;
+    height: 18.75%;
+}
+
+.slot117 {
+    top: 52.5%;
+    left: 52.5%;
+    width: 42.5%;
+    height: 18.75%;
+}
+
+.slot118 {
+    top: 76.25%;
+    left: 52.5%;
+    width: 42.5%;
+    height: 18.75%;
+}
+
+
+
+
+
+.slot119 {
+    top: 5%;
+    left: 5%;
+    width: 25%;
+    height: 42.5%;
+}
+
+.slot120 {
+    top: 52.5%;
+    left: 5%;
+    width: 25%;
+    height: 42.5%;
+}
+
+.slot121 {
+    top: 5%;
+    left: 35%;
+    width: 60%;
+    height: 90%;
+}
+
+
+.slot122 {
+    top: 5%;
+    left: 5%;
+    width: 20%;
+    height: 90%;
+}
+
+.slot123 {
+    top: 5%;
+    left: 30%;
+    width: 40%;
+    height: 90%;
+}
+
+.slot124 {
+    top: 5%;
+    left: 75%;
+    width: 20%;
+    height: 90%;
+}
+
+.slot125 {
+    top: 5%;
+    left: 5%;
+    width: 90%;
+    height: 58.33%;
+}
+
+
+.slot126 {
+    top: 5%;
+    left: 5%;
+    width: 18.75%;
+    height: 90%;
+}
+
+.slot127 {
+    top: 5%;
+    left: calc(5% + (18.75% * 1) + (5% * 1));
+    width: 18.75%;
+    height: 90%;
+}
+
+.slot128 {
+    top: 5%;
+    left: calc(5% + (18.75% * 2) + (5% * 2));
+    width: 18.75%;
+    height: 90%;
+}
+
+.slot129 {
+    top: 5%;
+    left: calc(5% + (18.75% * 3) + (5% * 3));
+    width: 18.75%;
+    height: 90%;
+}
+
+
+.slot130 {
+    left: 5%;
+    top: 5%;
+    height: 18.75%;
+    width: 90%;
+}
+
+.slot131 {
+    left: 5%;
+    top: calc(5% + (18.75% * 1) + (5% * 1));
+    height: 18.75%;
+    width: 90%;
+}
+
+.slot132 {
+    left: 5%;
+    top: calc(5% + (18.75% * 2) + (5% * 2));
+    height: 18.75%;
+    width: 90%;
+}
+
+.slot133 {
+    left: 5%;
+    top: calc(5% + (18.75% * 3) + (5% * 3));
+    height: 18.75%;
+    width: 90%;
+}
+
+
+.slot134 {
+    top: 5%;
+    left: 5%;
+    width: 58.33%;
+    height: 26.6667%;
+}
+
+.slot135 {
+    top: 5%;
+    left: 68.3334%;
+    height: 58.33%;
+    width: 26.6667%;
+}
+
+
+.slot136 {
+    top: 5%;
+    left: 5%;
+    height: 55%;
+    width: 90%;
+}
+
+.slot137 {
+    top: 5%;
+    left: 5%;
+    height: 58.3334%;
+    width: 42.5%;
+}
+
+.slot138 {
+    top: 5%;
+    left: 52.5%;
+    height: 58.3334%;
+    width: 42.5%;
+}
+
+
+
+.slot901 {
+    left: 5%;
+    top: 68.3334%;
+    height: 26.6667%;
+    width: 90%;
+}
+
+.slot902 {
+    left: 68.337%;
+    top: 5%;
+    width: 26.6667%;
+    height: 90%;
+}
+
+
+.slot903 {
+    left: 20%;
+    top: 65%;
+    width: 60%;
+    height: 30%;
+}
+
+.slot904 {
+    left: 58%;
+    top: 68%;
+    width: 37%;
+    height: 27%;
+}
+
+.slot139 {
+    top: 5%;
+    left: 5%;
+    width: 26.6667%;
+    height: 58.3334%;
+}
+
+.slot140 {
+    top: 5%;
+    left: 36.6667%;
+    width: 26.6667%;
+    height: 58.3334%;
+}
+
+.slot141 {
+    top: 5%;
+    left: 68.3334%;
+    width: 26.6667%;
+    height: 58.3334%;
+}
+
+.slot142 {
+    top: 5%;
+    left: 10%;
+    width: 21.6667%;
+    height: 58.3334%;
+}
+
+
+.slot143 {
+    top: 18.333%;
+    left: 36.6667%;
+    width: 26.6667%;
+    height: 58.3334%;
+}
+
+.slot144 {
+    top: 30%;
+    left: 68.3334%;
+    width: 18.6667%;
+    height: 58.3334%;
+}
+
+
+
+.slot905 {
+    left: 22%;
+    top: 37.5%;
+    width: 54%;
+    height: 25%;
+}
+
+.slot907 {
+    left: 27%;
+    top: 37.5%;
+    width: 44%;
+    height: 25%;
+}
+
+.slot145 {
+    top: 36.6667%;
+    left: 5%;
+    width: 26.6667%;
+    height: 58.3334%;
+}
+
+.slot146 {
+    top: 36.6667%;
+    left: 36.6667%;
+    width: 26.6667%;
+    height: 58.3334%;
+}
+
+.slot147 {
+    top: 36.6667%;
+    left: 68.3334%;
+    width: 26.6667%;
+    height: 58.3334%;
+}
+
+
+.slot148 {
+    left: 5%;
+    top: 5%;
+    height: 30.6667%;
+    width: 90%;
+}
+
+
+.slot149 {
+    left: 5%;
+    top: 63.3334%;
+    height: 30.6667%;
+    width: 90%;
+}
+
+.slot150 {
+    left: 5%;
+    top: 40.3334%;
+    height: 18.6667%;
+    width: 26.6667%;
+}
+
+.slot151 {
+    left: 36.6667%;
+    top: 40.3334%;
+    height: 18.6667%;
+    width: 26.6667%;
+}
+
+.slot152 {
+    left: 68.3334%;
+    top: 40.3334%;
+    height: 18.6667%;
+    width: 26.6667%;
+}
+
+
+
+.slot153 {
+    left: 5%;
+    top: 5%;
+    height: 58.3334%;
+    width: 30.6667%;
+}
+
+.slot154 {
+    left: 41.6667%;
+    top: 5%;
+    height: 26.6667%;
+    width: 54.333%;
+}
+
+.slot155 {
+    left: 41.6667%;
+    top: 36.6667%;
+    height: 58.3334%;
+    width: 24.5%;
+}
+
+.slot156 {
+    left: 5%;
+    top: 68.334%;
+    height: 26.6667%;
+    width: 30.6667%;
+}
+
+.slot157 {
+    left: 71.167%;
+    top: 36.6667%;
+    height: 58.3334%;
+    width: 24.5%;
+}
+
+.slot906 {
+    left: 71.167%;
+    top: 36.6667%;
+    height: 58.3334%;
+    width: 24.5%;
+}
+
+.slot908 {
+    left: 10%;
+    top: 5%;
+    height: 21%;
+    width: 40%;
+}
+
+.slot158 {
+    top: 5%;
+    left: 5%;
+    width: 60%;
+    height: 55%;
+}
+
+.slot159 {
+    top: 45%;
+    left: 50%;
+    width: 45%;
+    height: 50%;
+}
+
+.slot160 {
+    top: 65%;
+    left: 5%;
+    width: 40%;
+    height: 30%;
+}
+
+.slot909 {
+    left: 45%;
+    top: 25%;
+    height: 50%;
+    width: 40%;
+}
+
+
+.slot161 {
+    top: 5%;
+    left: 5%;
+    width: 90%;
+    height: 26.6667%;
+}
+
+.slot162 {
+    top: 36.6667%;
+    left: 20%;
+    width: 60%;
+    height: 20%;
+}
+
+.slot163 {
+    top: 61.6667%;
+    left: 5%;
+    width: 90%;
+    height: 33.33%;
+}
+
+
+.slot164 {
+    top: 5%;
+    left: 55%;
+    height: 30%;
+    width: 30%;
+}
+
+.slot165 {
+    left: 5%;
+    top: 68.3334%;
+    height: 26.6667%;
+    width: 42.5%;
+}
+
+.slot166 {
+    left: 52.5%;
+    top: 68.3334%;
+    height: 26.6667%;
+    width: 42.5%;
+}
+
+
+.slot167 {
+    top: 36.667%;
+    left: 68.3334%;
+    width: 26.6667%;
+    height: 58.3334%;
+}
+
+.slot168 {
+    top: 36.6667%;
+    left: 5%;
+    width: 42.5%;
+    height: 58.3334%;
+}
+
+.slot169 {
+    top: 36.6667%;
+    left: 52.5%;
+    width: 42.5%;
+    height: 58.3334%;
+}
+
+.slot170 {
+    top: 16%;
+    left: 31%;
+    width: 40%;
+    height: 40%;
+}
+
+.slot171 {
+    top: 30%;
+    left: 68.3334%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+
+.slot172 {
+    top: 5%;
+    left: 5%;
+    width: 26.6667%;
+    height: 20%;
+}
+
+.slot173 {
+    top: 30%;
+    left: 5%;
+    width: 26.6667%;
+    height: 42.5%;
+}
+
+.slot174 {
+    top: 5%;
+    left: 36.6667%;
+    width: 26.6667%;
+    height: 35%;
+}
+
+.slot175 {
+    top: 5%;
+    left: 59%;
+    height: 20%;
+    width: 30%;
+}
+
+
+.slot176 {
+    left: 5%;
+    top: 68.3334%;
+    height: 26.6667%;
+    width: 18.75%;
+}
+
+.slot177 {
+    left: 28.75%;
+    top: 68.3334%;
+    height: 26.6667%;
+    width: 18.75%;
+}
+
+.slot178 {
+    left: 52.5%;
+    top: 68.3334%;
+    height: 26.6667%;
+    width: 18.75%;
+}
+
+.slot179 {
+    left: 76.25%;
+    top: 68.3334%;
+    height: 26.6667%;
+    width: 18.75%;
+}
+
+.slot180 {
+    left: 30%;
+    top: 5%;
+    height: 32%;
+    width: 40%;
+}
+
+.slot181 {
+    left: 36.6667%;
+    top: 40%;
+    height: 20%;
+    width: 26.6667%;
+}
+
+.slot182 {
+    left: 37%;
+    top: 37%;
+    height: 25%;
+    width: 25%;
+}
+
+.slot183 {
+    left: 5%;
+    top: 36.6667%;
+    height: 58.33%;
+    width: 90%;
+}
+
+.slot184 {
+    top: 5%;
+    left: 10%;
+    width: 37.5%;
+    height: 42.5%;
+}
+
+.slot185 {
+    top: 5%;
+    left: 52.5%;
+    width: 37.5%;
+    height: 42.5%;
+}
+
+.slot186 {
+    top: 42.5%;
+    left: 10%;
+    width: 30%;
+    height: 52.5%;
+}
+
+.slot187 {
+    top: 42.5%;
+    left: 60%;
+    width: 30%;
+    height: 52.5%;
+}
+
+.slot188 {
+    left: 5%;
+    top: 42.5%;
+    height: 42.5%;
+    width: 45.5%;
+}
+
+.slot189 {
+    left: 47.5%;
+    top: 42.5%;
+    height: 42.5%;
+    width: 45.5%;
+}
+
+.btn-setting.btnUpload {
+    width: 100% !important;
+    display: none !important;
+
+    input {
+        width: 100%;
+        font-size: 14px;
+    }
+
+    .FileInput__ContentsBox-sc-1jzq7im-0 {
+        width: 100%;
+
+        >.StyledBox-sc-13pk1d4-0 {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            padding: 10px 20px;
+            align-items: center;
+
+            >.StyledBox-sc-13pk1d4-0 {
+                padding: 0;
+                margin: 0;
+                flex-grow: 1;
+                overflow: hidden;
+                display: flex;
+                align-items: center;
+            }
+
+            .StyledButton-sc-323bzc-0 {
+                margin: 0;
+                padding: 0;
+
+                svg {
+                    margin: 0 !important;
+                    padding: 0;
+                    display: block;
+                }
+            }
+
+            .StyledBox-sc-13pk1d4-0.jUSFfA {
+                flex-grow: 0;
+                flex-shrink: 0;
+            }
+
+            span {
+                font-size: 12px;
+                line-height: 20px;
+                padding: 0 !important;
+                margin: 0;
+            }
+
+            a {
+                padding-left: 0;
+                padding: 0 !important;
+                margin: 0 0 0 5px;
+                display: inline-block;
+                color: rgba(223, 59, 59, 1) !important;
+                text-transform: capitalize;
+
+            }
+
+            .FileInput__Message-sc-1jzq7im-2 {
+                flex-grow: 1;
+                text-align: left;
+                font-size: 18px;
+            }
+        }
+    }
+}
+
+
+
+.editModal {
+    color: var(--brand) !important;
+    border-radius: 15px !important;
+    max-width: 1000px !important;
+    overflow: hidden;
+    width: 100%;
+
+    .editModal-frame {
+        overflow: auto;
+        max-height: 90vh;
+        width: 100%;
+    }
+
+    .editModal-header {
+        padding: 25px 30px !important;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .btn-close {
+        position: relative;
+        background: none;
+        border: 0;
+        padding: 0;
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: rgb(46, 46, 46);
+    }
+
+    .modal-content {
+        display: flex;
+        align-items: flex-start;
+        padding: 0 30px;
+        border: 0;
+        flex-flow: row nowrap;
+        justify-content: space-between;
+        gap: 30px;
+    }
+
+    .photo-area {
+        width: 450px;
+        flex-shrink: 0;
+        height: 450px;
+        position: relative;
+        background: #000;
+        margin: 30px 0;
+    }
+
+    .options-area {
+        flex-grow: 1;
+        padding: 30px 0;
+        overflow: hidden;
+        max-width: 350px;
+        display: block;
+        min-height: 510px;
+    }
+}
+/* ============================================
+   NORMALIZED SLOT POSITIONS (NO MARGINS)
+   When background is disabled (.photo-page.zoomed)
+   ============================================ */
+.photo-page.zoomed .slot1 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot2 {
+    top: 0.0000% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot3 {
+    top: 52.7778% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot4 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot5 {
+    top: 0.0000% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot6 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot7 {
+    top: 0.0000% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot8 {
+    top: 52.7778% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot9 {
+    top: 52.7778% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot10 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot12 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot13 {
+    top: 52.7778% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot14 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot15 {
+    top: 52.7778% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot16 {
+    top: 0.0000% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot17 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot18 {
+    top: 0.0000% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot19 {
+    top: 52.7778% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot20 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot21 {
+    top: 52.7778% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot22 {
+    top: 52.7778% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot23 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 64.8111% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot24 {
+    top: 0.0000% !important;
+    left: 70.3744% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot25 {
+    top: 52.7778% !important;
+    left: 70.3744% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot26 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot27 {
+    top: 0.0000% !important;
+    left: 35.1852% !important;
+    width: 64.8111% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot28 {
+    top: 52.7778% !important;
+    left: 0.0000% !important;
+    width: 64.8111% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot29 {
+    top: 52.7778% !important;
+    left: 70.3744% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot30 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 64.8111% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot31 {
+    top: 0.0000% !important;
+    left: 70.3744% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot32 {
+    top: 52.7778% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot33 {
+    top: 52.7778% !important;
+    left: 35.1852% !important;
+    width: 64.8111% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot34 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot35 {
+    top: 0.0000% !important;
+    left: 35.1852% !important;
+    width: 29.6297% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot36 {
+    top: 0.0000% !important;
+    left: 70.3704% !important;
+    width: 29.6297% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot37 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot38 {
+    top: 35.1852% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot39 {
+    top: 70.3704% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot40 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot41 {
+    top: 0.0000% !important;
+    left: 35.1852% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot42 {
+    top: 0.0000% !important;
+    left: 70.3704% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot43 {
+    top: 52.7778% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot44 {
+    top: 52.7778% !important;
+    left: 35.1852% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot45 {
+    top: 52.7778% !important;
+    left: 70.3704% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot46 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot47 {
+    top: 0.0000% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot48 {
+    top: 35.1852% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot49 {
+    top: 35.1852% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot50 {
+    top: 70.3704% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot51 {
+    top: 70.3704% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot52 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 25.0000% !important;
+}
+
+.photo-page.zoomed .slot53 {
+    top: 0.0000% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 69.4444% !important;
+}
+
+.photo-page.zoomed .slot54 {
+    top: 30.5556% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 69.4444% !important;
+}
+
+.photo-page.zoomed .slot55 {
+    top: 75.0000% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 25.0000% !important;
+}
+
+.photo-page.zoomed .slot56 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 69.4444% !important;
+}
+
+.photo-page.zoomed .slot57 {
+    top: 0.0000% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 25.0000% !important;
+}
+
+.photo-page.zoomed .slot58 {
+    top: 75.0000% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 25.0000% !important;
+}
+
+.photo-page.zoomed .slot59 {
+    top: 30.5556% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 69.4444% !important;
+}
+
+.photo-page.zoomed .slot60 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot61 {
+    top: 0.0000% !important;
+    left: 35.1852% !important;
+    width: 64.8149% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot62 {
+    top: 52.7778% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot63 {
+    top: 52.7778% !important;
+    left: 35.1852% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot64 {
+    top: 52.7778% !important;
+    left: 70.3704% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot65 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 64.8149% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot66 {
+    top: 0.0000% !important;
+    left: 70.3704% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot67 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot68 {
+    top: 0.0000% !important;
+    left: 35.1852% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot69 {
+    top: 0.0000% !important;
+    left: 70.3704% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot70 {
+    top: 52.7778% !important;
+    left: 0.0000% !important;
+    width: 64.8149% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot71 {
+    top: 52.7778% !important;
+    left: 70.3704% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot72 {
+    top: 52.7778% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot73 {
+    top: 52.7778% !important;
+    left: 35.1852% !important;
+    width: 64.8149% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot74 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot75 {
+    top: 0.0000% !important;
+    left: 35.1852% !important;
+    width: 29.6297% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot76 {
+    top: 0.0000% !important;
+    left: 70.3704% !important;
+    width: 29.6297% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot77 {
+    top: 35.1852% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot78 {
+    top: 35.1852% !important;
+    left: 35.1852% !important;
+    width: 29.6297% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot79 {
+    top: 35.1852% !important;
+    left: 70.3704% !important;
+    width: 29.6297% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot80 {
+    top: 70.3704% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot81 {
+    top: 70.3704% !important;
+    left: 35.1852% !important;
+    width: 29.6297% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot82 {
+    top: 70.3704% !important;
+    left: 70.3704% !important;
+    width: 29.6297% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot83 {
+    top: 16.6667% !important;
+    left: 16.6667% !important;
+    width: 66.6667% !important;
+    height: 66.6667% !important;
+}
+
+.photo-page.zoomed .slot84 {
+    top: 16.6667% !important;
+    left: 16.6667% !important;
+    width: 27.7778% !important;
+    height: 27.7778% !important;
+}
+
+.photo-page.zoomed .slot85 {
+    top: 16.6667% !important;
+    left: 50.0000% !important;
+    width: 27.7778% !important;
+    height: 27.7778% !important;
+}
+
+.photo-page.zoomed .slot86 {
+    top: 50.0000% !important;
+    left: 16.6667% !important;
+    width: 27.7778% !important;
+    height: 27.7778% !important;
+}
+
+.photo-page.zoomed .slot87 {
+    top: 50.0000% !important;
+    left: 50.0000% !important;
+    width: 27.7778% !important;
+    height: 27.7778% !important;
+}
+
+.photo-page.zoomed .slot88 {
+    top: 31.9444% !important;
+    left: 11.1111% !important;
+    width: 36.1111% !important;
+    height: 36.1111% !important;
+}
+
+.photo-page.zoomed .slot89 {
+    top: 31.9444% !important;
+    left: 52.7778% !important;
+    width: 36.1111% !important;
+    height: 36.1111% !important;
+}
+
+.photo-page.zoomed .slot90 {
+    top: 31.9444% !important;
+    left: 11.1111% !important;
+    width: 22.2222% !important;
+    height: 31.1111% !important;
+}
+
+.photo-page.zoomed .slot91 {
+    top: 31.9444% !important;
+    left: 38.8889% !important;
+    width: 22.2222% !important;
+    height: 31.1111% !important;
+}
+
+.photo-page.zoomed .slot92 {
+    top: 31.9444% !important;
+    left: 66.6667% !important;
+    width: 22.2222% !important;
+    height: 31.1111% !important;
+}
+
+.photo-page.zoomed .slot93 {
+    top: 8.3333% !important;
+    left: 16.6667% !important;
+    width: 66.6667% !important;
+    height: 83.3333% !important;
+}
+
+.photo-page.zoomed .slot94 {
+    top: 8.3333% !important;
+    left: 22.2222% !important;
+    width: 61.1111% !important;
+    height: 38.8889% !important;
+}
+
+.photo-page.zoomed .slot95 {
+    top: 52.7778% !important;
+    left: 22.2222% !important;
+    width: 61.1111% !important;
+    height: 38.8889% !important;
+}
+
+.photo-page.zoomed .slot96 {
+    top: 8.3333% !important;
+    left: 11.1111% !important;
+    width: 36.1111% !important;
+    height: 83.3333% !important;
+}
+
+.photo-page.zoomed .slot97 {
+    top: 8.3333% !important;
+    left: 52.7778% !important;
+    width: 36.1111% !important;
+    height: 83.3333% !important;
+}
+
+.photo-page.zoomed .slot98 {
+    top: 8.3333% !important;
+    left: 8.3333% !important;
+    width: 83.3333% !important;
+    height: 83.3333% !important;
+}
+
+.photo-page.zoomed .slot99 {
+    top: 31.9444% !important;
+    left: 11.1111% !important;
+    width: 22.2222% !important;
+    height: 31.1111% !important;
+}
+
+.photo-page.zoomed .slot100 {
+    top: 31.9444% !important;
+    left: 38.8889% !important;
+    width: 44.4444% !important;
+    height: 31.1111% !important;
+}
+
+.photo-page.zoomed .slot101 {
+    top: 31.9444% !important;
+    left: 11.1111% !important;
+    width: 44.4444% !important;
+    height: 31.1111% !important;
+}
+
+.photo-page.zoomed .slot102 {
+    top: 31.9444% !important;
+    left: 61.1111% !important;
+    width: 22.2222% !important;
+    height: 31.1111% !important;
+}
+
+.photo-page.zoomed .slot103 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 20.8333% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot104 {
+    top: 0.0000% !important;
+    left: 26.3889% !important;
+    width: 20.8333% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot105 {
+    top: 0.0000% !important;
+    left: 52.7778% !important;
+    width: 20.8333% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot106 {
+    top: 0.0000% !important;
+    left: 79.1667% !important;
+    width: 20.8333% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot107 {
+    top: 52.7778% !important;
+    left: 0.0000% !important;
+    width: 20.8333% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot108 {
+    top: 52.7778% !important;
+    left: 26.3889% !important;
+    width: 20.8333% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot109 {
+    top: 52.7778% !important;
+    left: 52.7778% !important;
+    width: 20.8333% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot110 {
+    top: 52.7778% !important;
+    left: 79.1667% !important;
+    width: 20.8333% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot111 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 20.8333% !important;
+}
+
+.photo-page.zoomed .slot112 {
+    top: 26.3889% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 20.8333% !important;
+}
+
+.photo-page.zoomed .slot113 {
+    top: 52.7778% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 20.8333% !important;
+}
+
+.photo-page.zoomed .slot114 {
+    top: 79.1667% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 20.8333% !important;
+}
+
+.photo-page.zoomed .slot115 {
+    top: 0.0000% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 20.8333% !important;
+}
+
+.photo-page.zoomed .slot116 {
+    top: 26.3889% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 20.8333% !important;
+}
+
+.photo-page.zoomed .slot117 {
+    top: 52.7778% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 20.8333% !important;
+}
+
+.photo-page.zoomed .slot118 {
+    top: 79.1667% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 20.8333% !important;
+}
+
+.photo-page.zoomed .slot119 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 27.7778% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot120 {
+    top: 52.7778% !important;
+    left: 0.0000% !important;
+    width: 27.7778% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot121 {
+    top: 0.0000% !important;
+    left: 33.3333% !important;
+    width: 66.6667% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot122 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 22.2222% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot123 {
+    top: 0.0000% !important;
+    left: 27.7778% !important;
+    width: 44.4444% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot124 {
+    top: 0.0000% !important;
+    left: 77.7778% !important;
+    width: 22.2222% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot125 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 64.8111% !important;
+}
+
+.photo-page.zoomed .slot126 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 20.8333% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot127 {
+    top: 0.0000% !important;
+    left: -5.5556% !important;
+    width: 20.8333% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot128 {
+    top: 0.0000% !important;
+    left: -5.5556% !important;
+    width: 20.8333% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot129 {
+    top: 0.0000% !important;
+    left: -5.5556% !important;
+    width: 20.8333% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot130 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 20.8333% !important;
+}
+
+.photo-page.zoomed .slot134 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 64.8111% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot135 {
+    top: 0.0000% !important;
+    left: 70.3704% !important;
+    width: 29.6297% !important;
+    height: 64.8111% !important;
+}
+
+.photo-page.zoomed .slot136 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 61.1111% !important;
+}
+
+.photo-page.zoomed .slot137 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot138 {
+    top: 0.0000% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot901 {
+    top: 70.3704% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot902 {
+    top: 0.0000% !important;
+    left: 70.3744% !important;
+    width: 29.6297% !important;
+    height: 100.0000% !important;
+}
+
+.photo-page.zoomed .slot903 {
+    top: 66.6667% !important;
+    left: 16.6667% !important;
+    width: 66.6667% !important;
+    height: 33.3333% !important;
+}
+
+.photo-page.zoomed .slot904 {
+    top: 70.0000% !important;
+    left: 58.8889% !important;
+    width: 41.1111% !important;
+    height: 30.0000% !important;
+}
+
+.photo-page.zoomed .slot139 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot140 {
+    top: 0.0000% !important;
+    left: 35.1852% !important;
+    width: 29.6297% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot141 {
+    top: 0.0000% !important;
+    left: 70.3704% !important;
+    width: 29.6297% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot142 {
+    top: 0.0000% !important;
+    left: 5.5556% !important;
+    width: 24.0741% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot143 {
+    top: 14.8144% !important;
+    left: 35.1852% !important;
+    width: 29.6297% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot144 {
+    top: 27.7778% !important;
+    left: 70.3704% !important;
+    width: 20.7408% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot905 {
+    top: 36.1111% !important;
+    left: 18.8889% !important;
+    width: 60.0000% !important;
+    height: 27.7778% !important;
+}
+
+.photo-page.zoomed .slot907 {
+    top: 36.1111% !important;
+    left: 24.4444% !important;
+    width: 48.8889% !important;
+    height: 27.7778% !important;
+}
+
+.photo-page.zoomed .slot145 {
+    top: 35.1852% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot146 {
+    top: 35.1852% !important;
+    left: 35.1852% !important;
+    width: 29.6297% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot147 {
+    top: 35.1852% !important;
+    left: 70.3704% !important;
+    width: 29.6297% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot148 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 34.0741% !important;
+}
+
+.photo-page.zoomed .slot149 {
+    top: 64.8149% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 34.0741% !important;
+}
+
+.photo-page.zoomed .slot150 {
+    top: 39.2593% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 20.7408% !important;
+}
+
+.photo-page.zoomed .slot151 {
+    top: 39.2593% !important;
+    left: 35.1852% !important;
+    width: 29.6297% !important;
+    height: 20.7408% !important;
+}
+
+.photo-page.zoomed .slot152 {
+    top: 39.2593% !important;
+    left: 70.3704% !important;
+    width: 29.6297% !important;
+    height: 20.7408% !important;
+}
+
+.photo-page.zoomed .slot153 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 34.0741% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot154 {
+    top: 0.0000% !important;
+    left: 40.7408% !important;
+    width: 60.3700% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot155 {
+    top: 35.1852% !important;
+    left: 40.7408% !important;
+    width: 27.2222% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot156 {
+    top: 70.3711% !important;
+    left: 0.0000% !important;
+    width: 34.0741% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot157 {
+    top: 35.1852% !important;
+    left: 73.5189% !important;
+    width: 27.2222% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot906 {
+    top: 35.1852% !important;
+    left: 73.5189% !important;
+    width: 27.2222% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot908 {
+    top: 0.0000% !important;
+    left: 5.5556% !important;
+    width: 44.4444% !important;
+    height: 23.3333% !important;
+}
+
+.photo-page.zoomed .slot158 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 66.6667% !important;
+    height: 61.1111% !important;
+}
+
+.photo-page.zoomed .slot159 {
+    top: 44.4444% !important;
+    left: 50.0000% !important;
+    width: 50.0000% !important;
+    height: 55.5556% !important;
+}
+
+.photo-page.zoomed .slot160 {
+    top: 66.6667% !important;
+    left: 0.0000% !important;
+    width: 44.4444% !important;
+    height: 33.3333% !important;
+}
+
+.photo-page.zoomed .slot909 {
+    top: 22.2222% !important;
+    left: 44.4444% !important;
+    width: 44.4444% !important;
+    height: 55.5556% !important;
+}
+
+.photo-page.zoomed .slot161 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot162 {
+    top: 35.1852% !important;
+    left: 16.6667% !important;
+    width: 66.6667% !important;
+    height: 22.2222% !important;
+}
+
+.photo-page.zoomed .slot163 {
+    top: 62.9630% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 37.0333% !important;
+}
+
+.photo-page.zoomed .slot164 {
+    top: 0.0000% !important;
+    left: 55.5556% !important;
+    width: 33.3333% !important;
+    height: 33.3333% !important;
+}
+
+.photo-page.zoomed .slot165 {
+    top: 70.3704% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot166 {
+    top: 70.3704% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot167 {
+    top: 35.1856% !important;
+    left: 70.3704% !important;
+    width: 29.6297% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot168 {
+    top: 35.1852% !important;
+    left: 0.0000% !important;
+    width: 47.2222% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot169 {
+    top: 35.1852% !important;
+    left: 52.7778% !important;
+    width: 47.2222% !important;
+    height: 64.8149% !important;
+}
+
+.photo-page.zoomed .slot170 {
+    top: 12.2222% !important;
+    left: 28.8889% !important;
+    width: 44.4444% !important;
+    height: 44.4444% !important;
+}
+
+.photo-page.zoomed .slot171 {
+    top: 27.7778% !important;
+    left: 70.3704% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot172 {
+    top: 0.0000% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 22.2222% !important;
+}
+
+.photo-page.zoomed .slot173 {
+    top: 27.7778% !important;
+    left: 0.0000% !important;
+    width: 29.6297% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot174 {
+    top: 0.0000% !important;
+    left: 35.1852% !important;
+    width: 29.6297% !important;
+    height: 38.8889% !important;
+}
+
+.photo-page.zoomed .slot175 {
+    top: 0.0000% !important;
+    left: 60.0000% !important;
+    width: 33.3333% !important;
+    height: 22.2222% !important;
+}
+
+.photo-page.zoomed .slot176 {
+    top: 70.3704% !important;
+    left: 0.0000% !important;
+    width: 20.8333% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot177 {
+    top: 70.3704% !important;
+    left: 26.3889% !important;
+    width: 20.8333% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot178 {
+    top: 70.3704% !important;
+    left: 52.7778% !important;
+    width: 20.8333% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot179 {
+    top: 70.3704% !important;
+    left: 79.1667% !important;
+    width: 20.8333% !important;
+    height: 29.6297% !important;
+}
+
+.photo-page.zoomed .slot180 {
+    top: 0.0000% !important;
+    left: 27.7778% !important;
+    width: 44.4444% !important;
+    height: 35.5556% !important;
+}
+
+.photo-page.zoomed .slot181 {
+    top: 38.8889% !important;
+    left: 35.1852% !important;
+    width: 29.6297% !important;
+    height: 22.2222% !important;
+}
+
+.photo-page.zoomed .slot182 {
+    top: 35.5556% !important;
+    left: 35.5556% !important;
+    width: 27.7778% !important;
+    height: 27.7778% !important;
+}
+
+.photo-page.zoomed .slot183 {
+    top: 35.1852% !important;
+    left: 0.0000% !important;
+    width: 100.0000% !important;
+    height: 64.8111% !important;
+}
+
+.photo-page.zoomed .slot184 {
+    top: 0.0000% !important;
+    left: 5.5556% !important;
+    width: 41.6667% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot185 {
+    top: 0.0000% !important;
+    left: 52.7778% !important;
+    width: 41.6667% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot186 {
+    top: 41.6667% !important;
+    left: 5.5556% !important;
+    width: 33.3333% !important;
+    height: 58.3333% !important;
+}
+
+.photo-page.zoomed .slot187 {
+    top: 41.6667% !important;
+    left: 61.1111% !important;
+    width: 33.3333% !important;
+    height: 58.3333% !important;
+}
+
+.photo-page.zoomed .slot188 {
+    top: 41.6667% !important;
+    left: 0.0000% !important;
+    width: 50.5556% !important;
+    height: 47.2222% !important;
+}
+
+.photo-page.zoomed .slot189 {
+    top: 41.6667% !important;
+    left: 47.2222% !important;
+    width: 50.5556% !important;
+    height: 47.2222% !important;
+}

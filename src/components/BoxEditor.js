@@ -1,5 +1,5 @@
-// src/components/EditorPage.js
-import "./EditorPage.css";
+// src/components/BoxEditor.js - Square (1:1) aspect ratio editor
+import "./BoxEditor.css";
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import ColorThief from "color-thief-browser";
 import { Box, Button, Layer, Text, Spinner, Meter, Heading, RadioButtonGroup } from "grommet";
@@ -9,7 +9,7 @@ import "croppie/croppie.css";
 import TemplateModal from "./TemplateModal";
 import ThemeModal from "./ThemeModal";
 import SettingsBar from "./SettingsBar";
-import { pageTemplates } from "../templates/pageTemplates";
+import { boxPageTemplates as pageTemplates } from "../templates/boxPageTemplates";
 import TitleModal from "./TitleModal";
 import TextEditor, { TextEditorModal } from "./TextEditor";
 
@@ -158,10 +158,28 @@ const SLOT_MAP_BG = [
     { top: `${slotMargin}%`, left: `${slotMargin}%`, width: `${100 - 2 * slotMargin}%`, height: `${100 - 2 * slotMargin}%` }, // 9
 ];
 
+// When background is disabled, recalculate positions with no margins/gaps
+const halfWidthNoGap = 50; // 100 / 2
+const SLOT_MAP_NO_BG = [
+    { top: '0%', left: '0%', width: `${halfWidthNoGap}%`, height: '100%' }, // 0
+    { top: '0%', left: `${halfWidthNoGap}%`, width: `${halfWidthNoGap}%`, height: `${halfWidthNoGap}%` }, // 1
+    { top: `${halfWidthNoGap}%`, left: `${halfWidthNoGap}%`, width: `${halfWidthNoGap}%`, height: `${halfWidthNoGap}%` }, // 2
+    { top: '0%', left: '0%', width: `${halfWidthNoGap}%`, height: '100%' }, // 3
+    { top: '0%', left: `${halfWidthNoGap}%`, width: `${halfWidthNoGap}%`, height: '100%' }, // 4
+    { top: '0%', left: '0%', width: `${halfWidthNoGap}%`, height: `${halfWidthNoGap}%` }, // 5
+    { top: '0%', left: `${halfWidthNoGap}%`, width: `${halfWidthNoGap}%`, height: `${halfWidthNoGap}%` }, // 6
+    { top: `${halfWidthNoGap}%`, left: '0%', width: `${halfWidthNoGap}%`, height: `${halfWidthNoGap}%` }, // 7
+    { top: `${halfWidthNoGap}%`, left: `${halfWidthNoGap}%`, width: `${halfWidthNoGap}%`, height: `${halfWidthNoGap}%` }, // 8
+    { top: '0%', left: '0%', width: '100%', height: '100%' }, // 9
+];
+
 // use canonical only when background is ON
 function getSlotRect(slotIndex, backgroundEnabled) {
-    if (!backgroundEnabled) return null;
-    return SLOT_MAP_BG[slotIndex] ?? null;
+    if (backgroundEnabled) {
+        return SLOT_MAP_BG[slotIndex] ?? null;
+    } else {
+        return SLOT_MAP_NO_BG[slotIndex] ?? null;
+    }
 }
 
 // ---------------------- Normalization helpers (for "remove background") ----------------------
@@ -170,445 +188,445 @@ function getSlotRect(slotIndex, backgroundEnabled) {
  * normalize to percentages that fill the union bounding box.
  * Returns percent strings to drop straight into style.
  */
-function computeNormalizedRects(slotEls) {
-    const firstEl = slotEls.find(Boolean);
-    if (!firstEl) return null;
+// function computeNormalizedRects(slotEls) {
+//     const firstEl = slotEls.find(Boolean);
+//     if (!firstEl) return null;
 
-    const page = firstEl.closest(".photo-page");
-    if (!page) return null;
+//     const page = firstEl.closest(".photo-page");
+//     if (!page) return null;
 
-    const pr = page.getBoundingClientRect();
-    const pw = Math.max(1e-6, pr.width);
-    const ph = Math.max(1e-6, pr.height);
+//     const pr = page.getBoundingClientRect();
+//     const pw = Math.max(1e-6, pr.width);
+//     const ph = Math.max(1e-6, pr.height);
 
-    const epsilon = 1e-4;
+//     const epsilon = 1e-4;
 
-    const entries = slotEls
-        .map((el, idx) => {
-            if (!el) return null;
-            const r = el.getBoundingClientRect();
-            const leftPx = r.left - pr.left;
-            const topPx = r.top - pr.top;
-            const widthPx = r.width;
-            const heightPx = r.height;
-            const left = (leftPx / pw) * 100;
-            const top = (topPx / ph) * 100;
-            const width = (widthPx / pw) * 100;
-            const height = (heightPx / ph) * 100;
-            return {
-                idx,
-                percent: {
-                    left,
-                    top,
-                    width,
-                    height,
-                    right: left + width,
-                    bottom: top + height,
-                },
-                px: {
-                    left: leftPx,
-                    top: topPx,
-                    right: leftPx + widthPx,
-                    bottom: topPx + heightPx,
-                },
-            };
-        })
-        .filter(Boolean);
+//     const entries = slotEls
+//         .map((el, idx) => {
+//             if (!el) return null;
+//             const r = el.getBoundingClientRect();
+//             const leftPx = r.left - pr.left;
+//             const topPx = r.top - pr.top;
+//             const widthPx = r.width;
+//             const heightPx = r.height;
+//             const left = (leftPx / pw) * 100;
+//             const top = (topPx / ph) * 100;
+//             const width = (widthPx / pw) * 100;
+//             const height = (heightPx / ph) * 100;
+//             return {
+//                 idx,
+//                 percent: {
+//                     left,
+//                     top,
+//                     width,
+//                     height,
+//                     right: left + width,
+//                     bottom: top + height,
+//                 },
+//                 px: {
+//                     left: leftPx,
+//                     top: topPx,
+//                     right: leftPx + widthPx,
+//                     bottom: topPx + heightPx,
+//                 },
+//             };
+//         })
+//         .filter(Boolean);
 
-    if (!entries.length) return null;
+//     if (!entries.length) return null;
 
-    const minLeft = Math.min(...entries.map(({ percent }) => percent.left));
-    const minTop = Math.min(...entries.map(({ percent }) => percent.top));
-    const maxRight = Math.max(...entries.map(({ percent }) => percent.right));
-    const maxBottom = Math.max(...entries.map(({ percent }) => percent.bottom));
+//     const minLeft = Math.min(...entries.map(({ percent }) => percent.left));
+//     const minTop = Math.min(...entries.map(({ percent }) => percent.top));
+//     const maxRight = Math.max(...entries.map(({ percent }) => percent.right));
+//     const maxBottom = Math.max(...entries.map(({ percent }) => percent.bottom));
 
-    const minLeftPx = Math.min(...entries.map(({ px }) => px.left));
-    const minTopPx = Math.min(...entries.map(({ px }) => px.top));
-    const maxRightPx = Math.max(...entries.map(({ px }) => px.right));
-    const maxBottomPx = Math.max(...entries.map(({ px }) => px.bottom));
+//     const minLeftPx = Math.min(...entries.map(({ px }) => px.left));
+//     const minTopPx = Math.min(...entries.map(({ px }) => px.top));
+//     const maxRightPx = Math.max(...entries.map(({ px }) => px.right));
+//     const maxBottomPx = Math.max(...entries.map(({ px }) => px.bottom));
 
-    const spanX = Math.max(1e-6, maxRight - minLeft);
-    const spanY = Math.max(1e-6, maxBottom - minTop);
-    const spanXpx = Math.max(1e-3, maxRightPx - minLeftPx);
-    const spanYpx = Math.max(1e-3, maxBottomPx - minTopPx);
+//     const spanX = Math.max(1e-6, maxRight - minLeft);
+//     const spanY = Math.max(1e-6, maxBottom - minTop);
+//     const spanXpx = Math.max(1e-3, maxRightPx - minLeftPx);
+//     const spanYpx = Math.max(1e-3, maxBottomPx - minTopPx);
 
-    const normalized = entries.map(({ idx, percent }) => ({
-        idx,
-        left: percent.left - minLeft,
-        right: percent.right - minLeft,
-        top: percent.top - minTop,
-        bottom: percent.bottom - minTop,
-    }));
+//     const normalized = entries.map(({ idx, percent }) => ({
+//         idx,
+//         left: percent.left - minLeft,
+//         right: percent.right - minLeft,
+//         top: percent.top - minTop,
+//         bottom: percent.bottom - minTop,
+//     }));
 
-    const createAxisMapper = (axis) => {
-        const startKey = axis === "x" ? "left" : "top";
-        const endKey = axis === "x" ? "right" : "bottom";
+//     const createAxisMapper = (axis) => {
+//         const startKey = axis === "x" ? "left" : "top";
+//         const endKey = axis === "x" ? "right" : "bottom";
 
-        const edges = Array.from(
-            new Set(
-                normalized.flatMap((r) => [
-                    Number(r[startKey].toFixed(4)),
-                    Number(r[endKey].toFixed(4)),
-                ])
-            )
-        ).sort((a, b) => a - b);
+//         const edges = Array.from(
+//             new Set(
+//                 normalized.flatMap((r) => [
+//                     Number(r[startKey].toFixed(4)),
+//                     Number(r[endKey].toFixed(4)),
+//                 ])
+//             )
+//         ).sort((a, b) => a - b);
 
-        if (edges.length < 2) {
-            return () => 0;
-        }
+//         if (edges.length < 2) {
+//             return () => 0;
+//         }
 
-        const segments = edges.slice(0, -1).map((edge, index) => {
-            const start = edges[index];
-            const end = edges[index + 1];
-            const length = end - start;
-            if (length <= epsilon) {
-                return { start, end, length, hasContent: false };
-            }
-            const hasContent = normalized.some(
-                (rect) =>
-                    rect[startKey] < end - epsilon && rect[endKey] > start + epsilon
-            );
-            return { start, end, length, hasContent };
-        });
+//         const segments = edges.slice(0, -1).map((edge, index) => {
+//             const start = edges[index];
+//             const end = edges[index + 1];
+//             const length = end - start;
+//             if (length <= epsilon) {
+//                 return { start, end, length, hasContent: false };
+//             }
+//             const hasContent = normalized.some(
+//                 (rect) =>
+//                     rect[startKey] < end - epsilon && rect[endKey] > start + epsilon
+//             );
+//             return { start, end, length, hasContent };
+//         });
 
-        let total = 0;
-        const cumulative = [0];
-        segments.forEach((segment) => {
-            if (segment.hasContent) {
-                total += segment.length;
-            }
-            cumulative.push(total);
-        });
+//         let total = 0;
+//         const cumulative = [0];
+//         segments.forEach((segment) => {
+//             if (segment.hasContent) {
+//                 total += segment.length;
+//             }
+//             cumulative.push(total);
+//         });
 
-        if (total <= epsilon) {
-            // fallback to even scaling if everything collapses (should not happen)
-            const span = axis === "x" ? spanX : spanY;
-            return (value) => (span ? (value / span) * 100 : 0);
-        }
+//         if (total <= epsilon) {
+//             // fallback to even scaling if everything collapses (should not happen)
+//             const span = axis === "x" ? spanX : spanY;
+//             return (value) => (span ? (value / span) * 100 : 0);
+//         }
 
-        return (value) => {
-            if (value <= edges[0] + epsilon) return 0;
-            if (value >= edges[edges.length - 1] - epsilon) return 100;
+//         return (value) => {
+//             if (value <= edges[0] + epsilon) return 0;
+//             if (value >= edges[edges.length - 1] - epsilon) return 100;
 
-            let idx = 1;
-            for (; idx < edges.length; idx += 1) {
-                if (value <= edges[idx] + epsilon) break;
-            }
+//             let idx = 1;
+//             for (; idx < edges.length; idx += 1) {
+//                 if (value <= edges[idx] + epsilon) break;
+//             }
 
-            const segment = segments[idx - 1];
-            const startEdge = edges[idx - 1];
-            const startCum = cumulative[idx - 1];
-            const endCum = cumulative[idx];
+//             const segment = segments[idx - 1];
+//             const startEdge = edges[idx - 1];
+//             const startCum = cumulative[idx - 1];
+//             const endCum = cumulative[idx];
 
-            if (!segment || segment.length <= epsilon || !segment.hasContent) {
-                return (startCum / total) * 100;
-            }
+//             if (!segment || segment.length <= epsilon || !segment.hasContent) {
+//                 return (startCum / total) * 100;
+//             }
 
-            const t = (value - startEdge) / segment.length;
-            const mapped = startCum + t * (endCum - startCum);
-            return (mapped / total) * 100;
-        };
-    };
+//             const t = (value - startEdge) / segment.length;
+//             const mapped = startCum + t * (endCum - startCum);
+//             return (mapped / total) * 100;
+//         };
+//     };
 
-    const mapX = createAxisMapper("x");
-    const mapY = createAxisMapper("y");
+//     const mapX = createAxisMapper("x");
+//     const mapY = createAxisMapper("y");
 
-    const numberRects = slotEls.map(() => null);
+//     const numberRects = slotEls.map(() => null);
 
-    normalized.forEach(({ idx, left, right, top, bottom }) => {
-        const mappedLeft = mapX(left);
-        const mappedRight = mapX(right);
-        const mappedTop = mapY(top);
-        const mappedBottom = mapY(bottom);
+//     normalized.forEach(({ idx, left, right, top, bottom }) => {
+//         const mappedLeft = mapX(left);
+//         const mappedRight = mapX(right);
+//         const mappedTop = mapY(top);
+//         const mappedBottom = mapY(bottom);
 
-        numberRects[idx] = {
-            left: mappedLeft,
-            top: mappedTop,
-            width: mappedRight - mappedLeft,
-            height: mappedBottom - mappedTop,
-        };
-    });
+//         numberRects[idx] = {
+//             left: mappedLeft,
+//             top: mappedTop,
+//             width: mappedRight - mappedLeft,
+//             height: mappedBottom - mappedTop,
+//         };
+//     });
 
-    const adjustAxis = (axis) => {
-        const gapTolerance = 0.05;
-        const startKey = axis === "x" ? "left" : "top";
-        const sizeKey = axis === "x" ? "width" : "height";
-        const crossStartKey = axis === "x" ? "top" : "left";
-        const crossSizeKey = axis === "x" ? "height" : "width";
+//     const adjustAxis = (axis) => {
+//         const gapTolerance = 0.05;
+//         const startKey = axis === "x" ? "left" : "top";
+//         const sizeKey = axis === "x" ? "width" : "height";
+//         const crossStartKey = axis === "x" ? "top" : "left";
+//         const crossSizeKey = axis === "x" ? "height" : "width";
 
-        const items = numberRects
-            .map((rect, idx) => {
-                if (!rect) return null;
-                const start = rect[startKey];
-                const end = rect[startKey] + rect[sizeKey];
-                const crossStart = rect[crossStartKey];
-                const crossEnd = rect[crossStartKey] + rect[crossSizeKey];
-                return { idx, start, end, crossStart, crossEnd };
-            })
-            .filter(Boolean)
-            .sort((a, b) => {
-                if (a.start === b.start) return a.idx - b.idx;
-                return a.start - b.start;
-            });
+//         const items = numberRects
+//             .map((rect, idx) => {
+//                 if (!rect) return null;
+//                 const start = rect[startKey];
+//                 const end = rect[startKey] + rect[sizeKey];
+//                 const crossStart = rect[crossStartKey];
+//                 const crossEnd = rect[crossStartKey] + rect[crossSizeKey];
+//                 return { idx, start, end, crossStart, crossEnd };
+//             })
+//             .filter(Boolean)
+//             .sort((a, b) => {
+//                 if (a.start === b.start) return a.idx - b.idx;
+//                 return a.start - b.start;
+//             });
 
-        const overlaps = (a, b) =>
-            Math.min(a.crossEnd, b.crossEnd) - Math.max(a.crossStart, b.crossStart) > gapTolerance;
+//         const overlaps = (a, b) =>
+//             Math.min(a.crossEnd, b.crossEnd) - Math.max(a.crossStart, b.crossStart) > gapTolerance;
 
-        for (let i = 0; i < items.length - 1; i += 1) {
-            const current = items[i];
-            for (let j = i + 1; j < items.length; j += 1) {
-                const candidate = items[j];
-                if (!overlaps(current, candidate)) continue;
-                const gap = candidate.start - current.end;
-                if (gap <= gapTolerance) continue;
+//         for (let i = 0; i < items.length - 1; i += 1) {
+//             const current = items[i];
+//             for (let j = i + 1; j < items.length; j += 1) {
+//                 const candidate = items[j];
+//                 if (!overlaps(current, candidate)) continue;
+//                 const gap = candidate.start - current.end;
+//                 if (gap <= gapTolerance) continue;
 
-                for (let k = j; k < items.length; k += 1) {
-                    const follower = items[k];
-                    if (!overlaps(current, follower)) continue;
-                    numberRects[follower.idx][startKey] -= gap;
-                    follower.start -= gap;
-                    follower.end -= gap;
-                }
-            }
-        }
+//                 for (let k = j; k < items.length; k += 1) {
+//                     const follower = items[k];
+//                     if (!overlaps(current, follower)) continue;
+//                     numberRects[follower.idx][startKey] -= gap;
+//                     follower.start -= gap;
+//                     follower.end -= gap;
+//                 }
+//             }
+//         }
 
-        const activeItems = items.filter(Boolean);
-        if (!activeItems.length) return;
+//         const activeItems = items.filter(Boolean);
+//         if (!activeItems.length) return;
 
-        const minStart = Math.min(...activeItems.map((item) => item.start));
-        if (minStart < -gapTolerance) {
-            const shift = -minStart;
-            numberRects.forEach((rect) => {
-                if (!rect) return;
-                rect[startKey] += shift;
-            });
-            activeItems.forEach((item) => {
-                item.start += shift;
-                item.end += shift;
-            });
-        }
+//         const minStart = Math.min(...activeItems.map((item) => item.start));
+//         if (minStart < -gapTolerance) {
+//             const shift = -minStart;
+//             numberRects.forEach((rect) => {
+//                 if (!rect) return;
+//                 rect[startKey] += shift;
+//             });
+//             activeItems.forEach((item) => {
+//                 item.start += shift;
+//                 item.end += shift;
+//             });
+//         }
 
-        const maxEnd = Math.max(...activeItems.map((item) => item.end));
-        if (maxEnd > gapTolerance && Math.abs(maxEnd - 100) > gapTolerance) {
-            const scale = 100 / maxEnd;
-            numberRects.forEach((rect) => {
-                if (!rect) return;
-                rect[startKey] *= scale;
-                rect[sizeKey] *= scale;
-            });
-            activeItems.forEach((item) => {
-                const rect = numberRects[item.idx];
-                item.start = rect[startKey];
-                item.end = rect[startKey] + rect[sizeKey];
-                item.crossStart = rect[crossStartKey];
-                item.crossEnd = rect[crossStartKey] + rect[crossSizeKey];
-            });
-        }
-    };
+//         const maxEnd = Math.max(...activeItems.map((item) => item.end));
+//         if (maxEnd > gapTolerance && Math.abs(maxEnd - 100) > gapTolerance) {
+//             const scale = 100 / maxEnd;
+//             numberRects.forEach((rect) => {
+//                 if (!rect) return;
+//                 rect[startKey] *= scale;
+//                 rect[sizeKey] *= scale;
+//             });
+//             activeItems.forEach((item) => {
+//                 const rect = numberRects[item.idx];
+//                 item.start = rect[startKey];
+//                 item.end = rect[startKey] + rect[sizeKey];
+//                 item.crossStart = rect[crossStartKey];
+//                 item.crossEnd = rect[crossStartKey] + rect[crossSizeKey];
+//             });
+//         }
+//     };
 
-    adjustAxis("x");
-    adjustAxis("y");
+//     adjustAxis("x");
+//     adjustAxis("y");
 
-    const chooseSnappedValue = (value) => {
-        const candidates = [
-            { multiplier: 1, tolerance: 0.15 },
-            { multiplier: 2, tolerance: 0.15 },
-            { multiplier: 3, tolerance: 0.2 },
-            { multiplier: 4, tolerance: 0.2 },
-            { multiplier: 5, tolerance: 0.25 },
-        ];
-        for (let i = 0; i < candidates.length; i += 1) {
-            const { multiplier, tolerance } = candidates[i];
-            const scaled = value * multiplier;
-            const rounded = Math.round(scaled);
-            if (Math.abs(scaled - rounded) <= tolerance) {
-                return rounded / multiplier;
-            }
-        }
-        return value;
-    };
+//     const chooseSnappedValue = (value) => {
+//         const candidates = [
+//             { multiplier: 1, tolerance: 0.15 },
+//             { multiplier: 2, tolerance: 0.15 },
+//             { multiplier: 3, tolerance: 0.2 },
+//             { multiplier: 4, tolerance: 0.2 },
+//             { multiplier: 5, tolerance: 0.25 },
+//         ];
+//         for (let i = 0; i < candidates.length; i += 1) {
+//             const { multiplier, tolerance } = candidates[i];
+//             const scaled = value * multiplier;
+//             const rounded = Math.round(scaled);
+//             if (Math.abs(scaled - rounded) <= tolerance) {
+//                 return rounded / multiplier;
+//             }
+//         }
+//         return value;
+//     };
 
-    const snapAxis = (axis) => {
-        const tolerance = 0.08;
-        const startKey = axis === "x" ? "left" : "top";
-        const sizeKey = axis === "x" ? "width" : "height";
+//     const snapAxis = (axis) => {
+//         const tolerance = 0.08;
+//         const startKey = axis === "x" ? "left" : "top";
+//         const sizeKey = axis === "x" ? "width" : "height";
 
-        const points = [];
-        numberRects.forEach((rect) => {
-            if (!rect) return;
-            points.push({ rect, kind: "start", value: rect[startKey] });
-            points.push({ rect, kind: "end", value: rect[startKey] + rect[sizeKey] });
-        });
+//         const points = [];
+//         numberRects.forEach((rect) => {
+//             if (!rect) return;
+//             points.push({ rect, kind: "start", value: rect[startKey] });
+//             points.push({ rect, kind: "end", value: rect[startKey] + rect[sizeKey] });
+//         });
 
-        points.sort((a, b) => a.value - b.value);
+//         points.sort((a, b) => a.value - b.value);
 
-        const groups = [];
-        points.forEach((point) => {
-            const last = groups[groups.length - 1];
-            if (last && Math.abs(point.value - last.value) <= tolerance) {
-                last.members.push(point);
-            } else {
-                groups.push({ value: point.value, members: [point] });
-            }
-        });
+//         const groups = [];
+//         points.forEach((point) => {
+//             const last = groups[groups.length - 1];
+//             if (last && Math.abs(point.value - last.value) <= tolerance) {
+//                 last.members.push(point);
+//             } else {
+//                 groups.push({ value: point.value, members: [point] });
+//             }
+//         });
 
-        groups.forEach((group) => {
-            const mean =
-                group.members.reduce((sum, member) => sum + member.value, 0) /
-                group.members.length;
-            const target = chooseSnappedValue(mean);
-            group.members.forEach((member) => {
-                if (member.kind === "start") {
-                    member.rect[startKey] = target;
-                } else {
-                    const start = member.rect[startKey];
-                    member.rect[sizeKey] = Math.max(0, target - start);
-                }
-            });
-        });
-    };
+//         groups.forEach((group) => {
+//             const mean =
+//                 group.members.reduce((sum, member) => sum + member.value, 0) /
+//                 group.members.length;
+//             const target = chooseSnappedValue(mean);
+//             group.members.forEach((member) => {
+//                 if (member.kind === "start") {
+//                     member.rect[startKey] = target;
+//                 } else {
+//                     const start = member.rect[startKey];
+//                     member.rect[sizeKey] = Math.max(0, target - start);
+//                 }
+//             });
+//         });
+//     };
 
-    const normalizeAxis = (axis) => {
-        const startKey = axis === "x" ? "left" : "top";
-        const sizeKey = axis === "x" ? "width" : "height";
-        const items = numberRects
-            .map((rect) => {
-                if (!rect) return null;
-                const start = rect[startKey];
-                const end = rect[startKey] + rect[sizeKey];
-                return { rect, start, end };
-            })
-            .filter(Boolean);
-        if (!items.length) return;
+//     const normalizeAxis = (axis) => {
+//         const startKey = axis === "x" ? "left" : "top";
+//         const sizeKey = axis === "x" ? "width" : "height";
+//         const items = numberRects
+//             .map((rect) => {
+//                 if (!rect) return null;
+//                 const start = rect[startKey];
+//                 const end = rect[startKey] + rect[sizeKey];
+//                 return { rect, start, end };
+//             })
+//             .filter(Boolean);
+//         if (!items.length) return;
 
-        const minStart = Math.min(...items.map((item) => item.start));
-        if (Math.abs(minStart) > 0.001) {
-            items.forEach((item) => {
-                item.rect[startKey] -= minStart;
-                item.start -= minStart;
-                item.end -= minStart;
-            });
-        }
+//         const minStart = Math.min(...items.map((item) => item.start));
+//         if (Math.abs(minStart) > 0.001) {
+//             items.forEach((item) => {
+//                 item.rect[startKey] -= minStart;
+//                 item.start -= minStart;
+//                 item.end -= minStart;
+//             });
+//         }
 
-        const maxEnd = Math.max(...items.map((item) => item.end));
-        if (Math.abs(maxEnd - 100) > 0.001) {
-            const scale = maxEnd ? 100 / maxEnd : 1;
-            items.forEach((item) => {
-                item.rect[startKey] *= scale;
-                item.rect[sizeKey] *= scale;
-            });
-        }
-    };
+//         const maxEnd = Math.max(...items.map((item) => item.end));
+//         if (Math.abs(maxEnd - 100) > 0.001) {
+//             const scale = maxEnd ? 100 / maxEnd : 1;
+//             items.forEach((item) => {
+//                 item.rect[startKey] *= scale;
+//                 item.rect[sizeKey] *= scale;
+//             });
+//         }
+//     };
 
-    snapAxis("x");
-    snapAxis("y");
-    normalizeAxis("x");
-    normalizeAxis("y");
+//     snapAxis("x");
+//     snapAxis("y");
+//     normalizeAxis("x");
+//     normalizeAxis("y");
 
-    const rowTolerance = 4;
-    const rows = [];
-    numberRects.forEach((rect, idx) => {
-        if (!rect) return;
-        const center = rect.top + rect.height / 2;
-        let target = null;
-        for (let i = 0; i < rows.length; i += 1) {
-            if (Math.abs(rows[i].center - center) <= rowTolerance) {
-                target = rows[i];
-                break;
-            }
-        }
-        if (!target) {
-            target = { center, entries: [] };
-            rows.push(target);
-        }
-        target.entries.push({ idx, rect });
-        target.center =
-            (target.center * (target.entries.length - 1) + center) /
-            target.entries.length;
-    });
+//     const rowTolerance = 4;
+//     const rows = [];
+//     numberRects.forEach((rect, idx) => {
+//         if (!rect) return;
+//         const center = rect.top + rect.height / 2;
+//         let target = null;
+//         for (let i = 0; i < rows.length; i += 1) {
+//             if (Math.abs(rows[i].center - center) <= rowTolerance) {
+//                 target = rows[i];
+//                 break;
+//             }
+//         }
+//         if (!target) {
+//             target = { center, entries: [] };
+//             rows.push(target);
+//         }
+//         target.entries.push({ idx, rect });
+//         target.center =
+//             (target.center * (target.entries.length - 1) + center) /
+//             target.entries.length;
+//     });
 
-    rows.forEach((row) => {
-        row.top = Math.min(...row.entries.map((entry) => entry.rect.top));
-        row.bottom = Math.max(
-            ...row.entries.map((entry) => entry.rect.top + entry.rect.height)
-        );
-        row.height = Math.max(0, row.bottom - row.top);
-    });
+//     rows.forEach((row) => {
+//         row.top = Math.min(...row.entries.map((entry) => entry.rect.top));
+//         row.bottom = Math.max(
+//             ...row.entries.map((entry) => entry.rect.top + entry.rect.height)
+//         );
+//         row.height = Math.max(0, row.bottom - row.top);
+//     });
 
-    rows.sort((a, b) => a.top - b.top);
+//     rows.sort((a, b) => a.top - b.top);
 
-    const totalRowHeight =
-        rows.reduce((sum, row) => sum + row.height, 0) || rows.length;
-    let nextTop = 0;
-    rows.forEach((row) => {
-        const rowHeightShare =
-            totalRowHeight > 0
-                ? Math.max(0, (row.height / totalRowHeight) * 100)
-                : 100 / rows.length;
+//     const totalRowHeight =
+//         rows.reduce((sum, row) => sum + row.height, 0) || rows.length;
+//     let nextTop = 0;
+//     rows.forEach((row) => {
+//         const rowHeightShare =
+//             totalRowHeight > 0
+//                 ? Math.max(0, (row.height / totalRowHeight) * 100)
+//                 : 100 / rows.length;
 
-        const entries = row.entries
-            .slice()
-            .sort((a, b) => a.rect.left - b.rect.left);
-        const totalRowWidth =
-            entries.reduce((sum, entry) => sum + entry.rect.width, 0) ||
-            entries.length;
+//         const entries = row.entries
+//             .slice()
+//             .sort((a, b) => a.rect.left - b.rect.left);
+//         const totalRowWidth =
+//             entries.reduce((sum, entry) => sum + entry.rect.width, 0) ||
+//             entries.length;
 
-        let nextLeft = 0;
-        entries.forEach((entry) => {
-            const widthShare =
-                totalRowWidth > 0
-                    ? Math.max(0, (entry.rect.width / totalRowWidth) * 100)
-                    : 100 / entries.length;
+//         let nextLeft = 0;
+//         entries.forEach((entry) => {
+//             const widthShare =
+//                 totalRowWidth > 0
+//                     ? Math.max(0, (entry.rect.width / totalRowWidth) * 100)
+//                     : 100 / entries.length;
 
-            entry.rect.left = nextLeft;
-            entry.rect.top = nextTop;
-            entry.rect.width = Math.max(0, widthShare);
-            entry.rect.height = Math.max(0, rowHeightShare);
+//             entry.rect.left = nextLeft;
+//             entry.rect.top = nextTop;
+//             entry.rect.width = Math.max(0, widthShare);
+//             entry.rect.height = Math.max(0, rowHeightShare);
 
-            nextLeft += widthShare;
-        });
+//             nextLeft += widthShare;
+//         });
 
-        nextTop += rowHeightShare;
-    });
+//         nextTop += rowHeightShare;
+//     });
 
-    const expandRect = (rect) => {
-        if (!rect) return null;
-        const expandX = 0.04;
-        const expandY = 0;
-        const left = Math.max(0, rect.left - expandX);
-        const top = Math.max(0, rect.top - expandY);
-        const right = Math.min(100, rect.left + rect.width + expandX);
-        const bottom = Math.min(100, rect.top + rect.height + expandY);
-        return {
-            left,
-            top,
-            width: Math.max(0, right - left),
-            height: Math.max(0, bottom - top),
-        };
-    };
+//     const expandRect = (rect) => {
+//         if (!rect) return null;
+//         const expandX = 0.04;
+//         const expandY = 0;
+//         const left = Math.max(0, rect.left - expandX);
+//         const top = Math.max(0, rect.top - expandY);
+//         const right = Math.min(100, rect.left + rect.width + expandX);
+//         const bottom = Math.min(100, rect.top + rect.height + expandY);
+//         return {
+//             left,
+//             top,
+//             width: Math.max(0, right - left),
+//             height: Math.max(0, bottom - top),
+//         };
+//     };
 
-    const clamp = (num) => Math.min(100, Math.max(0, num));
-    const toPercent = (value) => `${parseFloat(clamp(value).toFixed(3))}%`;
+//     const clamp = (num) => Math.min(100, Math.max(0, num));
+//     const toPercent = (value) => `${parseFloat(clamp(value).toFixed(3))}%`;
 
-    const result = numberRects.map((rect) => {
-        if (!rect) return null;
-        const expanded = expandRect(rect);
-        if (!expanded) return null;
-        return {
-            top: toPercent(expanded.top),
-            left: toPercent(expanded.left),
-            width: toPercent(expanded.width),
-            height: toPercent(expanded.height),
-        };
-    });
+//     const result = numberRects.map((rect) => {
+//         if (!rect) return null;
+//         const expanded = expandRect(rect);
+//         if (!expanded) return null;
+//         return {
+//             top: toPercent(expanded.top),
+//             left: toPercent(expanded.left),
+//             width: toPercent(expanded.width),
+//             height: toPercent(expanded.height),
+//         };
+//     });
 
-    const aspectRatio = spanXpx <= 0 ? 0 : spanYpx / spanXpx;
+//     const aspectRatio = spanXpx <= 0 ? 0 : spanYpx / spanXpx;
 
-    return {
-        rects: result,
-        aspectRatio: aspectRatio > 0 ? aspectRatio : ph / pw,
-    };
-}
+//     return {
+//         rects: result,
+//         aspectRatio: aspectRatio > 0 ? aspectRatio : ph / pw,
+//     };
+// }
 
 // ---------------------- Crop helpers ----------------------
 const createImageEl = (url) =>
@@ -805,7 +823,7 @@ const usePrevious = (val) => {
     return ref.current;
 };
 
-export default function EditorPage(props) {
+export default function BoxEditor(props) {
     const {
         images = [],
         onAddImages: onAddImagesProp,
@@ -852,9 +870,7 @@ export default function EditorPage(props) {
         setRestoredSessionId(null);
     }, [sessionId]);
 
-    // dynamic normalized rects when background is disabled
-    // shape: { [pageIdx]: Array<{top,left,width,height} | null> }
-    const [noBgRects, setNoBgRects] = useState({});
+    // Removed noBgRects state - now using simpler SLOT_MAP_NO_BG approach
 
     const previewRef = useRef(null);
     const previewImgRef = useRef(null);
@@ -1566,8 +1582,6 @@ export default function EditorPage(props) {
             return next;
         });
 
-        // After changing templates, recompute no-bg rects (next paint)
-        requestAnimationFrame(() => requestAnimationFrame(() => recomputeNoBgRects()));
         setShowTemplateModal(false);
     };
 
@@ -2122,48 +2136,7 @@ export default function EditorPage(props) {
         closeCropper();
     };
 
-    // ---------------- NORMALIZATION (remove background) ----------------
-    const recomputeNoBgRects = () => {
-        const next = {};
-        pageSettings.forEach((ps, pi) => {
-            const els = (slotRefs.current?.[pi] || []).filter(Boolean);
-            if (!els.length) return;
-            const layout = computeNormalizedRects(els);
-            if (layout) next[pi] = layout;
-        });
-        setNoBgRects(next);
-    };
-
-    // Recompute whenever bg turns OFF or layout/images are ready
-    useEffect(() => {
-        if (!imagesWarm || !pageSettings.length) return;
-        if (!backgroundEnabled) {
-            // Wait two frames for layout to settle, then measure
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => recomputeNoBgRects());
-            });
-        } else {
-            setNoBgRects({});
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [imagesWarm, pageSettings, backgroundEnabled]);
-
-    // Recompute after template changes that alter slot geometry
-    useEffect(() => {
-        if (!backgroundEnabled) {
-            requestAnimationFrame(() => requestAnimationFrame(() => recomputeNoBgRects()));
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [pageSettings.map(p => p.templateId).join(",")]);
-
-    // Keep in sync on resize while bg is OFF
-    useEffect(() => {
-        if (backgroundEnabled) return;
-        const onResize = () => recomputeNoBgRects();
-        window.addEventListener("resize", onResize);
-        return () => window.removeEventListener("resize", onResize);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [backgroundEnabled, pageSettings]);
+    // Removed recomputeNoBgRects and related effects - now using simpler SLOT_MAP_NO_BG approach
 
     const minAllowedZoom = Math.min(cropAutoZoom.fit ?? MIN_CROPPER_ZOOM, MAX_CROPPER_ZOOM);
     const normalizedZoom = Math.min(Math.max(cropState.zoom, minAllowedZoom), MAX_CROPPER_ZOOM);
@@ -2280,7 +2253,6 @@ export default function EditorPage(props) {
                                 const slots = getSlotsForPageIndex(ps, pi);
                                 const textSlots = getTextSlotsForPageIndex(ps, pi);
                                 const bgColor = ps.theme.color || "transparent";
-                                const noBgLayout = noBgRects?.[pi] || null;
                                 const wrapperStyle = !backgroundEnabled
                                     ? {
                                         backgroundColor: "transparent",
@@ -2301,24 +2273,18 @@ export default function EditorPage(props) {
                                 //const titleLineHeight = computeLineHeight(titleFontSize);
                                 //const subtitleFontSize = scaleFontSize(titleFontSize, 0.6, 14);
                                 //const subtitleLineHeight = computeLineHeight(subtitleFontSize);
-                                const textBoxFontSize = scaleFontSize(titleFontSize, 0.65, 14); 
+                                const textBoxFontSize = scaleFontSize(titleFontSize, 0.65, 14);
                                 const textBoxBaseStyle = {
                                     fontFamily: textSettings.fontFamily,
                                     fontSize: textBoxFontSize,
                                     color: textSettings.color,
                                     lineHeight: computeLineHeight(textBoxFontSize),
                                 };
-                                const defaultAspect = 0.75;
-                                const measuredAspect = noBgLayout?.aspectRatio;
-                                const resolvedAspect =
-                                    !backgroundEnabled && Number.isFinite(measuredAspect) && measuredAspect > 0
-                                        ? Math.max(0.25, Math.min(3, measuredAspect))
-                                        : defaultAspect;
-                                const widthToHeight = resolvedAspect > 0 ? 1 / resolvedAspect : 4 / 3;
+                                // Square aspect ratio (1:1) when background is disabled
                                 const photoPageStyle = !backgroundEnabled
                                     ? {
-                                        paddingTop: `${resolvedAspect * 100}%`,
-                                        aspectRatio: `${widthToHeight}`,
+                                        paddingTop: '100%',
+                                        aspectRatio: '1',
                                     }
                                     : undefined;
 
@@ -2329,12 +2295,10 @@ export default function EditorPage(props) {
                                             style={photoPageStyle}
                                         >
                                             {slots.map((slotPosIndex, slotIdx) => {
-                                                const inlinePos = backgroundEnabled
-                                                    ? (getSlotRect(slotPosIndex, true) || null)
-                                                    : (noBgLayout?.rects?.[slotIdx] || null);
+                                                const inlinePos = getSlotRect(slotPosIndex, backgroundEnabled);
 
                                                 const imgSrc = getSlotSrc(ps, slotIdx);
-                                                const transitionDelay = !backgroundEnabled ? `${slotIdx * 40}ms` : "0ms";
+                                                const transitionDelay = !backgroundEnabled ? `${slotIdx * 80}ms` : "0ms";
 
                                                 const isEmpty = !imgSrc;
 
@@ -2353,9 +2317,9 @@ export default function EditorPage(props) {
                                                             position: "absolute",
                                                             overflow: "hidden",
                                                             borderRadius: isCoverPage ? "24px" : "4px",
-                                                            visibility: (!backgroundEnabled && !inlinePos) ? "hidden" : "visible",
+                                                            visibility: "visible",
                                                             transition:
-                                                                "top 200ms ease, left 200ms ease, width 200ms ease, height 200ms ease, opacity 200ms ease, transform 200ms ease",
+                                                                "top 800ms ease, left 800ms ease, width 800ms ease, height 800ms ease, opacity 800ms ease, transform 800ms ease",
                                                             transitionDelay,
                                                             willChange: "top, left, width, height, opacity, transform",
                                                             // NEW: give empty slots a black background
@@ -2436,9 +2400,7 @@ export default function EditorPage(props) {
                                             })}
 
                                             {textSlots.map((slotPosIndex, textIdx) => {
-                                                const inlinePos = backgroundEnabled
-                                                    ? (getSlotRect(slotPosIndex, true) || null)
-                                                    : (noBgLayout?.rects?.[slots.length + textIdx] || null);
+                                                const inlinePos = getSlotRect(slotPosIndex, backgroundEnabled);
                                                 const content = ps.texts?.[textIdx] || "";
                                                 const placeholder = textIdx === 0 ? "Add your story" : "Keep writing";
                                                 const activateEditor = () => handleOpenTextEditor(pi, textIdx, placeholder);
@@ -2454,6 +2416,7 @@ export default function EditorPage(props) {
                                                         style={{
                                                             ...(inlinePos || {}),
                                                             position: "absolute",
+                                                            visibility: "visible",
                                                         }}
                                                         role="button"
                                                         tabIndex={0}
