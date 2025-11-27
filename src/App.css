@@ -2,16 +2,18 @@
     --brand: #1f2937;
     --text: #4b5563;
     --text-light: #6b7280;
-    
-    --surface: #f3f4f6;
+
+    --surface: #f9f9f9;
     --accent: #1e959c;
     --border-color: #e5e7eb;
 
     --gray-lightest: #f9fafb;
 
     --tw-border-opacity: 1;
+    --light: rgba(0, 0, 0, .05);
     /*--family: "Inter", Times;*/
-    --family: ui-sans-serif, "Sharp Sans", system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    /*--family: ui-sans-serif, "Sharp Sans", system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";*/
+    --family: ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji, Sharp Sans, -apple-system, BlinkMacSystemFont, SFUI, HelveticaNeue, Helvetica, Arial, sans-serif;
     --h1: 31px;
     --h2: 30px;
     --h3: 24px;
@@ -62,12 +64,12 @@
         --xl3: 60px;
         --xl4: 80px;
         --h1: 24px;
-        --h3: 20px;
+        --h3: 18px;
         --h4: 20px;
         --h5: 16px;
         --h6: 14px;
     }
-    
+
 
 }
 
@@ -90,13 +92,12 @@ body {
 }
 
 #root {
-    
+
     position: relative;
     overflow: hidden;
 }
-.page {
-    padding-top: 80px;
-}
+
+
 .page-container {
     max-width: 1180px !important;
     padding-left: 30px;
@@ -204,7 +205,7 @@ h6,
     min-width: 156px !important;
     cursor: pointer;
     outline: none !important;
-    
+
     transition: all .2s ease-in-out !important;
 
     &:hover {
@@ -217,6 +218,7 @@ h6,
         font-size: 15px !important;
         border-radius: 10px !important;
     }
+
     @media (max-width: 767px) {
         min-width: 100px !important;
         border-radius: 7px !important;
@@ -225,7 +227,7 @@ h6,
 
     &.small {
         min-width: 100px !important;
-         
+
     }
 }
 
@@ -234,21 +236,33 @@ h6,
     color: #fff !important;
 }
 
+.btn-light {
+    background: var(--light) !important;
+    color: var(--brand) !important;
+
+    &:hover {
+        background: var(--brand) !important;
+        color: #fff !important;
+    }
+
+}
+
 
 
 .header {
-    height: 80px;
-    background: var(--gray-lightest);
+    height: 70px;
+    background: var(--surface) !important;
     border-bottom: 1px solid var(--border-color);
-    position: fixed;
+    box-shadow: 0 0 3px 0 rgba(0, 0, 0, 0.1);
+    /*position: fixed;
     left: 0;
-    top: 0;
+    top: 0;*/
     width: 100%;
     z-index: 5;
-    background: rgba(255, 255, 255, 0.8);
     --tw-backdrop-blur: blur(12px);
     -webkit-backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
     backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
+    padding: 10px 20px !important;
 }
 
 .page-header {
@@ -261,7 +275,7 @@ h6,
 
 .page-height-section {
     position: relative !important;
-    min-height: calc(100vh - 80px) !important;
+    min-height: calc(100vh - 70px) !important;
     display: flex !important;
     flex-flow: column nowrap !important;
 
@@ -284,7 +298,7 @@ h6,
 
 .upload-zone {
     position: relative;
-    text-align: center;    
+    text-align: center;
 }
 
 .upload-zone h3 {
@@ -490,4 +504,190 @@ h6,
     background: none !important;
     color: var(--brand) !important;
     opacity: 1 !important;
+}
+
+
+
+
+.dashboard-boxes {
+    position: relative;
+    display: flex;
+    flex-flow: row wrap;
+    margin: -40px -20px 0;
+    
+
+    .dashboard-box {
+        width: 33.33%;
+        padding: 40px 20px 0;
+        display: flex;
+
+        .box-holder {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            transition: all .3s ease-in-out;
+            padding: 20px 40px 20px 20px;
+            cursor: pointer;
+            background: #fff;
+            width: 100%;
+            position: relative;
+            box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.04);
+
+            &:hover {
+                background: rgba(0, 0, 0, 0.02);
+
+                h4 {
+                    color: var(--accent);
+                }
+            }
+        }
+
+        i {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        h4 {
+            margin: 0 0 10px;
+            transition: all .3s ease-in-out;
+        }
+    }
+}
+
+
+@media (max-width: 991px) {
+    .dashboard-boxes {
+        margin: -20px -10px 0;
+
+        .dashboard-box {
+            padding: 20px 10px 0;
+
+            .box-holder {
+                box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.03);
+            }
+        }
+    }
+}
+
+@media (max-width: 991px) {
+    .dashboard-boxes {
+
+
+        .dashboard-box {
+            width: 100%;
+
+        }
+    }
+}
+
+
+.products-wrap {
+    position: relative;
+    display: flex;
+    flex-flow: row wrap !important;
+    margin: -40px -30px 0;
+    box-sizing: border-box;
+    max-width: none !important;
+    gap: 0 !important;
+
+
+
+    .product-item {
+        width: 50%;
+        box-sizing: border-box;
+        margin: 0;
+        background: none !important;
+        padding: 40px 30px 0;
+        display: flex;
+
+        .product-holder {
+            width: 100%;
+        }
+
+
+        .text-info {
+            flex-grow: 1;
+            flex-shrink: initial !important;
+            overflow: hidden;
+        }
+
+        .btn {
+            flex-shrink: 0;
+        }
+
+        img {
+            width: 100%;
+            height: 300px;
+            display: block;
+            object-fit: cover;
+            object-position: 50% 0;
+            border-radius: 15px;
+        }
+    }
+}
+
+@media (max-width: 1199px) {
+    .products-wrap {
+        margin: -30px -20px 0;
+
+        .product-item {
+            padding: 30px 20px 0;
+
+            p {
+                font-size: 14px !important;
+
+                br {
+                    display: none;
+                }
+            }
+
+            img {
+                border-radius: 10px;
+                height: 260px;
+            }
+        }
+    }
+}
+
+@media (max-width: 991px) {
+    .products-wrap {
+        margin: -30px -10px 0;
+
+
+        .product-item {
+            padding: 30px 10px 0;
+
+            p {
+                font-size: 12px !important;
+
+                br {
+                    display: none;
+                }
+
+
+            }
+
+            .text-box {
+                padding: 15px 0 !important;
+            }
+
+            img {
+                border-radius: 10px;
+                height: 250px;
+            }
+        }
+    }
+}
+
+@media (max-width: 767px) {
+    .products-wrap {
+        
+
+        .product-item {
+            width: 100%;    
+
+        }
+    }
 }

@@ -26,7 +26,7 @@ export default function GridStep({
                         key="add"
                         align="center"
                         justify="center"
-                        background="light2"
+                        background="light"
                         
                         
                         style={{ cursor: "pointer" }}

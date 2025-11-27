@@ -20,7 +20,7 @@ VALUES
   ),
   (
     'Box Album - Mini',
-    29.99,
+    29999.99,
     ARRAY['/products/box-album-mini-1.jpg', '/products/box-album-mini-2.jpg', '/products/box-album-mini-3.jpg', '/products/box-album-mini-4.jpg'],
     'Compact square album ideal for travel memories or gift giving. High-quality printing on durable 180gsm paper with a matte finish cover.'
   )

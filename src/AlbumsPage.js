@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Box, Text, Image, Button, Heading } from "grommet";
+import { Box, Text, Image, Button, Heading, Paragraph } from "grommet";
 import { Add, Trash } from "grommet-icons";
 
 export default function AlbumsPage({
@@ -136,17 +136,17 @@ export default function AlbumsPage({
   return (
     <div className="page-container">
     <Box className="album-page" pad={{ vertical: 'xl1' }} gap="medium">
-      <Box gap="xsmall">
+      <Box gap="xsmall" margin={{ bottom: 'xl1' }}>
         <Heading level={1} margin="none">
           My Albums
         </Heading>
-        <Text size="small" margin={{ bottom: 'large'}}>
+        <Paragraph size="large" >
           You can keep up to {maxAlbums} albums in your library.
-        </Text>
+        </Paragraph>
         {error && (
-          <Text size="small" color="status-critical">
+          <Paragraph size="large" color="status-critical">
             {error}
-          </Text>
+          </Paragraph>
         )}
       </Box>
 

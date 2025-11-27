@@ -21,9 +21,11 @@ import ProductDetailPage from "./components/ProductDetailPage";
 import AlbumsPage from "./AlbumsPage";
 import LoginPage from "./LoginPage";
 import ProfilePage from "./ProfilePage";
+import DashboardPage from "./DashboardPage";
 import AdminPanel from "./admin/AdminPanel";
 import AdminLogin from "./admin/AdminLogin";
 import HomePage from "./HomePage";
+
 import { User } from "grommet-icons";
 
 // theme
@@ -41,15 +43,15 @@ const theme = deepMerge({
 
   global: {
     colors: {
+      background: '#f9f9f9',
       brand: "#1f2937",
       active: "#1e959c",
       accent: "#1e959c",      
       text: "#4b5563",
       gray: "#f3f4f6",
       surface: "#f3f4f6",
-      light2: "rgba(0,0,0,.05)",
+      light: "rgba(0,0,0,.05)",
       light3: "rgba(0,0,0,.09)",
-      background: "#FFFFFF",
       black: "#000",
       white: "#fff",
       border: "#e5e7eb",
@@ -156,10 +158,11 @@ const theme = deepMerge({
   
 
   text: {
-    t14: { size: '14px', height: '1.5' },
-    t16: { size: '16px', height: '1.2' },
-    t18: { size: '18px', height: '1.2' },
-    t20: { size: '20px', height: '1.2' },
+    small: { size: '12px', height: '1.5' },
+    medium: { size: '14px', height: '1.5' },
+    large: { size: '16px', height: '1.5' },
+    xlarge: { size: '18px', height: '1.5' },
+    xxlarge: { size: '20px', height: '1.5' },
     t28: { size: '28px', height: '1.2' },
     t44: { size: '44px', height: '1.2' },
   },
@@ -167,6 +170,8 @@ const theme = deepMerge({
     small: { size: '12px', height: '1.5' },
     medium: { size: '14px', height: '1.5' },
     large: { size: '16px', height: '1.5' },
+    xlarge: { size: '18px', height: '1.5' },
+    xxlarge: { size: '20px', height: '1.5' },
   },
 
   button: {
@@ -630,14 +635,17 @@ function MainApp() {
       <Page className="page">
         <Header className="header" pad="small">
           <Button className="logo-button" plain onClick={() => navigate("home")} hoverIndicator>
-            <Text size="large" weight="bold">
+            <Text size="xxlarge" weight="bold">
               FlipSnip
             </Text>
           </Button>
           {user ? (
             <Menu
+              className="drop-menu"
+              size="medium" 
               label="Profile"
               items={[
+                { label: "Dashboard", onClick: () => navigate("dashboard") },
                 { label: "My Profile", onClick: () => navigate("profile") },
                 { label: "My Albums", onClick: () => navigate("albums") },
                 { label: "Sign Out", onClick: handleLogout },
@@ -685,7 +693,7 @@ function MainApp() {
             >
               <Box className="modal-contents" pad="large" gap="small" style={{ maxWidth: '90vw' }}>
 
-                <Text size="large" textAlign="center" weight="bold" color="brand">You already have an album in session.</Text>
+                <Text size="xlarge" textAlign="center" weight="bold" color="brand">You already have an album in session.</Text>
                 <Text size="medium" textAlign="center"  margin={{ bottom: 'medium' }}>Would you like to continue or make a new one?</Text>
                 <Box direction="row" gap="small" wrap>
                   <Button 
@@ -762,6 +770,9 @@ function MainApp() {
             />
           ) : view === "profile" ? (
             <ProfilePage user={user} />
+          ) : view === "dashboard" ? (
+            // <DashboardPage user={user} />
+               <DashboardPage user={user} navigate={navigate} />
           ) : view === "albums" ? (
             <AlbumsPage
               albums={albums}
