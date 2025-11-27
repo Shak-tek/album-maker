@@ -25,7 +25,9 @@ export default function ProductDetailPage({ product, onContinue }) {
 
 
   return (
-    <Box direction="row" pad="medium" gap="large" align="start">
+    <Box className="page-wrap" pad={{ vertical: 'xl1' }}>
+    <div className="page-container">
+    <Box direction="row" gap="large" align="start">
       <Box width="large" gap="small">
         <Grid
           rows={['medium', 'small']}
@@ -49,7 +51,7 @@ export default function ProductDetailPage({ product, onContinue }) {
             )}
           </Box>
           {product?.images?.slice(1, 4).map((img, idx) => (
-            <Box key={img} gridArea={`small${idx + 1}`} background="light-2">
+            <Box key={img} gridArea={`small${idx + 1}`} background="light">
               <GrommetImage
                 src={img ? `${BASE_URL}${img}` : ''}
                 alt=""
@@ -67,7 +69,7 @@ export default function ProductDetailPage({ product, onContinue }) {
         <Heading level={2} margin="none">
           {product?.name}
         </Heading>
-        <Text weight="bold" size="large">{product?.price}</Text>
+        <Text weight="bold" color="brand" size="large">£{product?.price}</Text>
         {product?.details && <Text>{product.details}</Text>}
         <Box direction="row" gap="small" wrap>
           {availableSizes.map((size) => (
@@ -98,13 +100,15 @@ export default function ProductDetailPage({ product, onContinue }) {
             <Text>200gsm Paper</Text>
           </Box>
         </Box>
-        <Button
-          primary
+        <Button className="btn btn-secondary"
+          
           label="Continue"
           onClick={() => selected && onContinue(selected)}
           disabled={!selected}
         />
       </Box>
+    </Box>
+    </div>
     </Box>
   );
 }
