@@ -45,8 +45,8 @@ const theme = deepMerge({
     colors: {
       background: '#f9f9f9',
       brand: "#1f2937",
-      active: "#1e959c",
-      accent: "#1e959c",      
+      active: "#14B8A6",
+      accent: "#14B8A6",      
       text: "#4b5563",
       gray: "#f3f4f6",
       surface: "#f3f4f6",
@@ -56,12 +56,12 @@ const theme = deepMerge({
       white: "#fff",
       border: "#e5e7eb",
       muted: "#6B7280",
-      focus: "#1e959c",
+      focus: "#14B8A6",
 
     },
     focus: {
       background: {
-        color: "#1e959c",
+        color: "#14B8A6",
       },
       border: {
         color: "none",

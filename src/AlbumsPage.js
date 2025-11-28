@@ -53,113 +53,112 @@ export default function AlbumsPage({
     return (
       <Box
         key={album.session_id}
-        width="small"
-        gap="xsmall"
-        border={{ color: isActive ? "brand" : "light-4", size: "small" }}
-        pad="xsmall"
-        background="white"
-        round="small"
+        className={`box-album ${isActive ? "active" : ""}`}
+
+        color="white"
+
+
         onClick={() => onOpen && onOpen(album)}
         style={{ cursor: onOpen ? "pointer" : "default" }}
       >
         <Box
-          height="small"
-          overflow="hidden"
-          round="xsmall"
-          background="light-3"
-          style={{ position: "relative" }}
+          className="box-holder"
         >
-          {preview ? (
-            <Image src={preview} fit="cover" />
-          ) : (
-            <Box fill align="center" justify="center" pad="small">
-              <Text size="small" color="muted">
+          <Box fill align="center" justify="center" pad="small" className="img-area">
+            <Text size="small" color="gray" className="text-cat">Photobook</Text>
+            {preview ? (
+              <Image src={preview} fit="cover" />
+            ) : (
+
+              <Text size="small" className="text-upload">
                 Upload photos to see a preview
               </Text>
-            </Box>
-          )}
+
+            )}
+          </Box>
+
+
           {onDelete && (
             <Button
               icon={<Trash size="small" color="muted" />}
               plain
               onClick={handleDeleteClick}
+              className="btn-delete"
               title="Delete album"
               style={{
-                position: "absolute",
-                top: 4,
-                right: 4,
-                padding: 4,
-                background: "rgba(255,255,255,0.85)",
-                borderRadius: "50%",
+
+                color: "#fff",
+
               }}
             />
           )}
+          <Box className="text-box" gap="xxsmall">
+            <Heading level={6} margin="none">
+              {title}
+            </Heading>
+            <Text size="small" truncate>
+              {subtitle || "No subtitle yet"}
+            </Text>
+          </Box>
         </Box>
-        <Box pad={{ horizontal: "xsmall", bottom: "xsmall" }} gap="xxsmall">
-          <Text weight="bold" truncate>
-            {title}
-          </Text>
-          <Text size="small" color="muted" truncate>
-            {subtitle || "No subtitle yet"}
-          </Text>
-        </Box>
+
       </Box>
     );
   };
 
   const renderCreateCard = () => (
-    <Box
+    <button
       key="create-album"
-      width="small"
-      justify="center"
-      align="center"
-      gap="small"
-      border={{ color: "brand", size: "small", style: "dashed" }}
-      round="small"
-      pad="medium"
-      background="light-1"
+      className="btn btn-primary btn-create-album"
       onClick={() => canCreateMore && onCreate && onCreate()}
       style={{ cursor: canCreateMore ? "pointer" : "not-allowed" }}
     >
-      <Add color="brand" size="medium" />
+      <Add color="white" size="small" />
       <Text weight="bold">Create Album</Text>
       {!canCreateMore && (
-        <Text size="small" color="status-critical" textAlign="center">
+        <Text size="small" color="gray" textAlign="center">
           Album limit reached
         </Text>
       )}
-    </Box>
+    </button>
   );
 
   const showEmptyState = !albums.length && !loading;
 
   return (
-    <div className="page-container">
-    <Box className="album-page" pad={{ vertical: 'xl1' }} gap="medium">
-      <Box gap="xsmall" margin={{ bottom: 'xl1' }}>
-        <Heading level={1} margin="none">
-          My Albums
-        </Heading>
-        <Paragraph size="large" >
-          You can keep up to {maxAlbums} albums in your library.
-        </Paragraph>
-        {error && (
-          <Paragraph size="large" color="status-critical">
-            {error}
-          </Paragraph>
-        )}
-      </Box>
+    <Box className="page-wrap" pad={{ vertical: 'xl1' }}>
+      <div className="page-container">
+        <Box className="album-page">
+          <Box gap="xsmall" margin={{ bottom: 'xl1' }} direction="row" wrap className="heading-heder">
+            <div className="heading-area">
+              <Heading level={1} margin="none">
+                My Albums
+              </Heading>
+              <Paragraph size="large" >
+                You can keep up to {maxAlbums} albums in your library.
+              </Paragraph>
+              {error && (
+                <Paragraph size="large" color="status-critical">
+                  {error}
+                </Paragraph>
+              )}
+            </div>
+            <div className="btn-area">
+              {renderCreateCard()}
+            </div>
+          </Box>
 
-      <Box direction="row" wrap gap="medium">
-        {renderCreateCard()}
-        {albums.map(renderAlbumCard)}
-      </Box>
+          <Box className="album-wrap">
 
-      {loading && <Text>Loading albums...</Text>}
-      {showEmptyState && (
-        <Text color="muted">No albums yet. Use the tile above to create your first album.</Text>
-      )}
+            {albums.map(renderAlbumCard)}
+          </Box>
+
+          {loading && <Text>Loading albums...</Text>}
+          {showEmptyState && (
+            <Text color="muted">No albums yet. Use the tile above to create your first album.</Text>
+          )}
+        </Box>
+      </div>
     </Box>
-    </div>
   );
 }

@@ -5,6 +5,7 @@
 
     --surface: #f9f9f9;
     --accent: #1e959c;
+    --accent: #14B8A6;
     --border-color: #e5e7eb;
 
     --gray-lightest: #f9fafb;
@@ -18,8 +19,8 @@
     --h2: 30px;
     --h3: 24px;
     --h4: 20px;
-    --h5: 18px;
-    --h6: 16px;
+    --h5: 16px;
+    --h6: 14px;
 
 
     --tw-blur: ;
@@ -58,16 +59,16 @@
     --xl3: 80px;
     --xl4: 100px;
 
-    @media (max-width: 767px) {
+    @media (max-width: 991px) {
         --xl1: 20px;
         --xl2: 40px;
         --xl3: 60px;
         --xl4: 80px;
         --h1: 24px;
         --h3: 18px;
-        --h4: 20px;
-        --h5: 16px;
-        --h6: 14px;
+        --h4: 17px;
+        --h5: 15px;
+        --h6: 13px;
     }
 
 
@@ -104,6 +105,11 @@ body {
     width: 100%;
     padding-right: 30px;
     margin: 0 auto;
+
+    @media (max-width: 767px) {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
 }
 
 
@@ -139,7 +145,7 @@ p {
 h1,
 .h1 {
     font-size: var(--h1) !important;
-    line-height: 1.13 !important;
+    line-height: 1.45 !important;
 }
 
 h2,
@@ -514,7 +520,7 @@ h6,
     display: flex;
     flex-flow: row wrap;
     margin: -40px -20px 0;
-    
+
 
     .dashboard-box {
         width: 33.33%;
@@ -683,11 +689,219 @@ h6,
 
 @media (max-width: 767px) {
     .products-wrap {
-        
+
 
         .product-item {
-            width: 100%;    
+            width: 100%;
 
+        }
+    }
+}
+
+
+.heading-heder {
+    flex-flow: row nowrap !important;
+    align-items: center;
+
+    @media (max-width: 767px) {
+        flex-flow: column nowrap !important;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .heading-area {
+        flex-grow: 1;
+        overflow: hidden;
+    }
+
+    .btn-area {
+        flex-shrink: 0;
+    }
+}
+
+.btn-create-album {
+    svg {
+        margin: 0 8px -2px 0 !important;
+        flex-shrink: 0 !important;
+        width: 15px !important;
+        height: 15px !important;
+    }
+}
+
+
+.album-wrap {
+    display: flex !important;
+    flex-flow: row wrap !important;
+    margin: -10px;
+    max-width: none !important;
+    gap: 0 !important;
+
+    @media (max-width: 1199px) {
+        margin: -30px -10px 0;
+    }
+
+    .box-album {
+        width: 20%;
+        display: flex;
+        padding: 10px;
+        position: relative;
+
+        @media (max-width: 1199px) {
+            padding: 10px;
+        }
+
+        @media (max-width: 767px) {
+            width: 100%;
+        }
+
+        &:after {
+            position: absolute;
+            left: 6px;
+            top: 6px;
+            bottom: 6px;
+            content: "";
+            right: 6px;
+            opacity: 0;
+            transition: all .3s ease-in-out;
+            border-radius: 15px;
+            border: 2px solid var(--accent);
+            pointer-events: none;
+        }
+
+        &.active {
+            &:after {
+                opacity: 1;
+            }
+        }
+
+        &:hover {
+            &:after {
+                transform: translateY(-7px);
+            }
+            .box-holder {
+                --tw-shadow-color: rgb(20 184 166 / 0.2);
+                --tw-shadow: var(--tw-shadow-colored);
+                transform: translateY(-7px);
+
+            }
+
+            img {
+                transform: scale(1.05);
+            }
+        }
+
+        .box-holder {
+            background: var(--accent);
+            background: rgb(70, 92, 102);
+            width: 100%;
+            position: relative;
+            padding: 14px;
+            border: 1px solid var(--border-color);
+            background: rgba(224 242 254 / var(--tw-bg-opacity, 1));
+            border-radius: 10px;
+            --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);
+            box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+            transition: all .3s ease-in-out;
+        }
+
+        .text-upload {
+            text-align: center;
+            padding: 10px;
+            font-size: 11px !important;
+        }
+
+        img {
+            display: block;
+            width: 100%;
+            height: auto !important;
+            object-fit: cover;
+            aspect-ratio: 1 / 1;
+            transition: all .3s ease-in-out;
+                }
+
+        .img-area {
+            flex: none;
+            background: rgba(0, 0, 0, 0.05);
+            border: 0 !important;
+            aspect-ratio: 1 / 1;
+            height: auto !important;
+            padding: 0 !important;
+            width: 100%;
+            margin: 0 0 14px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 5px !important;
+
+        }
+
+        .text-cat {
+            position: absolute;
+            left: 7px;
+            top: 7px;
+            background: rgba(255, 255, 255, .7);
+            color: var(--brand);
+            font-size: 9px;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+            padding: 2px 6px;
+            border-radius: 10px;
+            z-index: 1;
+        }
+
+        .btn-delete {
+            position: absolute;
+            right: 15px !important;
+            top: 20px !important;
+            color: #fff !important;
+            opacity: 1 !important;
+            padding: 0;
+            background: none;
+            border: 0;
+            fill: #fff !important;
+
+
+            svg {
+                width: 14px !important;
+                height: 14px !important;
+                display: block;
+            }
+
+            * {
+                stroke: #fff !important;
+                opacity: .6;
+            }
+        }
+    }
+}
+
+.profile-page-wrap .page-container {
+    max-width: 500px !important;
+}
+
+.profile-boxes {
+    position: relative;
+
+    .profile-box {
+        background: #fff;
+        padding: 15px;
+        box-shadow: 0 0 3px 0 rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+
+        .title {
+            font-size: 10px;
+            font-weight: 700;
+            display: block;
+            color: var(--text);
+            opacity: .7;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+        }
+
+        .text {
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--brand);
         }
     }
 }
