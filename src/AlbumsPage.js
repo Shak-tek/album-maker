@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
-import { Box, Text, Image, Button, Heading, Paragraph } from "grommet";
-import { Add, Trash } from "grommet-icons";
+import { Box, Text, Image, Heading, Paragraph, Menu } from "grommet";
+import { Add, Trash, Edit } from "grommet-icons";
 
 export default function AlbumsPage({
   albums = [],
@@ -37,6 +37,90 @@ export default function AlbumsPage({
     }, {});
   }, [albums]);
 
+
+  const renderAlbumCard = (album) => {
+  const settings = album.settings || {};
+  const title = settings.title?.trim() || "Untitled Album";
+  const subtitle = settings.subtitle?.trim();
+  const preview = coverPreviews[album.session_id];
+  const isActive = album.session_id === activeSessionId;
+
+  const handleDeleteClick = () => {
+    if (onDelete) onDelete(album);
+  };
+
+  const handleViewClick = () => {
+    if (onOpen) onOpen(album);
+  };
+
+const DotsVerticalIcon = () => (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <circle cx="12" cy="5" r="1.5" />
+    <circle cx="12" cy="11" r="1.5" />
+    <circle cx="12" cy="17" r="1.5" />
+  </svg>
+);
+
+  return (
+    <Box
+      key={album.session_id}
+      className={`box-album ${isActive ? "active" : ""}`}
+      background="white"
+      style={{ cursor: "pointer" }}
+    >
+      
+       <Menu
+        className="album-edit-btn"
+        size="small"
+        icon={<DotsVerticalIcon />}
+        
+        label={null} 
+        dropAlign={{ top: "bottom", right: "right" }}
+        dropProps={{ className: "album-edit-dropdown", round: "xsmall", elevation: "small", zIndex: 2000 }}
+        items={[
+          {icon: <Edit size="small" />, label: "Edit", onClick: () => onOpen && onOpen(album)},
+          {icon: <Trash size="small" />,  label: "Delete", onClick: handleDeleteClick },
+        ]}
+      />
+
+      <Box className="box-holder" onClick={handleViewClick}>
+       
+        <Box fill align="center" justify="center" pad="small" className="img-area">
+          
+          <Text size="small" color="gray" className="text-cat">
+            Photobook
+          </Text>
+
+          {preview ? (
+            <Image src={preview} fit="cover" />
+          ) : (
+            <Text size="small" className="text-upload">
+              Upload photos to see a preview
+            </Text>
+          )}
+        </Box>
+
+        <Box className="text-box" gap="xxsmall">
+          <Heading level={6} margin="none">
+            {title}
+          </Heading>
+          <Text size="small" truncate>
+            {subtitle || "No subtitle yet"}
+          </Text>
+        </Box>
+      </Box>
+    </Box>
+  );
+};
+
+
+  /*
   const renderAlbumCard = (album) => {
     const settings = album.settings || {};
     const title = settings.title?.trim() || "Untitled Album";
@@ -61,6 +145,17 @@ export default function AlbumsPage({
         onClick={() => onOpen && onOpen(album)}
         style={{ cursor: onOpen ? "pointer" : "default" }}
       >
+        <Menu
+              className="drop-menu"
+              size="medium" 
+              label="Profile"
+              items={[
+                { label: "Dashboard", onClick: () => navigate("dashboard") },
+                { label: "My Profile", onClick: () => navigate("profile") },
+                { label: "My Albums", onClick: () => navigate("albums") },
+                { label: "Sign Out", onClick: handleLogout },
+              ]}
+            />
         <Box
           className="box-holder"
         >
@@ -104,7 +199,7 @@ export default function AlbumsPage({
 
       </Box>
     );
-  };
+  };*/
 
   const renderCreateCard = () => (
     <button

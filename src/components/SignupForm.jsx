@@ -26,25 +26,25 @@ export default function SignupForm({ onSignup, onSignIn }) {
     <div className='signupForm'>
     <Form value={form} onChange={(next) => setForm(next)} onSubmit={handleSubmit}>
       <FormField name="name" label="Full Name" required>
-        <TextInput name="name" value={form.name} onChange={handleChange('name')} />
+        <TextInput placeholder="Full Name" name="name" value={form.name} onChange={handleChange('name')} />
       </FormField> 
       <FormField name="address" label="Address">
-        <TextInput name="address" value={form.address} onChange={handleChange('address')} />
+        <TextInput placeholder="Address" name="address" value={form.address} onChange={handleChange('address')} />
       </FormField>
       <FormField name="postcode" label="Postcode">
-        <TextInput name="postcode" value={form.postcode} onChange={handleChange('postcode')} />
+        <TextInput placeholder="Postcode" name="postcode" value={form.postcode} onChange={handleChange('postcode')} />
       </FormField>
       <FormField name="phone" label="Phone">
-        <TextInput name="phone" value={form.phone} onChange={handleChange('phone')} />
+        <TextInput name="phone" placeholder="Phone" value={form.phone} onChange={handleChange('phone')} />
       </FormField>
       <FormField name="email" label="Email" required>
-        <TextInput type="email" name="email" value={form.email} onChange={handleChange('email')} />
+        <TextInput type="email" placeholder="Email" name="email" /* value={form.email} */ onChange={handleChange('email')} />
       </FormField>
       <FormField name="password" label="Password" required>
-        <TextInput type="password" name="password" value={form.password} onChange={handleChange('password')} />
+        <TextInput placeholder="Password" type="password" name="password" /* value={form.password}*/ onChange={handleChange('password')} />
       </FormField>
-      <Box pad={{ vertical: 'medium' }} align="center" gap="small">
-        <Button type="submit" label="Sign Up" primary />
+      <Box align="center">
+        <Button type="submit" label="Sign Up" className='btn btn-primary xsmall' />
         {message && (
           <Box background="status-critical" pad="small" round animation="fadeIn">
             <Text>{message}</Text>
@@ -54,7 +54,7 @@ export default function SignupForm({ onSignup, onSignIn }) {
           type="button"
           label="Already have an account? Log in"
           onClick={onSignIn}
-          primary
+          className='btn btn-text'
         />
       </Box>
 

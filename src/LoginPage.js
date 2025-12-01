@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Button, Heading, TextInput, Text } from "grommet";
+import { Box, Button, Heading, TextInput, Text, FormField } from "grommet";
 import axios from "axios";
 import SignupForm from "./components/SignupForm";
 
@@ -29,47 +29,55 @@ export default function LoginPage({ onLogin, initialMode = "login", message = ""
   };
 
   return (
-    <div className="formsPage">
-    <Box pad="large" gap="medium" align="center" width="medium">
-      <Heading level={2} margin="none">
-        {mode === 'login' ? 'Login' : 'Sign Up'}
-      </Heading>
-      {message && (
-        <Box background="light-2" pad="small" round="xsmall">
-          <Text textAlign="center">{message}</Text>
-        </Box>
-      )}
-      {mode === "login" && (
-        <>
-          <TextInput
-            placeholder="Email"
-            value={form.email}
-            onChange={update("email")}
-          />
-          <TextInput
-            placeholder="Password"
-            type="password"
-            value={form.password}
-            onChange={update("password")}
-          />
-          <Button label="Login" onClick={submitLogin} primary />
-          {error && (
-            <Box background="status-critical" pad="small" round animation="fadeIn">
-              <Text>{error}</Text>
-            </Box>
-          )}
-          <Button label="Need an account?" onClick={() => setMode("signup")} />
-        </>
-      )}
-      {mode === "signup" && (
-        <>
-          <SignupForm
-            onSignup={onLogin}
-            onSignIn={() => setMode("login")}
-          />
-        </>
-      )}
-    </Box>
+    <div className="formsPage page-sider">
+      <div className="page-side-image"><img src="./album-2.jpg" alt=""/></div>
+      <div className="page-side-content">
+      <Box pad="large" gap="large"  className="auth-forms">
+        <Heading level={2} margin="none">
+          {mode === 'login' ? 'Login' : 'Sign Up'}
+        </Heading>
+        {message && (
+          <Box background="light-2" pad="small" round="xsmall">
+            <Text textAlign="center">{message}</Text>
+          </Box>
+        )}
+        {mode === "login" && (
+          <>
+          <FormField label="Email">
+            <TextInput
+              
+              placeholder="Email"
+              value={form.email}
+              onChange={update("email")}
+            />
+            </FormField>
+            <FormField label="Password">
+            <TextInput
+              placeholder="Password"
+              type="password"
+              value={form.password}
+              onChange={update("password")}
+            />
+            </FormField>
+            <Button className="btn btn-primary xsmall" label="Login" onClick={submitLogin} primary />
+            {error && (
+              <Box background="status-critical" pad="small" round animation="fadeIn">
+                <Text>{error}</Text>
+              </Box>
+            )}
+            <Button className="btn btn-text" label="Need an account?" onClick={() => setMode("signup")} />
+          </>
+        )}
+        {mode === "signup" && (
+          <>
+            <SignupForm
+              onSignup={onLogin}
+              onSignIn={() => setMode("login")}
+            />
+          </>
+        )}
+      </Box>
+      </div>
     </div>
   );
 }

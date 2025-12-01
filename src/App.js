@@ -51,6 +51,7 @@ const theme = deepMerge({
       gray: "#f3f4f6",
       surface: "#f3f4f6",
       light: "rgba(0,0,0,.05)",
+      light2: "rgba(0,0,0,.07)",
       light3: "rgba(0,0,0,.09)",
       black: "#000",
       white: "#fff",
@@ -69,6 +70,11 @@ const theme = deepMerge({
       elevation: "none",
       shadow: {
         color: "transparent",
+      },
+    },
+    input: {
+    placeholder: {
+        color: '#1f2937', 
       },
     },
 
@@ -117,19 +123,7 @@ const theme = deepMerge({
 
 */
 
-    breakpoints: {
-      small: {
-        value: 767,
-        edgeSize: {
-          xl1: "20px",
-          xl2: "30px",
-          xl3: "40px",
-          xl4: "50px",
-        },
-      },
-      medium: { value: 1023 },
-      large: { value: 1250 },
-    },
+    
 
     font: {
       family: "ui-sans-serif, system-ui,sans-serif,Apple Color Emoji,Segoe UI Emoji, Segoe UI Symbol,Noto Color Emoji, Sharp Sans, -apple-system, BlinkMacSystemFont, SFUI, HelveticaNeue, Helvetica, Arial, sans-serif",
@@ -152,6 +146,19 @@ const theme = deepMerge({
       xl2: "60px",
       xl3: "80px",
       xl4: "100px",
+    },
+    breakpoints: {
+      small: {
+        value: 991,
+        edgeSize: {
+          xl1: "20px",
+          xl2: "30px",
+          xl3: "40px",
+          xl4: "50px",
+        },
+      },
+      medium: { value: 1023 },
+      large: { value: 1250 },
     },
   },
 
@@ -653,11 +660,12 @@ function MainApp() {
             />
           ) : (
             <DropButton
+            className="drop-menu"
               open={authDropOpen}
               onOpen={() => setAuthDropOpen(true)}
               onClose={() => setAuthDropOpen(false)}
               plain
-              dropAlign={{ top: "bottom", right: "right" }}
+              dropAlign={{ top: "bottom", right: "right", margin: { top: "10px", right: "0px" } }}
               label={
                 <Box direction="row" gap="xsmall" align="center">
                   <User />
@@ -665,18 +673,21 @@ function MainApp() {
                 </Box>
               }
               dropContent={
-                <Box pad="medium" gap="small" width="medium">
+                
+                <Box pad="medium" gap="small" width={{ max: "medium" }}>
                   <Text weight="bold">Do you have an account?</Text>
+                  <Box direction="row" gap="small" wrap>
                   <Button
-                    primary
-                    label="Get started with Sign Up"
-                    onClick={() => showAuth("signup")}
+                    className="btn btn-primary xsmall" 
+                    label="Sign Up"
+                    onClick={() => showAuth("signup")} 
                   />
                   <Button
-                    primary
-                    label="Already have an account? Log in"
+                    className="btn btn-secondary xsmall"
+                    label="Log in"
                     onClick={() => showAuth("login")}
                   />
+                  </Box>
                 </Box>
               }
             />
