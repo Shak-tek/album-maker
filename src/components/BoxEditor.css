@@ -64,7 +64,7 @@
         margin-left: -20px
     }
 
-    svg { 
+    svg {
         width: 21px;
         height: 21px;
         display: block;
@@ -399,7 +399,7 @@
     border-radius: 8px;
     font-size: 12px;
     color: rgb(22 101 52 / var(--tw-text-opacity, 1));
-    
+
 
     .image-editor-holder {
         flex-grow: 1;
@@ -408,11 +408,12 @@
 
     .ico-svg {
         flex-shrink: 0;
+
         svg {
             width: 17px;
-        display: block;
-        color: rgb(22 163 74 / var(--tw-text-opacity, 1));
-        stroke-color: currentColor;
+            display: block;
+            color: rgb(22 163 74 / var(--tw-text-opacity, 1));
+            stroke-color: currentColor;
 
         }
     }
@@ -427,7 +428,7 @@
 .image-editor-quality {
     background: #ecfdf5;
     align-items: center;
-    
+
 
 }
 
@@ -439,7 +440,7 @@
 .image-editor-tips {
     background: #eff6ff;
     align-items: flex-start;
-    
+
     color: rgb(31 41 55 / var(--tw-text-opacity, 1));
 
     .ico-svg svg {
@@ -686,7 +687,7 @@
 
     padding-top: 100% !important;
     aspect-ratio: initial !important;
-    
+
 }
 
 .photo-page.zoomed .photo-slot {
@@ -738,6 +739,10 @@
     align-items: stretch;
     justify-content: stretch;
     padding: 0;
+    border: 0 !important;
+    background: none !important;
+    border-radius: 0 !important;
+    /*
     border-radius: 12px;
     overflow: hidden;
     box-sizing: border-box;
@@ -745,7 +750,15 @@
     border: 1px solid rgba(15, 23, 42, 0.12);
     box-shadow: 0 24px 42px rgba(15, 23, 42, 0.14);
     backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);*/
+
+    .text-editor-surface {
+        background: rgba(255, 255, 255, .8) !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;        
+        padding: 10px !important;
+    }
 }
 
 .text-slot .text-editor {
@@ -1447,6 +1460,11 @@
     }
 }
 
+.photo-slot,
+.text-slot {
+    transition: all .4s ease-in-out;
+}
+
 /* your exact slot positions from the snippet */
 
 .slot1 {
@@ -1612,7 +1630,7 @@
 
 .slot25 {
     top: 51.25% !important;
-    left: 66.667% !important; 
+    left: 66.667% !important;
     width: 28.333% !important;
     height: 43.75% !important;
 }
@@ -2333,7 +2351,7 @@
 
 .slot128 {
     top: 5% !important;
-    left:  51.25% !important;
+    left: 51.25% !important;
     width: 20.625% !important;
     height: 90% !important;
 }
@@ -2424,9 +2442,9 @@
 
 .slot903 {
     left: 20% !important;
-    top: 65% !important;
+    top: 62.5% !important;
     width: 60% !important;
-    height: 30% !important;
+    height: 32.5% !important;
 }
 
 .slot904 {
@@ -2834,1381 +2852,1475 @@
    NORMALIZED SLOT POSITIONS (NO MARGINS)
    When background is disabled (.photo-page.zoomed)
    ============================================ */
-.photo-page.zoomed .slot1 {
+.photo-page.zoomed div:not(.text-slot).slot1 {
     top: 0% !important;
     left: 0% !important;
     width: 50% !important;
     height: 100% !important;
 }
 
-.photo-page.zoomed .slot2 {
+.photo-page.zoomed div:not(.text-slot).slot2 {
     top: 0% !important;
     left: 50% !important;
     width: 50% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot3 {
+.photo-page.zoomed div:not(.text-slot).slot3 {
     top: 50% !important;
     left: 50% !important;
     width: 50% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot4 {
+.photo-page.zoomed div:not(.text-slot).slot4 {
     top: 0% !important;
     left: 0% !important;
     width: 50% !important;
     height: 100% !important;
 }
 
-.photo-page.zoomed .slot5 {
+.photo-page.zoomed div:not(.text-slot).slot5 {
     top: 0% !important;
     left: 50% !important;
     width: 50% !important;
     height: 100% !important;
 }
 
-.photo-page.zoomed .slot6 {
+.photo-page.zoomed div:not(.text-slot).slot6 {
     top: 0% !important;
     left: 0% !important;
     width: 50% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot7 {
+.photo-page.zoomed div:not(.text-slot).slot7 {
     top: 0% !important;
     left: 50% !important;
     width: 50% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot8 {
+.photo-page.zoomed div:not(.text-slot).slot8 {
     top: 50% !important;
     left: 0% !important;
     width: 50% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot9 {
+.photo-page.zoomed div:not(.text-slot).slot9 {
     top: 50% !important;
     left: 50% !important;
     width: 50% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot10 {
+.photo-page.zoomed div:not(.text-slot).slot10 {
     top: 0% !important;
     left: 0% !important;
     width: 100% !important;
     height: 100% !important;
 }
 
-.photo-page.zoomed .slot12 {
+.photo-page.zoomed div:not(.text-slot).slot12 {
     top: 0% !important;
     left: 0% !important;
     width: 100% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot13 {
+.photo-page.zoomed div:not(.text-slot).slot13 {
     top: 50% !important;
     left: 0% !important;
     width: 100% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot14 {
+.photo-page.zoomed div:not(.text-slot).slot14 {
     top: 0% !important;
     left: 0% !important;
     width: 50% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot15 {
+.photo-page.zoomed div:not(.text-slot).slot15 {
     top: 50% !important;
     left: 0% !important;
     width: 50% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot16 {
+.photo-page.zoomed div:not(.text-slot).slot16 {
     top: 0% !important;
     left: 50% !important;
     width: 50% !important;
     height: 100% !important;
 }
 
-.photo-page.zoomed .slot17 {
+.photo-page.zoomed div:not(.text-slot).slot17 {
     top: 0% !important;
     left: 0% !important;
     width: 50% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot18 {
+.photo-page.zoomed div:not(.text-slot).slot18 {
     top: 0% !important;
     left: 50% !important;
     width: 50% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot19 {
+.photo-page.zoomed div:not(.text-slot).slot19 {
     top: 50% !important;
     left: 0% !important;
     width: 100% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot20 {
+.photo-page.zoomed div:not(.text-slot).slot20 {
     top: 0% !important;
     left: 0% !important;
     width: 100% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot21 {
+.photo-page.zoomed div:not(.text-slot).slot21 {
     top: 50% !important;
     left: 0% !important;
     width: 50% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot22 {
+.photo-page.zoomed div:not(.text-slot).slot22 {
     top: 50% !important;
     left: 50% !important;
     width: 50% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot23 {
+.photo-page.zoomed div:not(.text-slot).slot23 {
     top: 0% !important;
     left: 0% !important;
     width: 66.666% !important;
     height: 100% !important;
 }
 
-.photo-page.zoomed .slot24 {
+.photo-page.zoomed div:not(.text-slot).slot24 {
     top: 0% !important;
     left: 66.667% !important;
     width: 33.333% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot25 {
-    top: 50% !important;
-    left: 66.667% !important; 
-    width: 33.333% !important;
-    height: 50% !important;
-}
-
-.photo-page.zoomed .slot26 {
-    top: 0% !important;
-    left: 0% !important;
-    width: 33.333% !important;
-    height: 50% !important;
-}
-
-.photo-page.zoomed .slot27 {
-    top: 0% !important;
-    left: 33.333% !important;
-    width: 66.666% !important;
-    height: 50% !important;
-}
-
-.photo-page.zoomed .slot28 {
-    top: 50% !important;
-    left: 0% !important;
-    width: 66.666% !important;
-    height: 50% !important;
-}
-
-.photo-page.zoomed .slot29 {
+.photo-page.zoomed div:not(.text-slot).slot25 {
     top: 50% !important;
     left: 66.667% !important;
     width: 33.333% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot30 {
+.photo-page.zoomed div:not(.text-slot).slot26 {
+    top: 0% !important;
+    left: 0% !important;
+    width: 33.333% !important;
+    height: 50% !important;
+}
+
+.photo-page.zoomed div:not(.text-slot).slot27 {
+    top: 0% !important;
+    left: 33.333% !important;
+    width: 66.666% !important;
+    height: 50% !important;
+}
+
+.photo-page.zoomed div:not(.text-slot).slot28 {
+    top: 50% !important;
+    left: 0% !important;
+    width: 66.666% !important;
+    height: 50% !important;
+}
+
+.photo-page.zoomed div:not(.text-slot).slot29 {
+    top: 50% !important;
+    left: 66.667% !important;
+    width: 33.333% !important;
+    height: 50% !important;
+}
+
+.photo-page.zoomed div:not(.text-slot).slot30 {
     top: 0% !important;
     left: 0% !important;
     width: 66.666% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot31 {
+.photo-page.zoomed div:not(.text-slot).slot31 {
     top: 0% !important;
     left: 66.667% !important;
     width: 33.333% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot32 {
+.photo-page.zoomed div:not(.text-slot).slot32 {
     top: 50% !important;
     left: 0% !important;
     width: 33.333% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot33 {
+.photo-page.zoomed div:not(.text-slot).slot33 {
     top: 50% !important;
     left: 33.333% !important;
     width: 66.666% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot34 {
+.photo-page.zoomed div:not(.text-slot).slot34 {
     top: 0% !important;
     left: 0% !important;
     width: 33.333% !important;
     height: 100% !important;
 }
 
-.photo-page.zoomed .slot35 {
+.photo-page.zoomed div:not(.text-slot).slot35 {
     top: 0% !important;
     left: 33.333% !important;
     width: 33.333% !important;
     height: 100% !important;
 }
 
-.photo-page.zoomed .slot36 {
+.photo-page.zoomed div:not(.text-slot).slot36 {
     top: 0% !important;
     left: 66.666% !important;
     width: 33.333% !important;
     height: 100% !important;
 }
 
-.photo-page.zoomed .slot37 {
+.photo-page.zoomed div:not(.text-slot).slot37 {
     left: 0% !important;
     top: 0% !important;
     height: 33.333% !important;
     width: 100% !important;
 }
 
-.photo-page.zoomed .slot38 {
+.photo-page.zoomed div:not(.text-slot).slot38 {
     left: 0% !important;
     top: 33.333% !important;
     height: 33.333% !important;
     width: 100% !important;
 }
 
-.photo-page.zoomed .slot39 {
+.photo-page.zoomed div:not(.text-slot).slot39 {
     left: 0% !important;
     top: 66.666% !important;
     height: 33.333% !important;
     width: 100% !important;
 }
 
-.photo-page.zoomed .slot40 {
+.photo-page.zoomed div:not(.text-slot).slot40 {
     top: 0% !important;
     left: 0% !important;
     width: 33.333% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot41 {
+.photo-page.zoomed div:not(.text-slot).slot41 {
     top: 0% !important;
     left: 33.333% !important;
     width: 33.333% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot42 {
+.photo-page.zoomed div:not(.text-slot).slot42 {
     top: 0% !important;
     left: 66.666% !important;
     width: 33.333% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot43 {
+.photo-page.zoomed div:not(.text-slot).slot43 {
     top: 50% !important;
     left: 0% !important;
     width: 33.333% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot44 {
+.photo-page.zoomed div:not(.text-slot).slot44 {
     top: 50% !important;
     left: 33.333% !important;
     width: 33.333% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot45 {
+.photo-page.zoomed div:not(.text-slot).slot45 {
     top: 50% !important;
     left: 66.666% !important;
     width: 33.333% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot46 {
+.photo-page.zoomed div:not(.text-slot).slot46 {
     left: 0% !important;
     top: 0% !important;
     height: 33.333% !important;
     width: 50% !important;
 }
 
-.photo-page.zoomed .slot47 {
+.photo-page.zoomed div:not(.text-slot).slot47 {
     left: 50% !important;
     top: 0% !important;
     height: 33.333% !important;
     width: 50% !important;
 }
 
-.photo-page.zoomed .slot48 {
+.photo-page.zoomed div:not(.text-slot).slot48 {
     left: 0% !important;
     top: 33.333% !important;
     height: 33.333% !important;
     width: 50% !important;
 }
 
-.photo-page.zoomed .slot49 {
+.photo-page.zoomed div:not(.text-slot).slot49 {
     left: 50% !important;
     top: 33.333% !important;
     height: 33.333% !important;
     width: 50% !important;
 }
 
-.photo-page.zoomed .slot50 {
+.photo-page.zoomed div:not(.text-slot).slot50 {
     left: 0% !important;
     top: 66.666% !important;
     height: 33.333% !important;
     width: 50% !important;
 }
 
-.photo-page.zoomed .slot51 {
+.photo-page.zoomed div:not(.text-slot).slot51 {
     left: 50% !important;
     top: 66.666% !important;
     height: 33.333% !important;
     width: 50% !important;
 }
 
-.photo-page.zoomed .slot52 {
+.photo-page.zoomed div:not(.text-slot).slot52 {
     left: 0% !important;
     top: 0% !important;
     width: 50% !important;
     height: 25% !important;
 }
 
-.photo-page.zoomed .slot53 {
+.photo-page.zoomed div:not(.text-slot).slot53 {
     left: 50% !important;
     top: 0% !important;
     width: 50% !important;
     height: 75% !important;
 }
 
-.photo-page.zoomed .slot54 {
+.photo-page.zoomed div:not(.text-slot).slot54 {
     left: 0% !important;
     top: 25% !important;
     width: 50% !important;
     height: 75% !important;
 }
 
-.photo-page.zoomed .slot55 {
+.photo-page.zoomed div:not(.text-slot).slot55 {
     left: 50% !important;
     top: 75% !important;
     width: 50% !important;
     height: 25% !important;
 }
 
-.photo-page.zoomed .slot56 {
+.photo-page.zoomed div:not(.text-slot).slot56 {
     left: 0% !important;
     top: 0% !important;
     width: 50% !important;
-    height:75% !important;
+    height: 75% !important;
 }
 
-.photo-page.zoomed .slot57 {
+.photo-page.zoomed div:not(.text-slot).slot57 {
     left: 50% !important;
     top: 0% !important;
     width: 50% !important;
     height: 25% !important;
 }
 
-.photo-page.zoomed .slot58 {
+.photo-page.zoomed div:not(.text-slot).slot58 {
     left: 0% !important;
     top: 75% !important;
     width: 50% !important;
     height: 25% !important;
 }
 
-.photo-page.zoomed .slot59 {
+.photo-page.zoomed div:not(.text-slot).slot59 {
     left: 50% !important;
     top: 25% !important;
     width: 50% !important;
     height: 75% !important;
 }
 
-.photo-page.zoomed .slot60 {
+.photo-page.zoomed div:not(.text-slot).slot60 {
     top: 0% !important;
     left: 0% !important;
     width: 33.333% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot61 {
+.photo-page.zoomed div:not(.text-slot).slot61 {
     top: 0% !important;
     left: 33.333% !important;
     width: 66.666% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot62 {
+.photo-page.zoomed div:not(.text-slot).slot62 {
     top: 50% !important;
     left: 0% !important;
     width: 33.333% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot63 {
+.photo-page.zoomed div:not(.text-slot).slot63 {
     top: 50% !important;
     left: 33.333% !important;
     width: 33.333% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot64 {
+.photo-page.zoomed div:not(.text-slot).slot64 {
     top: 50% !important;
     left: 66.666% !important;
     width: 33.333% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot65 {
+.photo-page.zoomed div:not(.text-slot).slot65 {
     top: 0% !important;
     left: 0% !important;
     width: 66.666% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot66 {
+.photo-page.zoomed div:not(.text-slot).slot66 {
     top: 0% !important;
     left: 66.666% !important;
     width: 33.333% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot67 {
+.photo-page.zoomed div:not(.text-slot).slot67 {
     top: 0% !important;
     left: 0% !important;
     width: 33.333% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot68 {
+.photo-page.zoomed div:not(.text-slot).slot68 {
     top: 0% !important;
     left: 33.333% !important;
     width: 33.333% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot69 {
+.photo-page.zoomed div:not(.text-slot).slot69 {
     top: 0% !important;
     left: 66.666% !important;
     width: 33.333% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot70 {
+.photo-page.zoomed div:not(.text-slot).slot70 {
     top: 50% !important;
     left: 0% !important;
     width: 66.666% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot71 {
+.photo-page.zoomed div:not(.text-slot).slot71 {
     top: 50% !important;
     left: 66.666% !important;
     width: 33.333% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot72 {
+.photo-page.zoomed div:not(.text-slot).slot72 {
     top: 50% !important;
     left: 0% !important;
     width: 33.333% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot73 {
+.photo-page.zoomed div:not(.text-slot).slot73 {
     top: 50% !important;
     left: 33.333% !important;
     width: 66.666% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot74 {
+.photo-page.zoomed div:not(.text-slot).slot74 {
     top: 0% !important;
     left: 0% !important;
     width: 33.333% !important;
     height: 33.333% !important;
 }
 
-.photo-page.zoomed .slot75 {
+.photo-page.zoomed div:not(.text-slot).slot75 {
     top: 0% !important;
     left: 33.333% !important;
     width: 33.333% !important;
     height: 33.333% !important;
 }
 
-.photo-page.zoomed .slot76 {
+.photo-page.zoomed div:not(.text-slot).slot76 {
     top: 0% !important;
     left: 66.666% !important;
     width: 33.333% !important;
     height: 33.333% !important;
 }
 
-.photo-page.zoomed .slot77 {
+.photo-page.zoomed div:not(.text-slot).slot77 {
     left: 0% !important;
     top: 33.333% !important;
     height: 33.333% !important;
     width: 33.333% !important;
 }
 
-.photo-page.zoomed .slot78 {
+.photo-page.zoomed div:not(.text-slot).slot78 {
     left: 33.333% !important;
     top: 33.333% !important;
     height: 33.333% !important;
     width: 33.333% !important;
 }
 
-.photo-page.zoomed .slot79 {
+.photo-page.zoomed div:not(.text-slot).slot79 {
     left: 66.666% !important;
     top: 33.333% !important;
     height: 33.333% !important;
     width: 33.333% !important;
 }
 
-.photo-page.zoomed .slot80 {
+.photo-page.zoomed div:not(.text-slot).slot80 {
     left: 0% !important;
     top: 66.666% !important;
     height: 33.333% !important;
     width: 33.333% !important;
 }
 
-.photo-page.zoomed .slot81 {
+.photo-page.zoomed div:not(.text-slot).slot81 {
     left: 33.333% !important;
     top: 66.666% !important;
     height: 33.333% !important;
     width: 33.333% !important;
 }
 
-.photo-page.zoomed .slot82 {
+.photo-page.zoomed div:not(.text-slot).slot82 {
     left: 66.666% !important;
     top: 66.666% !important;
     height: 33.333% !important;
     width: 33.333% !important;
 }
 
-.photo-page.zoomed .slot83 {
+.photo-page.zoomed div:not(.text-slot).slot83 {
     left: 20% !important;
     top: 20% !important;
     height: 60% !important;
     width: 60% !important;
 }
 
-.photo-page.zoomed .slot84 {
+.photo-page.zoomed div:not(.text-slot).slot84 {
     left: 20% !important;
     top: 20% !important;
     height: 30% !important;
     width: 30% !important;
 }
 
-.photo-page.zoomed .slot85 {
+.photo-page.zoomed div:not(.text-slot).slot85 {
     left: 50% !important;
     top: 20% !important;
     height: 30% !important;
     width: 30% !important;
 }
 
-.photo-page.zoomed .slot86 {
+.photo-page.zoomed div:not(.text-slot).slot86 {
     left: 20% !important;
     top: 50% !important;
     height: 30% !important;
     width: 30% !important;
 }
 
-.photo-page.zoomed .slot87 {
+.photo-page.zoomed div:not(.text-slot).slot87 {
     left: 50% !important;
     top: 50% !important;
     height: 30% !important;
     width: 30% !important;
 }
 
-.photo-page.zoomed .slot88 {
+.photo-page.zoomed div:not(.text-slot).slot88 {
     left: 16.25% !important;
     top: 33.75% !important;
     height: 33.75% !important;
     width: 33.75% !important;
 }
 
-.photo-page.zoomed .slot89 {
+.photo-page.zoomed div:not(.text-slot).slot89 {
     left: 50% !important;
     top: 33.75% !important;
     height: 33.750% !important;
     width: 33.75% !important;
 }
 
-.photo-page.zoomed .slot90 {
+.photo-page.zoomed div:not(.text-slot).slot90 {
     left: 15.625% !important;
     top: 33.75% !important;
     height: 30% !important;
     width: 22.92% !important;
 }
 
-.photo-page.zoomed .slot91 {
+.photo-page.zoomed div:not(.text-slot).slot91 {
     left: 38.545% !important;
     top: 33.75% !important;
     height: 30% !important;
     width: 22.92% !important;
 }
 
-.photo-page.zoomed .slot92 {
+.photo-page.zoomed div:not(.text-slot).slot92 {
     left: 61.465% !important;
     top: 33.75% !important;
     height: 30% !important;
-    width: 22.92%!important;
+    width: 22.92% !important;
 }
 
-.photo-page.zoomed .slot93 {
+.photo-page.zoomed div:not(.text-slot).slot93 {
     left: 20% !important;
     top: 12.5% !important;
     height: 75% !important;
     width: 60% !important;
 }
 
-.photo-page.zoomed .slot94 {
+.photo-page.zoomed div:not(.text-slot).slot94 {
     left: 22.5% !important;
     top: 12.5% !important;
     height: 37.5% !important;
     width: 55% !important;
 }
 
-.photo-page.zoomed .slot95 {
+.photo-page.zoomed div:not(.text-slot).slot95 {
     left: 22.5% !important;
     top: 49.999% !important;
     height: 37.5% !important;
     width: 55% !important;
 }
 
-.photo-page.zoomed .slot96 {
+.photo-page.zoomed div:not(.text-slot).slot96 {
     left: 16.25% !important;
     top: 12.5% !important;
     height: 75% !important;
     width: 33.75% !important;
 }
 
-.photo-page.zoomed .slot97 {
+.photo-page.zoomed div:not(.text-slot).slot97 {
     left: 50% !important;
     top: 12.5% !important;
     height: 75% !important;
     width: 33.75% !important;
 }
 
-.photo-page.zoomed .slot98 {
+.photo-page.zoomed div:not(.text-slot).slot98 {
     left: 12.5% !important;
     top: 12.5% !important;
     height: 75% !important;
     width: 75% !important;
 }
 
-.photo-page.zoomed .slot99 {
+.photo-page.zoomed div:not(.text-slot).slot99 {
     left: 15% !important;
     top: 33.75% !important;
     height: 32% !important;
     width: 23.75% !important;
 }
 
-.photo-page.zoomed .slot100 {
+.photo-page.zoomed div:not(.text-slot).slot100 {
     left: 38.75% !important;
     top: 33.75% !important;
     height: 32% !important;
     width: 46.25% !important;
 }
 
-.photo-page.zoomed .slot101 {
+.photo-page.zoomed div:not(.text-slot).slot101 {
     left: 15% !important;
     top: 33.75% !important;
     height: 32% !important;
     width: 46.25% !important;
 }
 
-.photo-page.zoomed .slot102 {
+.photo-page.zoomed div:not(.text-slot).slot102 {
     left: 61.25% !important;
     top: 33.75% !important;
     height: 32% !important;
     width: 23.75% !important;
 }
 
-.photo-page.zoomed .slot103 {
+.photo-page.zoomed div:not(.text-slot).slot103 {
     left: 0% !important;
     top: 0% !important;
     height: 50% !important;
     width: 25% !important;
 }
 
-.photo-page.zoomed .slot104 {
+.photo-page.zoomed div:not(.text-slot).slot104 {
     left: 25% !important;
     top: 0% !important;
     height: 50% !important;
     width: 25% !important;
 }
 
-.photo-page.zoomed .slot105 {
+.photo-page.zoomed div:not(.text-slot).slot105 {
     left: 50% !important;
     top: 0% !important;
     height: 50% !important;
     width: 25% !important;
 }
 
-.photo-page.zoomed .slot106 {
+.photo-page.zoomed div:not(.text-slot).slot106 {
     left: 75% !important;
     top: 0% !important;
     height: 50% !important;
     width: 25% !important;
 }
 
-.photo-page.zoomed .slot107 {
+.photo-page.zoomed div:not(.text-slot).slot107 {
     left: 0% !important;
     top: 50% !important;
     height: 50% !important;
     width: 25% !important;
 }
 
-.photo-page.zoomed .slot108 {
+.photo-page.zoomed div:not(.text-slot).slot108 {
     left: 25% !important;
     top: 50% !important;
     height: 50% !important;
     width: 25% !important;
 }
 
-.photo-page.zoomed .slot109 {
+.photo-page.zoomed div:not(.text-slot).slot109 {
     left: 50% !important;
     top: 50% !important;
     height: 50% !important;
     width: 25% !important;
 }
 
-.photo-page.zoomed .slot110 {
+.photo-page.zoomed div:not(.text-slot).slot110 {
     left: 75% !important;
     top: 50% !important;
     height: 50% !important;
     width: 25% !important;
 }
 
-.photo-page.zoomed .slot111 {
+.photo-page.zoomed div:not(.text-slot).slot111 {
     top: 0% !important;
     left: 0% !important;
     width: 50% !important;
     height: 25% !important;
 }
 
-.photo-page.zoomed .slot112 {
+.photo-page.zoomed div:not(.text-slot).slot112 {
     top: 25% !important;
     left: 0% !important;
     width: 50% !important;
     height: 25% !important;
 }
 
-.photo-page.zoomed .slot113 {
+.photo-page.zoomed div:not(.text-slot).slot113 {
     top: 50% !important;
     left: 0% !important;
     width: 50% !important;
     height: 25% !important;
 }
 
-.photo-page.zoomed .slot114 {
+.photo-page.zoomed div:not(.text-slot).slot114 {
     top: 75% !important;
     left: 0% !important;
     width: 50% !important;
     height: 25% !important;
 }
 
-.photo-page.zoomed .slot115 {
+.photo-page.zoomed div:not(.text-slot).slot115 {
     top: 0% !important;
     left: 50% !important;
     width: 50% !important;
     height: 25% !important;
 }
 
-.photo-page.zoomed .slot116 {
+.photo-page.zoomed div:not(.text-slot).slot116 {
     top: 25% !important;
     left: 50% !important;
     width: 50% !important;
     height: 25% !important;
 }
 
-.photo-page.zoomed .slot117 {
+.photo-page.zoomed div:not(.text-slot).slot117 {
     top: 50% !important;
     left: 50% !important;
     width: 50% !important;
     height: 25% !important;
 }
 
-.photo-page.zoomed .slot118 {
+.photo-page.zoomed div:not(.text-slot).slot118 {
     top: 75% !important;
     left: 50% !important;
     width: 50% !important;
     height: 25% !important;
 }
 
-.photo-page.zoomed .slot119 {
+.photo-page.zoomed div:not(.text-slot).slot119 {
     top: 0% !important;
     left: 0% !important;
     width: 33.333% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot120 {
+.photo-page.zoomed div:not(.text-slot).slot120 {
     top: 50% !important;
     left: 0% !important;
     width: 33.333% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot121 {
+.photo-page.zoomed div:not(.text-slot).slot121 {
     top: 0% !important;
     left: 33.333% !important;
     width: 66.666% !important;
     height: 100% !important;
 }
 
-.photo-page.zoomed .slot122 {
+.photo-page.zoomed div:not(.text-slot).slot122 {
     top: 0% !important;
     left: 0% !important;
     width: 21.25% !important;
     height: 100% !important;
 }
 
-.photo-page.zoomed .slot123 {
+.photo-page.zoomed div:not(.text-slot).slot123 {
     top: 0% !important;
     left: 28.75% !important;
     width: 42.5% !important;
     height: 100% !important;
 }
 
-.photo-page.zoomed .slot124 {
+.photo-page.zoomed div:not(.text-slot).slot124 {
     top: 0% !important;
     left: 73.75% !important;
     width: 21.25% !important;
     height: 100% !important;
 }
 
-.photo-page.zoomed .slot125 {
+.photo-page.zoomed div:not(.text-slot).slot125 {
     top: 0% !important;
     left: 0% !important;
     width: 100% !important;
     height: 66.666% !important;
 }
 
-.photo-page.zoomed .slot126 {
+.photo-page.zoomed div:not(.text-slot).slot126 {
     top: 0% !important;
     left: 0% !important;
     width: 25% !important;
     height: 100% !important;
 }
 
-.photo-page.zoomed .slot127 {
+.photo-page.zoomed div:not(.text-slot).slot127 {
     top: 0% !important;
     left: 25% !important;
     width: 25% !important;
     height: 100% !important;
 }
 
-.photo-page.zoomed .slot128 {
+.photo-page.zoomed div:not(.text-slot).slot128 {
     top: 0% !important;
     left: 50% !important;
     width: 25% !important;
     height: 100% !important;
 }
 
-.photo-page.zoomed .slot129 {
+.photo-page.zoomed div:not(.text-slot).slot129 {
     top: 0% !important;
     left: 75% !important;
     width: 25% !important;
     height: 100% !important;
 }
 
-.photo-page.zoomed .slot130 {
+.photo-page.zoomed div:not(.text-slot).slot130 {
     left: 0% !important;
     top: 0% !important;
     height: 25% !important;
     width: 100% !important;
 }
 
-.photo-page.zoomed .slot131 {
+.photo-page.zoomed div:not(.text-slot).slot131 {
     left: 0% !important;
     top: 25% !important;
     height: 25% !important;
     width: 100% !important;
 }
 
-.photo-page.zoomed .slot132 {
+.photo-page.zoomed div:not(.text-slot).slot132 {
     left: 0% !important;
     top: 50% !important;
     height: 25% !important;
     width: 100% !important;
 }
 
-.photo-page.zoomed .slot133 {
+.photo-page.zoomed div:not(.text-slot).slot133 {
     left: 0% !important;
     top: 75% !important;
     height: 25% !important;
     width: 100% !important;
 }
 
-.photo-page.zoomed .slot134 {
+.photo-page.zoomed div:not(.text-slot).slot134 {
     top: 0% !important;
     left: 0% !important;
     width: 66.666% !important;
     height: 33.333% !important;
 }
 
-.photo-page.zoomed .slot135 {
+.photo-page.zoomed div:not(.text-slot).slot135 {
     top: 0% !important;
     left: 66.666% !important;
     height: 66.666% !important;
     width: 33.333% !important;
 }
 
-.photo-page.zoomed .slot136 {
+.photo-page.zoomed div:not(.text-slot).slot136 {
     top: 0% !important;
     left: 0% !important;
-    height: 55% !important;
+    height: 60% !important;
     width: 100% !important;
 }
 
-.photo-page.zoomed .slot137 {
+.photo-page.zoomed div:not(.text-slot).slot137 {
     top: 0% !important;
     left: 0% !important;
     height: 66.666% !important;
     width: 50% !important;
 }
 
-.photo-page.zoomed .slot138 {
+.photo-page.zoomed div:not(.text-slot).slot138 {
     top: 0% !important;
     left: 50% !important;
     height: 66.666% !important;
     width: 50% !important;
 }
 
-.photo-page.zoomed .slot901 {
+.photo-page.zoomed div:not(.text-slot).slot901 {
     left: 0% !important;
     top: 66.666% !important;
     height: 33.333% !important;
     width: 100% !important;
 }
 
-.photo-page.zoomed .slot902 {
+.photo-page.zoomed div:not(.text-slot).slot902 {
     left: 66.667% !important;
     top: 0% !important;
     width: 33.333% !important;
     height: 100% !important;
 }
 
-.photo-page.zoomed .slot903 {
+.photo-page.zoomed div:not(.text-slot).slot903 {
     left: 20% !important;
     top: 65% !important;
     width: 60% !important;
     height: 30% !important;
 }
 
-.photo-page.zoomed .slot904 {
+.photo-page.zoomed div:not(.text-slot).slot904 {
     left: 58% !important;
     top: 68% !important;
     width: 37% !important;
     height: 27% !important;
 }
 
-.photo-page.zoomed .slot139 {
+.photo-page.zoomed div:not(.text-slot).slot139 {
     top: 0% !important;
     left: 0% !important;
     width: 33.333% !important;
     height: 66.666% !important;
 }
 
-.photo-page.zoomed .slot140 {
+.photo-page.zoomed div:not(.text-slot).slot140 {
     top: 0% !important;
     left: 33.333% !important;
     width: 33.333% !important;
     height: 66.666% !important;
 }
 
-.photo-page.zoomed .slot141 {
+.photo-page.zoomed div:not(.text-slot).slot141 {
     top: 0% !important;
     left: 66.666% !important;
     width: 33.333% !important;
     height: 66.666% !important;
 }
 
-.photo-page.zoomed .slot142 {
+.photo-page.zoomed div:not(.text-slot).slot142 {
     top: 0% !important;
     left: 10% !important;
-    width: 21.6667% !important;
+    width: 23.3% !important;
     height: 66.666% !important;
 }
 
-.photo-page.zoomed .slot143 {
+.photo-page.zoomed div:not(.text-slot).slot143 {
     top: 18.333% !important;
     left: 33.333% !important;
     width: 33.333% !important;
     height: 66.666% !important;
 }
 
-.photo-page.zoomed .slot144 {
+.photo-page.zoomed div:not(.text-slot).slot144 {
     top: 30% !important;
     left: 66.666% !important;
     width: 18.6667% !important;
     height: 66.666% !important;
 }
 
-.photo-page.zoomed .slot905 {
+.photo-page.zoomed div:not(.text-slot).slot905 {
     left: 22% !important;
     top: 37.5% !important;
     width: 54% !important;
     height: 25% !important;
 }
 
-.photo-page.zoomed .slot907 {
+.photo-page.zoomed div:not(.text-slot).slot907 {
     left: 27% !important;
     top: 37.5% !important;
     width: 44% !important;
     height: 25% !important;
 }
 
-.photo-page.zoomed .slot145 {
+.photo-page.zoomed div:not(.text-slot).slot145 {
     top: 33.333% !important;
     left: 0% !important;
     width: 33.333% !important;
     height: 66.666% !important;
 }
 
-.photo-page.zoomed .slot146 {
+.photo-page.zoomed div:not(.text-slot).slot146 {
     top: 33.333% !important;
     left: 33.333% !important;
     width: 33.333% !important;
     height: 66.666% !important;
 }
 
-.photo-page.zoomed .slot147 {
+.photo-page.zoomed div:not(.text-slot).slot147 {
     top: 33.333% !important;
     left: 66.666% !important;
     width: 33.333% !important;
     height: 66.666% !important;
 }
 
-.photo-page.zoomed .slot148 {
+.photo-page.zoomed div:not(.text-slot).slot148 {
     left: 0% !important;
     top: 0% !important;
     height: 33.333% !important;
     width: 100% !important;
 }
 
-.photo-page.zoomed .slot149 {
+.photo-page.zoomed div:not(.text-slot).slot149 {
     left: 0% !important;
     top: 63.3334% !important;
     height: 33.333% !important;
     width: 100% !important;
 }
 
-.photo-page.zoomed .slot150 {
+.photo-page.zoomed div:not(.text-slot).slot150 {
     left: 0% !important;
     top: 33.33% !important;
-    height:33.3337% !important;
+    height: 33.3337% !important;
     width: 33.333% !important;
 }
 
-.photo-page.zoomed .slot151 {
+.photo-page.zoomed div:not(.text-slot).slot151 {
     left: 33.333% !important;
     top: 33.3334% !important;
     height: 33.333% !important;
     width: 33.333% !important;
 }
 
-.photo-page.zoomed .slot152 {
+.photo-page.zoomed div:not(.text-slot).slot152 {
     left: 66.666% !important;
     top: 33.3334% !important;
     height: 33.333% !important;
     width: 33.333% !important;
 }
 
-.photo-page.zoomed .slot153 {
+.photo-page.zoomed div:not(.text-slot).slot153 {
     left: 0% !important;
     top: 0% !important;
     height: 66.666% !important;
     width: 33.333% !important;
 }
 
-.photo-page.zoomed .slot154 {
+.photo-page.zoomed div:not(.text-slot).slot154 {
     left: 41.6667% !important;
     top: 0% !important;
     height: 33.333% !important;
     width: 54.333% !important;
 }
 
-.photo-page.zoomed .slot155 {
+.photo-page.zoomed div:not(.text-slot).slot155 {
     left: 41.6667% !important;
     top: 33.333% !important;
     height: 66.666% !important;
     width: 24.5% !important;
 }
 
-.photo-page.zoomed .slot156 {
+.photo-page.zoomed div:not(.text-slot).slot156 {
     left: 0% !important;
     top: 68.334% !important;
     height: 33.333% !important;
     width: 30.6667% !important;
 }
 
-.photo-page.zoomed .slot157 {
+.photo-page.zoomed div:not(.text-slot).slot157 {
     left: 71.167% !important;
     top: 33.333% !important;
     height: 66.666% !important;
     width: 24.5% !important;
 }
 
-.photo-page.zoomed .slot906 {
+.photo-page.zoomed div:not(.text-slot).slot906 {
     left: 71.167% !important;
     top: 33.333% !important;
     height: 66.666% !important;
     width: 24.5% !important;
 }
 
-.photo-page.zoomed .slot908 {
+.photo-page.zoomed div:not(.text-slot).slot908 {
     left: 10% !important;
     top: 0% !important;
     height: 21% !important;
     width: 40% !important;
 }
 
-.photo-page.zoomed .slot158 {
+.photo-page.zoomed div:not(.text-slot).slot158 {
     top: 0% !important;
     left: 0% !important;
     width: 60% !important;
     height: 55% !important;
 }
 
-.photo-page.zoomed .slot159 {
+.photo-page.zoomed div:not(.text-slot).slot159 {
     top: 45% !important;
     left: 50% !important;
     width: 45% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot160 {
+.photo-page.zoomed div:not(.text-slot).slot160 {
     top: 65% !important;
     left: 0% !important;
     width: 40% !important;
     height: 30% !important;
 }
 
-.photo-page.zoomed .slot909 {
+.photo-page.zoomed div:not(.text-slot).slot909 {
     left: 45% !important;
     top: 25% !important;
     height: 50% !important;
     width: 40% !important;
 }
 
-.photo-page.zoomed .slot161 {
+.photo-page.zoomed div:not(.text-slot).slot161 {
     top: 0% !important;
     left: 0% !important;
     width: 100% !important;
     height: 33.333% !important;
 }
 
-.photo-page.zoomed .slot162 {
+.photo-page.zoomed div:not(.text-slot).slot162 {
     top: 33.333% !important;
     left: 20% !important;
     width: 60% !important;
     height: 20% !important;
 }
 
-.photo-page.zoomed .slot163 {
+.photo-page.zoomed div:not(.text-slot).slot163 {
     top: 61.6667% !important;
     left: 0% !important;
     width: 100% !important;
     height: 33.33% !important;
 }
 
-.photo-page.zoomed .slot164 {
+.photo-page.zoomed div:not(.text-slot).slot164 {
     top: 0% !important;
     left: 55% !important;
     height: 30% !important;
     width: 30% !important;
 }
 
-.photo-page.zoomed .slot165 {
+.photo-page.zoomed div:not(.text-slot).slot165 {
     left: 0% !important;
     top: 66.666% !important;
     height: 33.333% !important;
     width: 50% !important;
 }
 
-.photo-page.zoomed .slot166 {
+.photo-page.zoomed div:not(.text-slot).slot166 {
     left: 50% !important;
     top: 66.666% !important;
     height: 33.333% !important;
     width: 50% !important;
 }
 
-.photo-page.zoomed .slot167 {
+.photo-page.zoomed div:not(.text-slot).slot167 {
     top: 33.333% !important;
     left: 66.666% !important;
     width: 33.333% !important;
     height: 66.666% !important;
 }
 
-.photo-page.zoomed .slot168 {
+.photo-page.zoomed div:not(.text-slot).slot168 {
     top: 33.333% !important;
     left: 0% !important;
     width: 50% !important;
     height: 66.666% !important;
 }
 
-.photo-page.zoomed .slot169 {
+.photo-page.zoomed div:not(.text-slot).slot169 {
     top: 33.333% !important;
     left: 50% !important;
     width: 50% !important;
     height: 66.666% !important;
 }
 
-.photo-page.zoomed .slot170 {
+.photo-page.zoomed div:not(.text-slot).slot170 {
     top: 16% !important;
     left: 31% !important;
     width: 40% !important;
     height: 40% !important;
 }
 
-.photo-page.zoomed .slot171 {
+.photo-page.zoomed div:not(.text-slot).slot171 {
     top: 30% !important;
     left: 66.666% !important;
     width: 33.333% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot172 {
+.photo-page.zoomed div:not(.text-slot).slot172 {
     top: 0% !important;
     left: 0% !important;
     width: 33.333% !important;
     height: 20% !important;
 }
 
-.photo-page.zoomed .slot173 {
+.photo-page.zoomed div:not(.text-slot).slot173 {
     top: 30% !important;
     left: 0% !important;
     width: 33.333% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot174 {
+.photo-page.zoomed div:not(.text-slot).slot174 {
     top: 0% !important;
     left: 33.333% !important;
     width: 33.333% !important;
     height: 35% !important;
 }
 
-.photo-page.zoomed .slot175 {
+.photo-page.zoomed div:not(.text-slot).slot175 {
     top: 0% !important;
     left: 59% !important;
     height: 20% !important;
     width: 30% !important;
 }
 
-.photo-page.zoomed .slot176 {
+.photo-page.zoomed div:not(.text-slot).slot176 {
     left: 0% !important;
     top: 66.666% !important;
     height: 33.333% !important;
     width: 25% !important;
 }
 
-.photo-page.zoomed .slot177 {
+.photo-page.zoomed div:not(.text-slot).slot177 {
     left: 28.75% !important;
     top: 66.666% !important;
     height: 33.333% !important;
     width: 25% !important;
 }
 
-.photo-page.zoomed .slot178 {
+.photo-page.zoomed div:not(.text-slot).slot178 {
     left: 50% !important;
     top: 66.666% !important;
     height: 33.333% !important;
     width: 25% !important;
 }
 
-.photo-page.zoomed .slot179 {
+.photo-page.zoomed div:not(.text-slot).slot179 {
     left: 76.25% !important;
     top: 66.666% !important;
     height: 33.333% !important;
     width: 25% !important;
 }
 
-.photo-page.zoomed .slot180 {
+.photo-page.zoomed div:not(.text-slot).slot180 {
     left: 30% !important;
     top: 0% !important;
     height: 32% !important;
     width: 40% !important;
 }
 
-.photo-page.zoomed .slot181 {
+.photo-page.zoomed div:not(.text-slot).slot181 {
     left: 33.333% !important;
     top: 40% !important;
     height: 20% !important;
     width: 33.333% !important;
 }
 
-.photo-page.zoomed .slot182 {
+.photo-page.zoomed div:not(.text-slot).slot182 {
     left: 37% !important;
     top: 37% !important;
     height: 25% !important;
     width: 25% !important;
 }
 
-.photo-page.zoomed .slot183 {
+.photo-page.zoomed div:not(.text-slot).slot183 {
     left: 0% !important;
     top: 33.333% !important;
     height: 66.666% !important;
     width: 100% !important;
 }
 
-.photo-page.zoomed .slot184 {
+.photo-page.zoomed div:not(.text-slot).slot184 {
     top: 0% !important;
     left: 10% !important;
     width: 37.5% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot185 {
+.photo-page.zoomed div:not(.text-slot).slot185 {
     top: 0% !important;
     left: 50% !important;
     width: 37.5% !important;
     height: 50% !important;
 }
 
-.photo-page.zoomed .slot186 {
+.photo-page.zoomed div:not(.text-slot).slot186 {
     top: 43.75% !important;
     left: 10% !important;
     width: 30% !important;
-    height: 51.25% !important;
+    height: 56.25% !important;
 }
 
-.photo-page.zoomed .slot187 {
+.photo-page.zoomed div:not(.text-slot).slot187 {
     top: 43.75% !important;
     left: 60% !important;
     width: 30% !important;
-    height: 51.25% !important;
+    height: 56.25% !important;
 }
 
-.photo-page.zoomed .slot188 {
+.photo-page.zoomed div:not(.text-slot).slot188 {
     left: 0% !important;
     top: 43.75% !important;
     height: 50% !important;
-    width: 45.5% !important;
+    width: 51.5% !important;
 }
 
-.photo-page.zoomed .slot189 {
+.photo-page.zoomed div:not(.text-slot).slot189 {
     left: 47.5% !important;
     top: 43.75% !important;
     height: 50% !important;
-    width: 45.5% !important;
+    width: 52.5% !important;
+}
+
+.photo-page.zoomed .text-slot {
+    box-shadow: none !important;
+}
+
+.photo-page.zoomed .text-slot.slot39 {
+    top: 69.167% !important;
+    height: 25.833% !important;
+}
+
+.photo-page.zoomed .text-slot.slot46 {
+    
+    height: calc(28.333% - 2.5%) !important;
+}
+
+.photo-page.zoomed .text-slot.slot901 {
+    top: 69.167% !important;
+    height: 25.833% !important;
+}
+
+.photo-page.zoomed .text-slot.slot902 {
+    left: 69.167% !important;
+    width: 25.833% !important;
+}
+
+.photo-page.zoomed .text-slot.slot25 {
+  
+
+
+    top: calc(51.25% + 1.25%) !important;
+    left: calc(66.667% + 2.5%) !important;
+    width: 25.84% !important;
+    
+}
+
+.photo-page.zoomed .text-slot.slot36 {
+    left: 69.167% !important;
+    width: 25.833% !important;
+}
+
+.photo-page.zoomed .text-slot.slot80 {
+    height: calc(28.333% - 2.5%) !important;
+    top: calc(66.666% + 2.5%) !important;
+    width: calc(28.333% - 2.5%) !important;
+}
+
+.photo-page.zoomed .text-slot.slot37 {
+    height: calc(28.333% - 2.5%) !important;
+}
+
+.photo-page.zoomed .text-slot.slot151 {
+    top: calc(40.3334% - 2.5%) !important;
+    height: calc(18.6667% + 2.5%) !important;
+}
+
+.photo-page.zoomed .text-slot.slot34 {
+    width: calc(28.333% - 2.5%) !important;
+}
+
+.photo-page.zoomed .text-slot.slot160 {
+    top: 60% !important;
+    height: 35% !important;
+}
+
+.photo-page.zoomed .text-slot.slot74 {
+    width: calc(28.333% - 2.5%) !important;
+    height: calc(28.333% - 2.5%) !important;
+}
+
+.photo-page.zoomed .text-slot.slot129 {
+    left: calc(74.375% + 2.5%) !important;
+    width: calc(20.625% - 2.5%) !important;
+}
+
+.photo-page.zoomed .text-slot.slot50 {
+    top: calc(66.666% + 2.5%) !important;
+    height: calc(28.333% - 2.5%) !important;
+}
+
+.photo-page.zoomed .text-slot.slot89,
+.photo-page.zoomed .text-slot.slot88 {
+    height: 33.75% !important;
+}
+
+
+
+.photo-page.zoomed .text-slot.slot184 {
+    height: 50% !important;
+    top: 0 !important;
+}
+.photo-page.zoomed .text-slot.slot185 {
+    height: 50% !important;
+    top: 0 !important;
 }

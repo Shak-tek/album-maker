@@ -369,31 +369,130 @@ export function TextEditorModal({
                 </Box>
 
                 <Box direction="row" gap="xsmall" align="center" wrap>
-                    <Tip content="Bold">
+                    <Tip
+                        plain
+                        content={
+                            <Box
+                            pad="xsmall"
+                            background="black"
+                            round="xsmall"
+                            elevation="xsmall"
+                            size=""
+                            style={{ color: "white" }}
+                            >
+                            Bold
+                            </Box>
+                        }
+                        >
                         <Button onClick={() => handleExec("bold")} icon={<Bold />} />
                     </Tip>
-                    <Tip content="Italic">
+                    <Tip
+                        plain
+                        content={
+                            <Box
+                            pad="xsmall"
+                            background="black"
+                            round="xsmall"
+                            elevation="xsmall"
+                            size=""
+                            style={{ color: "white" }}
+                            >
+                            Italic
+                            </Box>
+                        }
+                        >
                         <Button onClick={() => handleExec("italic")} icon={<Italic />} />
                     </Tip>
-                    <Tip content="Underline">
+                    <Tip
+                        plain
+                        content={
+                            <Box
+                            pad="xsmall"
+                            background="black"
+                            round="xsmall"
+                            elevation="xsmall"
+                            size=""
+                            style={{ color: "white" }}
+                            >
+                            Underline
+                            </Box>
+                        }
+                        >
                         <Button onClick={() => handleExec("underline")} icon={<Underline />} />
                     </Tip>
 
                     <Box width="1px" height="24px" background="light-4" margin={{ horizontal: "small" }} />
 
-                    <Tip content="Align left">
+                    <Tip
+                        plain
+                        content={
+                            <Box
+                            pad="xsmall"
+                            background="black"
+                            round="xsmall"
+                            elevation="xsmall"
+                            size=""
+                            style={{ color: "white" }}
+                            >
+                            Align left
+                            </Box>
+                        }
+                        >
                         <Button onClick={() => handleExec("justifyLeft")} icon={<TextAlignLeft />} />
                     </Tip>
-                    <Tip content="Align center">
+                   <Tip
+                        plain
+                        content={
+                            <Box
+                            pad="xsmall"
+                            background="black"
+                            round="xsmall"
+                            elevation="xsmall"
+                            size=""
+                            style={{ color: "white" }}
+                            >
+                            Align center
+                            </Box>
+                        }
+                        >
                         <Button onClick={() => handleExec("justifyCenter")} icon={<TextAlignCenter />} />
                     </Tip>
-                    <Tip content="Align right">
+                    
+                        <Tip
+                        plain
+                        content={
+                            <Box
+                            pad="xsmall"
+                            background="black"
+                            round="xsmall"
+                            elevation="xsmall"
+                            size=""
+                            style={{ color: "white" }}
+                            >
+                            Align right
+                            </Box>
+                        }
+                        >
                         <Button onClick={() => handleExec("justifyRight")} icon={<TextAlignRight />} />
                     </Tip>
 
                     <Box width="1px" height="24px" background="light-4" margin={{ horizontal: "small" }} />
 
-                    <Tip content="Clear formatting">
+                    <Tip
+                        plain
+                        content={
+                            <Box
+                            pad="xsmall"
+                            background="black"
+                            round="xsmall"
+                            elevation="xsmall"
+                            size=""
+                            style={{ color: "white" }}
+                            >
+                            Clear formatting
+                            </Box>
+                        }
+                        >
                         <Button
                             onClick={() => {
                                 handleExec("removeFormat");
@@ -502,7 +601,7 @@ export function TextEditorModal({
                 </Box>
 
                 <Box direction="row" justify="end">
-                    <Button label="Close" onClick={onClose} />
+                    <Button className="btn btn-secondary xsmall"  label="Close" onClick={onClose} />
                 </Box>
             </Box>
         </Layer>
