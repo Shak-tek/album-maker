@@ -3619,42 +3619,42 @@
     top: 0% !important;
     left: 0% !important;
     width: 50% !important;
-    height: 25% !important;
+    height: 25.05% !important;
 }
 
 .photo-page.zoomed div:not(.text-slot).slot112 {
     top: 25% !important;
     left: 0% !important;
     width: 50% !important;
-    height: 25% !important;
+    height: 25.05% !important;
 }
 
 .photo-page.zoomed div:not(.text-slot).slot113 {
     top: 50% !important;
     left: 0% !important;
     width: 50% !important;
-    height: 25% !important;
+    height: 25.05% !important;
 }
 
 .photo-page.zoomed div:not(.text-slot).slot114 {
     top: 75% !important;
     left: 0% !important;
     width: 50% !important;
-    height: 25% !important;
+    height: 25.05% !important;
 }
 
 .photo-page.zoomed div:not(.text-slot).slot115 {
     top: 0% !important;
     left: 50% !important;
     width: 50% !important;
-    height: 25% !important;
+    height: 25.05% !important;
 }
 
 .photo-page.zoomed div:not(.text-slot).slot116 {
     top: 25% !important;
     left: 50% !important;
     width: 50% !important;
-    height: 25% !important;
+    height: 25.05% !important;
 }
 
 .photo-page.zoomed div:not(.text-slot).slot117 {
@@ -4073,7 +4073,7 @@
 .photo-page.zoomed div:not(.text-slot).slot167 {
     top: 33.333% !important;
     left: 66.666% !important;
-    width: 33.333% !important;
+    width: 33.39% !important;
     height: 66.666% !important;
 }
 
@@ -4315,9 +4315,8 @@
 }
 
 
-
 .photo-page.zoomed .text-slot.slot184 {
-    height: 50% !important;
+    height: 50% !important; 
     top: 0 !important;
 }
 .photo-page.zoomed .text-slot.slot185 {
