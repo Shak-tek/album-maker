@@ -632,7 +632,7 @@
     overflow: hidden;
     /* clips slot content */
     touch-action: pan-y;
-    /*/
+   /*
     transition: transform 0.3s ease;
     border-radius: inherit;
 
@@ -1299,7 +1299,7 @@
 }
 
 /* your exact slot positions from the snippet */
-./*slot1 {
+/*.slot1 {
     top: 5% !important;
     left: 5% !important;
     width: 43.75% !important;
