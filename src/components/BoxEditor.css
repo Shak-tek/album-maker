@@ -752,9 +752,18 @@
         background: rgba(255, 255, 255, .8) !important;
         border: 0 !important;
         border-radius: 0 !important;
-        box-shadow: none !important;        
+        box-shadow: none !important;
         padding: 10px !important;
+
+
+        >div {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
     }
+
+
 }
 
 .text-slot .text-editor {
